@@ -25,6 +25,8 @@ expo-env.d.ts
 npm-debug.*
 yarn-debug.*
 yarn-error.*
+gcm-diagnose.log
+output/
 
 # macOS
 .DS_Store
