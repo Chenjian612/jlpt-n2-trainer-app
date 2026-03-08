@@ -12,6 +12,7 @@ import { useDashboardViewModel } from '../hooks/useDashboardViewModel';
 
 type DashboardScreenProps = {
   onOpenMode: (mode: TrainingMode) => void;
+  onStartMode: (mode: TrainingMode) => void;
 };
 
 const createEntranceStyle = (value: Animated.Value) => ({
@@ -26,12 +27,17 @@ const createEntranceStyle = (value: Animated.Value) => ({
   ],
 });
 
-export function DashboardScreen({ onOpenMode }: DashboardScreenProps) {
+export function DashboardScreen({
+  onOpenMode,
+  onStartMode,
+}: DashboardScreenProps) {
   const {
     metrics,
     recentWeek,
     todayPlan,
-    todayCompleted,
+    todayCompletedModeIds,
+    todaySessionCounts,
+    reviewBacklogCounts,
     trainingModes,
     weeklyGoal,
     dailyTarget,
@@ -39,7 +45,6 @@ export function DashboardScreen({ onOpenMode }: DashboardScreenProps) {
     dailyProgress,
     weeklyProgress,
     todayKey,
-    toggleMode,
     clearToday,
     setWeeklyGoal,
   } = useDashboardViewModel();
@@ -110,16 +115,18 @@ export function DashboardScreen({ onOpenMode }: DashboardScreenProps) {
         <Animated.View style={[styles.section, createEntranceStyle(modesEntrance)]}>
           <Text style={styles.sectionTitle}>八大训练模式</Text>
           <Text style={styles.sectionBody}>
-            现在先把架构拆成 dashboard 和 mode detail 两层，后面继续往每个模式里接真实题流。
+            现在文法刷题、词汇刷题和错题回收已经接上真实训练流；其余模式继续用引导式 session 承担节奏管理。
           </Text>
 
           {trainingModes.map((mode) => (
             <TrainingModeCard
               key={mode.id}
               mode={mode}
-              completed={todayCompleted.includes(mode.id)}
+              completed={todayCompletedModeIds.includes(mode.id)}
+              sessionCount={todaySessionCounts[mode.id] ?? 0}
+              backlogCount={reviewBacklogCounts[mode.id]}
               onOpenMode={onOpenMode}
-              onToggleMode={toggleMode}
+              onStartMode={onStartMode}
             />
           ))}
         </Animated.View>

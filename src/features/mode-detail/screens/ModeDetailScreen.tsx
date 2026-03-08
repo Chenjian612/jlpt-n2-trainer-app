@@ -3,19 +3,29 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useProgressStore } from '../../../app/providers/ProgressProvider';
 import { AppBackground } from '../../../components/common/AppBackground';
 import { getTrainingModeById } from '../../../data/seed/trainingModes';
-import type { TrainingModeId } from '../../../domain/models/training';
+import {
+  isReviewModeId,
+  isStudyModeId,
+  type TrainingModeId,
+} from '../../../domain/models/training';
+import {
+  getModeSessionCountForDay,
+  getWrongReviewBacklogCount,
+} from '../../../domain/services/progressService';
 import { colors, fonts, radii } from '../../../theme/tokens';
 
 type ModeDetailScreenProps = {
   modeId: TrainingModeId;
   onBack: () => void;
+  onStartSession: (modeId: TrainingModeId) => void;
 };
 
 export function ModeDetailScreen({
   modeId,
   onBack,
+  onStartSession,
 }: ModeDetailScreenProps) {
-  const { state, todayKey, toggleMode } = useProgressStore();
+  const { state, todayKey, removeLatestSession } = useProgressStore();
   const mode = getTrainingModeById(modeId);
 
   if (!mode) {
@@ -31,7 +41,13 @@ export function ModeDetailScreen({
     );
   }
 
-  const completed = (state.completedByDay[todayKey] ?? []).includes(mode.id);
+  const sessionCount = getModeSessionCountForDay(state, todayKey, mode.id);
+  const completed = sessionCount > 0;
+  const studyMode = isStudyModeId(mode.id);
+  const reviewBacklog = isReviewModeId(mode.id)
+    ? getWrongReviewBacklogCount(state, mode.id)
+    : 0;
+  const canStart = !isReviewModeId(mode.id) || reviewBacklog > 0;
 
   return (
     <AppBackground>
@@ -62,11 +78,22 @@ export function ModeDetailScreen({
               <Text style={styles.heroMetaLabel}>推荐时长</Text>
             </View>
             <View style={styles.heroMetaCard}>
-              <Text style={styles.heroMetaValue}>{completed ? '已完成' : '待开始'}</Text>
+              <Text style={styles.heroMetaValue}>
+                {completed ? `已记录 ${sessionCount} 轮` : '待开始'}
+              </Text>
               <Text style={styles.heroMetaLabel}>今日状态</Text>
             </View>
           </View>
         </View>
+
+        {isReviewModeId(mode.id) ? (
+          <View style={styles.sectionCard}>
+            <Text style={styles.sectionTitle}>错题队列</Text>
+            <Text style={styles.targetText}>
+              当前待回收 {reviewBacklog} 题。只有做错对应的真实刷题后，这里才会出现可处理的回收内容。
+            </Text>
+          </View>
+        ) : null}
 
         <View style={styles.sectionCard}>
           <Text style={styles.sectionTitle}>今日做法</Text>
@@ -100,21 +127,43 @@ export function ModeDetailScreen({
 
         <View style={styles.footerActions}>
           <Pressable
-            onPress={() => toggleMode(mode.id)}
+            onPress={() => onStartSession(mode.id)}
+            disabled={!canStart}
             style={[
               styles.primaryButton,
               completed ? styles.primaryButtonDone : { backgroundColor: mode.accent },
+              !canStart && styles.primaryButtonDisabled,
             ]}
           >
             <Text
               style={[
                 styles.primaryButtonText,
                 completed && styles.primaryButtonTextDone,
+                !canStart && styles.primaryButtonTextDisabled,
               ]}
             >
-              {completed ? '今天已完成，点按撤销' : '完成训练后点这里打卡'}
+              {isReviewModeId(mode.id)
+                ? reviewBacklog > 0
+                  ? '开始这一轮错题回收'
+                  : '暂无待回收错题'
+                : studyMode
+                  ? completed
+                    ? '再过一轮记忆包'
+                    : '开始今天的记忆包'
+                : completed
+                  ? '再练一轮并自动记录'
+                  : '开始这一轮训练'}
             </Text>
           </Pressable>
+
+          {completed ? (
+            <Pressable
+              onPress={() => removeLatestSession(mode.id)}
+              style={styles.secondaryButton}
+            >
+              <Text style={styles.secondaryButtonText}>撤销最近一次记录</Text>
+            </Pressable>
+          ) : null}
 
           <Pressable onPress={onBack} style={styles.secondaryButton}>
             <Text style={styles.secondaryButtonText}>回到首页继续安排</Text>
@@ -311,6 +360,9 @@ const styles = StyleSheet.create({
   primaryButtonDone: {
     backgroundColor: colors.tealSoft,
   },
+  primaryButtonDisabled: {
+    backgroundColor: colors.barIdle,
+  },
   primaryButtonText: {
     color: '#FFFFFF',
     fontSize: 15,
@@ -319,6 +371,9 @@ const styles = StyleSheet.create({
   },
   primaryButtonTextDone: {
     color: '#166534',
+  },
+  primaryButtonTextDisabled: {
+    color: '#475569',
   },
   secondaryButton: {
     borderRadius: radii.sm,

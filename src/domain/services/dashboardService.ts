@@ -4,7 +4,12 @@ import type {
   RecentDay,
 } from '../models/progress';
 import type { TrainingMode, TrainingModeId } from '../models/training';
-import { DEFAULT_WEEKLY_GOAL, getDayKey } from './progressService';
+import {
+  DEFAULT_WEEKLY_GOAL,
+  getCompletedModeIdsForDay,
+  getDayKey,
+  getSessionsForDay,
+} from './progressService';
 
 export const DAILY_TARGET = 3;
 export const WEEKLY_GOAL_OPTIONS = [10, DEFAULT_WEEKLY_GOAL, 18] as const;
@@ -42,8 +47,8 @@ export const getTodayPlan = (
     .slice(0, DAILY_TARGET);
 
 const getActiveDayKeys = (state: ProgressState): string[] =>
-  Object.keys(state.completedByDay)
-    .filter((dayKey) => (state.completedByDay[dayKey]?.length ?? 0) > 0)
+  Object.keys(state.sessionsByDay)
+    .filter((dayKey) => getSessionsForDay(state, dayKey).length > 0)
     .sort();
 
 const getBestStreak = (state: ProgressState): number => {
@@ -97,15 +102,15 @@ const getWeeklySessions = (state: ProgressState, todayKey: string): number => {
 
   for (let offset = 0; offset < 7; offset += 1) {
     const dayKey = getDayKey(addDays(today, -offset));
-    total += state.completedByDay[dayKey]?.length ?? 0;
+    total += getSessionsForDay(state, dayKey).length;
   }
 
   return total;
 };
 
 const getTotalSessions = (state: ProgressState): number =>
-  Object.values(state.completedByDay).reduce(
-    (sum, ids) => sum + (ids?.length ?? 0),
+  Object.values(state.sessionsByDay).reduce(
+    (sum, sessions) => sum + (sessions?.length ?? 0),
     0,
   );
 
@@ -113,7 +118,7 @@ export const getDashboardMetrics = (
   state: ProgressState,
   todayKey: string,
 ): DashboardMetrics => ({
-  todayCompletedCount: state.completedByDay[todayKey]?.length ?? 0,
+  todayCompletedCount: getCompletedModeIdsForDay(state, todayKey).length,
   weeklySessions: getWeeklySessions(state, todayKey),
   totalSessions: getTotalSessions(state),
   currentStreak: getCurrentStreak(state, todayKey),
@@ -134,7 +139,7 @@ export const buildRecentWeek = (
     return {
       dayKey,
       label: labels[date.getDay()],
-      count: state.completedByDay[dayKey]?.length ?? 0,
+      count: getSessionsForDay(state, dayKey).length,
     };
   });
 };

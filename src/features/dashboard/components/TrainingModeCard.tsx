@@ -1,21 +1,56 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import type { TrainingMode } from '../../../domain/models/training';
+import {
+  isReviewModeId,
+  isStudyModeId,
+  type TrainingMode,
+} from '../../../domain/models/training';
 import { colors, fonts, radii } from '../../../theme/tokens';
 
 type TrainingModeCardProps = {
   mode: TrainingMode;
   completed: boolean;
+  sessionCount: number;
+  backlogCount?: number;
   onOpenMode: (mode: TrainingMode) => void;
-  onToggleMode: (modeId: TrainingMode['id']) => void;
+  onStartMode: (mode: TrainingMode) => void;
 };
 
 export function TrainingModeCard({
   mode,
   completed,
+  sessionCount,
+  backlogCount = 0,
   onOpenMode,
-  onToggleMode,
+  onStartMode,
 }: TrainingModeCardProps) {
+  const reviewMode = isReviewModeId(mode.id);
+  const studyMode = isStudyModeId(mode.id);
+  const statusText = reviewMode
+    ? backlogCount > 0
+      ? `待回收 ${backlogCount} 题${completed ? ` · 今日 ${sessionCount} 轮` : ''}`
+      : completed
+        ? `暂无待回收 · 今日 ${sessionCount} 轮`
+        : '暂无待回收错题'
+    : studyMode
+      ? completed
+        ? `今日已完成 ${sessionCount} 轮记忆包`
+        : '今天还没开始这一轮记忆包'
+    : completed
+      ? `今日已记录 ${sessionCount} 轮`
+      : '今天还没有训练记录';
+  const primaryLabel = reviewMode
+    ? backlogCount > 0
+      ? '开始回收'
+      : '查看模式'
+    : studyMode
+      ? completed
+        ? '再过一轮'
+        : '开始记忆包'
+    : completed
+      ? '再练一轮'
+      : '开始训练';
+
   return (
     <View style={styles.card}>
       <View style={[styles.stripe, { backgroundColor: mode.accent }]} />
@@ -37,6 +72,21 @@ export function TrainingModeCard({
         <Text style={styles.meta}>
           {mode.durationLabel} · {mode.focus}
         </Text>
+        <View
+          style={[
+            styles.statusPill,
+            { backgroundColor: completed ? mode.surface : colors.slateSoft },
+          ]}
+        >
+          <Text
+            style={[
+              styles.statusText,
+              { color: completed ? mode.accent : colors.inkMuted },
+            ]}
+          >
+            {statusText}
+          </Text>
+        </View>
 
         <View style={styles.actions}>
           <Pressable
@@ -49,21 +99,21 @@ export function TrainingModeCard({
           </Pressable>
 
           <Pressable
-            onPress={() => onToggleMode(mode.id)}
+            onPress={() =>
+              reviewMode && backlogCount === 0 ? onOpenMode(mode) : onStartMode(mode)
+            }
             style={[
               styles.primaryButton,
-              completed
-                ? styles.completedButton
-                : { backgroundColor: mode.accent },
+              completed ? styles.repeatButton : { backgroundColor: mode.accent },
             ]}
           >
             <Text
               style={[
                 styles.primaryText,
-                completed && styles.completedButtonText,
+                completed && styles.repeatButtonText,
               ]}
             >
-              {completed ? '已完成，点按撤销' : '标记为今日已练'}
+              {primaryLabel}
             </Text>
           </Pressable>
         </View>
@@ -130,6 +180,17 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontFamily: fonts.body,
   },
+  statusPill: {
+    alignSelf: 'flex-start',
+    borderRadius: radii.pill,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+  },
+  statusText: {
+    fontSize: 12,
+    fontWeight: '800',
+    fontFamily: fonts.body,
+  },
   actions: {
     flexDirection: 'row',
     gap: 10,
@@ -152,7 +213,7 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     alignItems: 'center',
   },
-  completedButton: {
+  repeatButton: {
     backgroundColor: colors.tealSoft,
   },
   primaryText: {
@@ -161,7 +222,7 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     fontFamily: fonts.body,
   },
-  completedButtonText: {
+  repeatButtonText: {
     color: '#166534',
   },
 });

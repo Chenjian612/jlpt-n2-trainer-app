@@ -1,10 +1,19 @@
-import type { TrainingModeId } from './training';
+import type { TrainingModeId, TrainingSessionKind } from './training';
+import type { WrongAnswerItem } from './trainingContent';
 
-export type CompletedByDay = Partial<Record<string, TrainingModeId[]>>;
+export type TrainingSessionRecord = {
+  id: string;
+  modeId: TrainingModeId;
+  completedAt: string;
+  kind: TrainingSessionKind;
+};
+
+export type SessionsByDay = Partial<Record<string, TrainingSessionRecord[]>>;
 
 export type ProgressState = {
   weeklyGoal: number;
-  completedByDay: CompletedByDay;
+  sessionsByDay: SessionsByDay;
+  wrongAnswers: WrongAnswerItem[];
 };
 
 export type DashboardMetrics = {

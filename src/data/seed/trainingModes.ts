@@ -3,6 +3,7 @@ import type { TrainingMode, TrainingModeId } from '../../domain/models/training'
 export const TRAINING_MODES: TrainingMode[] = [
   {
     id: 'grammar_drill',
+    sessionKind: 'drill',
     title: '文法闯关',
     shortTitle: '文法',
     subtitle: 'Grammar Drill',
@@ -25,6 +26,7 @@ export const TRAINING_MODES: TrainingMode[] = [
   },
   {
     id: 'grammar_study',
+    sessionKind: 'study',
     title: '文法记忆包',
     shortTitle: '记忆',
     subtitle: 'Grammar Study',
@@ -47,6 +49,7 @@ export const TRAINING_MODES: TrainingMode[] = [
   },
   {
     id: 'vocab_drill',
+    sessionKind: 'drill',
     title: '词汇刷题',
     shortTitle: '词汇',
     subtitle: 'Vocab Drill',
@@ -69,6 +72,7 @@ export const TRAINING_MODES: TrainingMode[] = [
   },
   {
     id: 'vocab_study',
+    sessionKind: 'study',
     title: '词汇记忆包',
     shortTitle: '背词',
     subtitle: 'Vocab Study',
@@ -91,6 +95,7 @@ export const TRAINING_MODES: TrainingMode[] = [
   },
   {
     id: 'reading_drill',
+    sessionKind: 'drill',
     title: '读解实战',
     shortTitle: '读解',
     subtitle: 'Reading Drill',
@@ -113,6 +118,7 @@ export const TRAINING_MODES: TrainingMode[] = [
   },
   {
     id: 'listening_analyze',
+    sessionKind: 'drill',
     title: '听力陷阱分析',
     shortTitle: '听力',
     subtitle: 'Listening Analyze',
@@ -135,6 +141,7 @@ export const TRAINING_MODES: TrainingMode[] = [
   },
   {
     id: 'review_wrong',
+    sessionKind: 'review',
     title: '文法错题回收',
     shortTitle: '错题',
     subtitle: 'Grammar Review',
@@ -157,6 +164,7 @@ export const TRAINING_MODES: TrainingMode[] = [
   },
   {
     id: 'vocab_review_wrong',
+    sessionKind: 'review',
     title: '词汇错题回收',
     shortTitle: '回收',
     subtitle: 'Vocab Review',

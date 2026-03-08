@@ -10,20 +10,42 @@ import {
 
 import { progressRepository } from '../../data/repositories/progressRepository';
 import type { ProgressState } from '../../domain/models/progress';
-import type { TrainingModeId } from '../../domain/models/training';
+import type {
+  WrongAnswerDraft,
+  WrongReviewDecision,
+} from '../../domain/models/trainingContent';
+import type {
+  DrillModeId,
+  ReviewModeId,
+  TrainingModeId,
+  TrainingSessionKind,
+} from '../../domain/models/training';
 import {
   clampWeeklyGoal,
   clearDay,
+  createTrainingSession,
   createDefaultProgressState,
   getDayKey,
-  toggleModeCompletion,
+  recordDrillSessionResult,
+  recordTrainingSession,
+  recordWrongReviewSession,
+  removeLatestSessionForMode,
 } from '../../domain/services/progressService';
 
 type ProgressContextValue = {
   isHydrated: boolean;
   state: ProgressState;
   todayKey: string;
-  toggleMode: (modeId: TrainingModeId) => void;
+  recordSession: (modeId: TrainingModeId, kind: TrainingSessionKind) => void;
+  recordDrillSession: (
+    modeId: DrillModeId,
+    wrongAnswers: WrongAnswerDraft[],
+  ) => void;
+  completeWrongReviewSession: (
+    modeId: ReviewModeId,
+    decisions: WrongReviewDecision[],
+  ) => void;
+  removeLatestSession: (modeId: TrainingModeId) => void;
   clearToday: () => void;
   setWeeklyGoal: (goal: number) => void;
 };
@@ -78,8 +100,35 @@ export function ProgressProvider({ children }: ProgressProviderProps) {
       isHydrated,
       state,
       todayKey,
-      toggleMode: (modeId) => {
-        setState((current) => toggleModeCompletion(current, todayKey, modeId));
+      recordSession: (modeId, kind) => {
+        setState((current) =>
+          recordTrainingSession(
+            current,
+            todayKey,
+            createTrainingSession(todayKey, modeId, kind),
+          ),
+        );
+      },
+      recordDrillSession: (modeId, wrongAnswers) => {
+        setState((current) =>
+          recordDrillSessionResult(
+            current,
+            todayKey,
+            modeId,
+            'drill',
+            wrongAnswers,
+          ),
+        );
+      },
+      completeWrongReviewSession: (modeId, decisions) => {
+        setState((current) =>
+          recordWrongReviewSession(current, todayKey, modeId, decisions),
+        );
+      },
+      removeLatestSession: (modeId) => {
+        setState((current) =>
+          removeLatestSessionForMode(current, todayKey, modeId),
+        );
       },
       clearToday: () => {
         setState((current) => clearDay(current, todayKey));

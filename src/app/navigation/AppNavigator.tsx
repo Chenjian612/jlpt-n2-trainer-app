@@ -1,14 +1,29 @@
 import { startTransition, useState } from 'react';
 
 import { LoadingScreen } from '../../components/common/LoadingScreen';
+import { DrillSessionScreen } from '../../features/drill-session/screens/DrillSessionScreen';
 import { DashboardScreen } from '../../features/dashboard/screens/DashboardScreen';
 import { ModeDetailScreen } from '../../features/mode-detail/screens/ModeDetailScreen';
-import type { TrainingMode, TrainingModeId } from '../../domain/models/training';
+import { StudyPackScreen } from '../../features/study-pack/screens/StudyPackScreen';
+import { TrainingSessionScreen } from '../../features/training-session/screens/TrainingSessionScreen';
+import { WrongReviewScreen } from '../../features/wrong-review/screens/WrongReviewScreen';
+import {
+  isDrillModeId,
+  isReviewModeId,
+  isStudyModeId,
+  type TrainingMode,
+  type TrainingModeId,
+} from '../../domain/models/training';
 import { useProgressStore } from '../providers/ProgressProvider';
 
 type Route =
   | { name: 'dashboard' }
-  | { name: 'mode-detail'; modeId: TrainingModeId };
+  | { name: 'mode-detail'; modeId: TrainingModeId }
+  | {
+      name: 'training-session';
+      modeId: TrainingModeId;
+      returnTo: 'dashboard' | 'mode-detail';
+    };
 
 export function AppNavigator() {
   const { isHydrated } = useProgressStore();
@@ -24,15 +39,98 @@ export function AppNavigator() {
     });
   };
 
+  const openModeDetail = (modeId: TrainingModeId) => {
+    startTransition(() => {
+      setRoute({ name: 'mode-detail', modeId });
+    });
+  };
+
+  const startModeSession = (
+    modeId: TrainingModeId,
+    returnTo: 'dashboard' | 'mode-detail',
+  ) => {
+    startTransition(() => {
+      setRoute({ name: 'training-session', modeId, returnTo });
+    });
+  };
+
   const goBack = () => {
     startTransition(() => {
       setRoute({ name: 'dashboard' });
     });
   };
 
+  const leaveSession = (
+    modeId: TrainingModeId,
+    returnTo: 'dashboard' | 'mode-detail',
+  ) => {
+    startTransition(() => {
+      setRoute(
+        returnTo === 'mode-detail'
+          ? { name: 'mode-detail', modeId }
+          : { name: 'dashboard' },
+      );
+    });
+  };
+
   if (route.name === 'mode-detail') {
-    return <ModeDetailScreen modeId={route.modeId} onBack={goBack} />;
+    return (
+      <ModeDetailScreen
+        modeId={route.modeId}
+        onBack={goBack}
+        onStartSession={(modeId) => startModeSession(modeId, 'mode-detail')}
+      />
+    );
   }
 
-  return <DashboardScreen onOpenMode={openMode} />;
+  if (route.name === 'training-session') {
+    if (isDrillModeId(route.modeId)) {
+      return (
+        <DrillSessionScreen
+          modeId={route.modeId}
+          onExit={() => leaveSession(route.modeId, route.returnTo)}
+          onBackToDetail={() => openModeDetail(route.modeId)}
+          onBackToDashboard={goBack}
+        />
+      );
+    }
+
+    if (isReviewModeId(route.modeId)) {
+      return (
+        <WrongReviewScreen
+          modeId={route.modeId}
+          onExit={() => leaveSession(route.modeId, route.returnTo)}
+          onBackToDetail={() => openModeDetail(route.modeId)}
+          onBackToDashboard={goBack}
+        />
+      );
+    }
+
+    if (isStudyModeId(route.modeId)) {
+      return (
+        <StudyPackScreen
+          modeId={route.modeId}
+          onExit={() => leaveSession(route.modeId, route.returnTo)}
+          onBackToDetail={() => openModeDetail(route.modeId)}
+          onBackToDashboard={goBack}
+        />
+      );
+    }
+
+    return (
+      <TrainingSessionScreen
+        modeId={route.modeId}
+        onExit={() => leaveSession(route.modeId, route.returnTo)}
+        onBackToDetail={() => openModeDetail(route.modeId)}
+        onBackToDashboard={goBack}
+      />
+    );
+  }
+
+  return (
+    <DashboardScreen
+      onOpenMode={openMode}
+      onStartMode={(mode) => startModeSession(mode.id, 'dashboard')}
+    />
+  );
 }
