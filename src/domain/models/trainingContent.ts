@@ -1,4 +1,9 @@
-import type { DrillModeId, StudyModeId } from './training';
+import type {
+  DrillModeId,
+  ListeningModeId,
+  ReadingModeId,
+  StudyModeId,
+} from './training';
 
 export type DrillQuestion = {
   id: string;
@@ -60,4 +65,61 @@ export type StudyPack = {
   theme: string;
   source: string;
   items: StudyPackItem[];
+};
+
+export type ReadingQuestion = {
+  id: string;
+  prompt: string;
+  choices: string[];
+  answer: number;
+  explanation: string;
+  choiceInsights: string[];
+  evidence: string;
+  reviewNote: string;
+  tags: string[];
+};
+
+export type ReadingPassage = {
+  id: string;
+  modeId: ReadingModeId;
+  title: string;
+  source: string;
+  lead: string;
+  guidance: string;
+  paragraphs: string[];
+  questions: ReadingQuestion[];
+};
+
+export type ListeningDialogueLine = {
+  speaker: string;
+  text: string;
+};
+
+export type ListeningQuestion = {
+  id: string;
+  prompt: string;
+  choices: string[];
+  answer: number;
+  basisLine: string;
+  explanation: string;
+  choiceInsights: string[];
+  keySignal: string;
+  trapPoint: string;
+  reviewNote: string;
+  tags: string[];
+};
+
+export type ListeningCase = {
+  id: string;
+  modeId: ListeningModeId;
+  title: string;
+  source: string;
+  audioAsset: number;
+  audioDurationLabel: string;
+  scene: string;
+  task: string;
+  note: string;
+  listenChecklist: string[];
+  dialogue: ListeningDialogueLine[];
+  questions: ListeningQuestion[];
 };

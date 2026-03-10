@@ -115,7 +115,7 @@ export function DashboardScreen({
         <Animated.View style={[styles.section, createEntranceStyle(modesEntrance)]}>
           <Text style={styles.sectionTitle}>八大训练模式</Text>
           <Text style={styles.sectionBody}>
-            现在文法刷题、词汇刷题和错题回收已经接上真实训练流；其余模式继续用引导式 session 承担节奏管理。
+            现在文法刷题、词汇刷题、读解实战、基于官方示例音频的听力分析和错题回收都已经接上真实训练流；记忆包模式继续承担稳定推进和回忆巩固。
           </Text>
 
           {trainingModes.map((mode) => (

@@ -3,12 +3,16 @@ import { startTransition, useState } from 'react';
 import { LoadingScreen } from '../../components/common/LoadingScreen';
 import { DrillSessionScreen } from '../../features/drill-session/screens/DrillSessionScreen';
 import { DashboardScreen } from '../../features/dashboard/screens/DashboardScreen';
+import { ListeningSessionScreen } from '../../features/listening-session/screens/ListeningSessionScreen';
 import { ModeDetailScreen } from '../../features/mode-detail/screens/ModeDetailScreen';
+import { ReadingSessionScreen } from '../../features/reading-session/screens/ReadingSessionScreen';
 import { StudyPackScreen } from '../../features/study-pack/screens/StudyPackScreen';
 import { TrainingSessionScreen } from '../../features/training-session/screens/TrainingSessionScreen';
 import { WrongReviewScreen } from '../../features/wrong-review/screens/WrongReviewScreen';
 import {
   isDrillModeId,
+  isListeningModeId,
+  isReadingModeId,
   isReviewModeId,
   isStudyModeId,
   type TrainingMode,
@@ -87,6 +91,28 @@ export function AppNavigator() {
     if (isDrillModeId(route.modeId)) {
       return (
         <DrillSessionScreen
+          modeId={route.modeId}
+          onExit={() => leaveSession(route.modeId, route.returnTo)}
+          onBackToDetail={() => openModeDetail(route.modeId)}
+          onBackToDashboard={goBack}
+        />
+      );
+    }
+
+    if (isReadingModeId(route.modeId)) {
+      return (
+        <ReadingSessionScreen
+          modeId={route.modeId}
+          onExit={() => leaveSession(route.modeId, route.returnTo)}
+          onBackToDetail={() => openModeDetail(route.modeId)}
+          onBackToDashboard={goBack}
+        />
+      );
+    }
+
+    if (isListeningModeId(route.modeId)) {
+      return (
+        <ListeningSessionScreen
           modeId={route.modeId}
           onExit={() => leaveSession(route.modeId, route.returnTo)}
           onBackToDetail={() => openModeDetail(route.modeId)}
