@@ -1,4 +1,4 @@
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+﻿import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { useProgressStore } from '../../../app/providers/ProgressProvider';
 import { AppBackground } from '../../../components/common/AppBackground';
@@ -90,13 +90,13 @@ export function ModeDetailScreen({
           <View style={styles.sectionCard}>
             <Text style={styles.sectionTitle}>错题队列</Text>
             <Text style={styles.targetText}>
-              当前待回收 {reviewBacklog} 题。只有做错对应的真实刷题后，这里才会出现可处理的回收内容。
+              当前待回收 {reviewBacklog} 题。这里不会生成新题，只会读取你在真实刷题里做错且尚未掌握的内容。
             </Text>
           </View>
         ) : null}
 
         <View style={styles.sectionCard}>
-          <Text style={styles.sectionTitle}>今日做法</Text>
+          <Text style={styles.sectionTitle}>这一轮会怎么练</Text>
           {mode.sessionFlow.map((step, index) => (
             <View key={step} style={styles.listRow}>
               <View style={[styles.indexDot, { backgroundColor: mode.surface }]}>
@@ -110,7 +110,7 @@ export function ModeDetailScreen({
         </View>
 
         <View style={styles.sectionCard}>
-          <Text style={styles.sectionTitle}>检查清单</Text>
+          <Text style={styles.sectionTitle}>开始前检查</Text>
           {mode.checklist.map((item) => (
             <View key={item} style={styles.checkRow}>
               <View style={[styles.checkDot, { backgroundColor: mode.accent }]} />
@@ -120,7 +120,7 @@ export function ModeDetailScreen({
         </View>
 
         <View style={styles.sectionCard}>
-          <Text style={styles.sectionTitle}>完成标准</Text>
+          <Text style={styles.sectionTitle}>做完算什么</Text>
           <Text style={styles.targetText}>{mode.targetOutput}</Text>
           <Text style={styles.reviewTip}>复盘建议：{mode.reviewTip}</Text>
         </View>
@@ -166,7 +166,7 @@ export function ModeDetailScreen({
           ) : null}
 
           <Pressable onPress={onBack} style={styles.secondaryButton}>
-            <Text style={styles.secondaryButtonText}>回到首页继续安排</Text>
+            <Text style={styles.secondaryButtonText}>回到首页</Text>
           </Pressable>
         </View>
       </ScrollView>
@@ -388,3 +388,4 @@ const styles = StyleSheet.create({
     fontFamily: fonts.body,
   },
 });
+

@@ -1,4 +1,4 @@
-# Learn more https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
+﻿# Learn more https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
 
 # dependencies
 node_modules/
@@ -27,6 +27,7 @@ yarn-debug.*
 yarn-error.*
 gcm-diagnose.log
 output/
+tmp/
 .playwright-cli/
 
 # macOS

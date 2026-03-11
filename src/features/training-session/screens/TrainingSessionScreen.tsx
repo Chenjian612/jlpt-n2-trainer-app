@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react';
+﻿import { useMemo, useRef, useState } from 'react';
 import {
   Pressable,
   ScrollView,
@@ -62,7 +62,7 @@ const SESSION_COPY: Record<
   drill: {
     introTitle: '进入做题节奏',
     introBody:
-      '这一轮按真实训练步骤推进。你只要走完整轮，系统会自动记 1 次 session；中途退出不计入。',
+      '这一轮按真实训练步骤推进。你只要走完整轮，系统会自动记 1 轮；中途退出不计入。',
     checklistTitle: '过一遍排错清单',
     checklistBody:
       '在进入复盘前，确认你已经把这一轮最关键的判断点逐项过了一遍。',
@@ -234,12 +234,12 @@ export function TrainingSessionScreen({
 
         {hasRecorded ? (
           <View style={styles.sectionCard}>
-            <Text style={styles.sectionTitle}>本轮已自动记录</Text>
+            <Text style={styles.sectionTitle}>本轮训练完成</Text>
             <Text style={styles.sectionBody}>
-              {mode.title} 今天已经累计记录 {recordedSessionCount} 轮。你没有再额外点打卡，进度是在完成整轮后自动写入的。
+              本轮结果已经写入今日进度。{mode.title} 今天累计完成 {recordedSessionCount} 轮，系统是在整轮结束后自动记入的。
             </Text>
             <View style={styles.summaryCard}>
-              <Text style={styles.summaryTitle}>复盘锚点</Text>
+              <Text style={styles.summaryTitle}>下一步建议</Text>
               <Text style={styles.summaryBody}>{mode.targetOutput}</Text>
               <Text style={styles.summaryFootnote}>复盘建议：{mode.reviewTip}</Text>
             </View>
@@ -248,11 +248,11 @@ export function TrainingSessionScreen({
               onPress={onBackToDashboard}
               style={[styles.primaryButton, { backgroundColor: mode.accent }]}
             >
-              <Text style={styles.primaryButtonText}>回到首页继续安排</Text>
+              <Text style={styles.primaryButtonText}>继续今天的安排</Text>
             </Pressable>
 
             <Pressable onPress={onBackToDetail} style={styles.secondaryButton}>
-              <Text style={styles.secondaryButtonText}>回到模式详情</Text>
+              <Text style={styles.secondaryButtonText}>回到模式页</Text>
             </Pressable>
           </View>
         ) : (
@@ -639,3 +639,5 @@ const styles = StyleSheet.create({
     color: colors.inkMuted,
   },
 });
+
+

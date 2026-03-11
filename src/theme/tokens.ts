@@ -1,4 +1,4 @@
-import { Platform } from 'react-native';
+﻿import { Platform } from 'react-native';
 
 export const colors = {
   background: '#F8F3E8',
@@ -41,11 +41,16 @@ export const radii = {
 } as const;
 
 export const shadows = {
-  card: {
-    shadowColor: '#0F172A',
-    shadowOpacity: 0.18,
-    shadowRadius: 16,
-    shadowOffset: { width: 0, height: 10 },
-    elevation: 8,
-  },
+  card:
+    Platform.OS === 'web'
+      ? {
+          boxShadow: '0px 10px 16px rgba(15, 23, 42, 0.18)',
+        }
+      : {
+          shadowColor: '#0F172A',
+          shadowOpacity: 0.18,
+          shadowRadius: 16,
+          shadowOffset: { width: 0, height: 10 },
+          elevation: 8,
+        },
 } as const;

@@ -1,10 +1,11 @@
-import { useDeferredValue, useMemo } from 'react';
+﻿import { useDeferredValue, useMemo } from 'react';
 
 import { useProgressStore } from '../../../app/providers/ProgressProvider';
 import { TRAINING_MODES } from '../../../data/seed/trainingModes';
 import {
   buildRecentWeek,
   DAILY_TARGET,
+  getDashboardInsight,
   getDashboardMetrics,
   getProgressRatio,
   getTodayPlan,
@@ -17,12 +18,7 @@ import {
 } from '../../../domain/services/progressService';
 
 export function useDashboardViewModel() {
-  const {
-    state,
-    todayKey,
-    clearToday,
-    setWeeklyGoal,
-  } = useProgressStore();
+  const { state, todayKey, clearToday, setWeeklyGoal } = useProgressStore();
   const todaySessions = useMemo(
     () => getSessionsForDay(state, todayKey),
     [state, todayKey],
@@ -38,8 +34,8 @@ export function useDashboardViewModel() {
     [state, todayKey],
   );
   const todayPlan = useMemo(
-    () => getTodayPlan(TRAINING_MODES, deferredTodayCompletedModeIds),
-    [deferredTodayCompletedModeIds],
+    () => getTodayPlan(TRAINING_MODES, state, todayKey),
+    [state, todayKey],
   );
   const recentWeek = useMemo(
     () => buildRecentWeek(state, todayKey),
@@ -64,12 +60,20 @@ export function useDashboardViewModel() {
       }) as Partial<Record<string, number>>,
     [state],
   );
+  const insight = useMemo(
+    () => getDashboardInsight(state, todayKey, state.weeklyGoal, todayPlan),
+    [state, todayKey, todayPlan],
+  );
+  const recommendedMode = useMemo(
+    () => todayPlan.find((mode) => mode.id === insight.recommendedModeId) ?? todayPlan[0] ?? null,
+    [insight.recommendedModeId, todayPlan],
+  );
 
   return {
     metrics,
     recentWeek,
     todayPlan,
-    todayCompletedModeIds,
+    todayCompletedModeIds: deferredTodayCompletedModeIds,
     todaySessionCounts,
     reviewBacklogCounts,
     trainingModes: TRAINING_MODES,
@@ -78,6 +82,8 @@ export function useDashboardViewModel() {
     weeklyGoalOptions: WEEKLY_GOAL_OPTIONS,
     dailyProgress: getProgressRatio(metrics.todayCompletedCount, DAILY_TARGET),
     weeklyProgress: getProgressRatio(metrics.weeklySessions, state.weeklyGoal),
+    insight,
+    recommendedMode,
     todayKey,
     clearToday,
     setWeeklyGoal,

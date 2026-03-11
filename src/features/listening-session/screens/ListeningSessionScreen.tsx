@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+﻿import { useEffect, useMemo, useRef, useState } from 'react';
 import { useAudioPlayer, useAudioPlayerStatus, setAudioModeAsync } from 'expo-audio';
 import {
   Pressable,
@@ -270,9 +270,9 @@ export function ListeningSessionScreen({
 
         {result ? (
           <View style={styles.sectionCard}>
-            <Text style={styles.sectionTitle}>本轮听力分析已自动记录</Text>
+            <Text style={styles.sectionTitle}>本轮听力完成</Text>
             <Text style={styles.sectionBody}>
-              本轮共答对 {result.correctCount} 题，答错 {result.wrongCount} 题。今天这个模式已累计记录 {result.recordedSessionCount} 轮。
+              本轮结果已经写入今日进度。你共答对 {result.correctCount} 题，答错 {result.wrongCount} 题；今天这个模式累计完成 {result.recordedSessionCount} 轮。
             </Text>
 
             <View style={styles.summaryGrid}>
@@ -293,7 +293,7 @@ export function ListeningSessionScreen({
             </View>
 
             <View style={styles.summaryCard}>
-              <Text style={styles.summaryTitle}>复盘建议</Text>
+              <Text style={styles.summaryTitle}>下一步建议</Text>
               <Text style={styles.summaryBody}>
                 {result.wrongCount > 0
                   ? `优先回看 ${wrongQuestionLabels.join(' / ')} 的依据句，重点区分题干问的是“最终决定”“主要动作”还是“最重视的点”。`
@@ -306,11 +306,11 @@ export function ListeningSessionScreen({
               onPress={onBackToDashboard}
               style={[styles.primaryButton, { backgroundColor: mode.accent }]}
             >
-              <Text style={styles.primaryButtonText}>回到首页继续安排</Text>
+              <Text style={styles.primaryButtonText}>继续今天的安排</Text>
             </Pressable>
 
             <Pressable onPress={onBackToDetail} style={styles.secondaryButton}>
-              <Text style={styles.secondaryButtonText}>回到模式详情</Text>
+              <Text style={styles.secondaryButtonText}>回到模式页</Text>
             </Pressable>
           </View>
         ) : (
@@ -356,7 +356,7 @@ export function ListeningSessionScreen({
                 />
               </View>
               <Text style={styles.progressHint}>
-                这一轮已经是先听后答的完整流程。每题至少播放 1 次官方示例音频，做完整轮后自动记录 1 次 listening session。
+                这一轮已经是先听后答的完整流程。每题至少播放 1 次官方示例音频，做完整轮后会自动记 1 轮听力。
               </Text>
             </View>
 
@@ -1179,3 +1179,5 @@ const styles = StyleSheet.create({
     fontFamily: fonts.body,
   },
 });
+
+

@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+﻿import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import {
   isReviewModeId,
@@ -30,26 +30,26 @@ export function TrainingModeCard({
     ? backlogCount > 0
       ? `待回收 ${backlogCount} 题${completed ? ` · 今日 ${sessionCount} 轮` : ''}`
       : completed
-        ? `暂无待回收 · 今日 ${sessionCount} 轮`
-        : '暂无待回收错题'
+        ? `当前没有待回收错题 · 今日 ${sessionCount} 轮`
+        : '当前没有待回收错题'
     : studyMode
       ? completed
-        ? `今日已完成 ${sessionCount} 轮记忆包`
-        : '今天还没开始这一轮记忆包'
-    : completed
-      ? `今日已记录 ${sessionCount} 轮`
-      : '今天还没有训练记录';
+        ? `今日已学习 ${sessionCount} 轮`
+        : '适合做一轮稳态记忆'
+      : completed
+        ? `今日已完成 ${sessionCount} 轮`
+        : '今天还没开始这一模式';
   const primaryLabel = reviewMode
     ? backlogCount > 0
       ? '开始回收'
       : '查看模式'
     : studyMode
       ? completed
-        ? '再过一轮'
-        : '开始记忆包'
-    : completed
-      ? '再练一轮'
-      : '开始训练';
+        ? '再来一轮'
+        : '开始学习'
+      : completed
+        ? '再做一轮'
+        : '开始训练';
 
   return (
     <View style={styles.card}>
@@ -93,9 +93,7 @@ export function TrainingModeCard({
             onPress={() => onOpenMode(mode)}
             style={[styles.secondaryButton, { borderColor: mode.accent }]}
           >
-            <Text style={[styles.secondaryText, { color: mode.accent }]}>
-              进入详情
-            </Text>
+            <Text style={[styles.secondaryText, { color: mode.accent }]}>查看详情</Text>
           </Pressable>
 
           <Pressable

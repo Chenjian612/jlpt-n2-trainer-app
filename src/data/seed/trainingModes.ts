@@ -1,4 +1,4 @@
-import type { TrainingMode, TrainingModeId } from '../../domain/models/training';
+﻿import type { TrainingMode, TrainingModeId } from '../../domain/models/training';
 
 export const TRAINING_MODES: TrainingMode[] = [
   {
@@ -119,7 +119,7 @@ export const TRAINING_MODES: TrainingMode[] = [
   {
     id: 'listening_analyze',
     sessionKind: 'drill',
-    title: '听力陷阱分析',
+    title: '听力要点拆解',
     shortTitle: '听力',
     subtitle: 'Listening Analyze',
     description: '拆关键词、转折信号和高频陷阱，比单纯重听更有效。',
@@ -190,3 +190,5 @@ export const TRAINING_MODES: TrainingMode[] = [
 export const getTrainingModeById = (
   modeId: TrainingModeId,
 ): TrainingMode | undefined => TRAINING_MODES.find((mode) => mode.id === modeId);
+
+

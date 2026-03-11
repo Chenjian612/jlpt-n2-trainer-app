@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react';
+﻿import { useMemo, useRef, useState } from 'react';
 import {
   Pressable,
   ScrollView,
@@ -143,13 +143,13 @@ export function StudyPackScreen({
 
         {result ? (
           <View style={styles.sectionCard}>
-            <Text style={styles.sectionTitle}>本轮记忆包已记录</Text>
+            <Text style={styles.sectionTitle}>本轮学习完成</Text>
             <Text style={styles.sectionBody}>
-              本轮共过了 {pack.items.length} 项，标记已记住 {result.solidCount} 项，还不稳 {result.unstableTerms.length} 项。今天这个模式已累计记录 {result.recordedSessionCount} 轮。
+              本轮学习结果已经写入今日进度。你共过了 {pack.items.length} 项，其中已记住 {result.solidCount} 项、还不稳 {result.unstableTerms.length} 项；今天这个模式累计完成 {result.recordedSessionCount} 轮。
             </Text>
 
             <View style={styles.summaryCard}>
-              <Text style={styles.summaryTitle}>接下来怎么复习</Text>
+              <Text style={styles.summaryTitle}>下一步建议</Text>
               <Text style={styles.summaryBody}>
                 {result.unstableTerms.length > 0
                   ? `今晚优先回看：${result.unstableTerms.join(' / ')}。先只回忆核心意思和易混点，不要重新全背一遍。`
@@ -164,11 +164,11 @@ export function StudyPackScreen({
               onPress={onBackToDashboard}
               style={[styles.primaryButton, { backgroundColor: mode.accent }]}
             >
-              <Text style={styles.primaryButtonText}>回到首页继续安排</Text>
+              <Text style={styles.primaryButtonText}>继续今天的安排</Text>
             </Pressable>
 
             <Pressable onPress={onBackToDetail} style={styles.secondaryButton}>
-              <Text style={styles.secondaryButtonText}>回到模式详情</Text>
+              <Text style={styles.secondaryButtonText}>回到模式页</Text>
             </Pressable>
           </View>
         ) : (
@@ -192,7 +192,7 @@ export function StudyPackScreen({
                 />
               </View>
               <Text style={styles.progressHint}>
-                先自己回忆，再展开讲解。做完整包后才会自动记录 1 次 study session。
+                先自己回忆，再展开讲解。做完整包后才会自动记 1 轮学习记录。
               </Text>
             </View>
 
@@ -585,3 +585,5 @@ const styles = StyleSheet.create({
     fontFamily: fonts.body,
   },
 });
+
+

@@ -1,4 +1,4 @@
-import type {
+﻿import type {
   ProgressState,
   SessionsByDay,
   TrainingSessionRecord,
@@ -84,6 +84,16 @@ const diffInDays = (left: Date, right: Date): number =>
   Math.round(
     (startOfDay(left).getTime() - startOfDay(right).getTime()) / MS_PER_DAY,
   );
+
+const diffFromNowInDays = (iso: string): number => {
+  const parsed = new Date(iso);
+
+  if (Number.isNaN(parsed.getTime())) {
+    return 999;
+  }
+
+  return Math.max(0, diffInDays(new Date(), parsed));
+};
 
 const buildLegacyCompletedAt = (dayKey: string, index: number): string =>
   `${dayKey}T${String(9 + Math.floor(index / 60)).padStart(2, '0')}:${String(index % 60).padStart(2, '0')}:00`;
@@ -171,10 +181,42 @@ const normalizeSessionsByDay = (value: unknown): SessionsByDay => {
   return next;
 };
 
+export const getWrongAnswerPriorityScore = (item: WrongAnswerItem): number => {
+  const wrongWeight = item.wrongCount * 10;
+  const recencyWeight = Math.max(0, 14 - diffFromNowInDays(item.lastWrongAt));
+  const reviewGapDays = item.lastReviewedAt
+    ? diffFromNowInDays(item.lastReviewedAt)
+    : 21;
+  const reviewGapWeight = Math.min(reviewGapDays, 21);
+
+  return wrongWeight + recencyWeight + reviewGapWeight;
+};
+
+export const getWrongAnswerPriorityLabel = (item: WrongAnswerItem): string => {
+  if (item.wrongCount >= 3) {
+    return '高优先级';
+  }
+
+  if (!item.lastReviewedAt) {
+    return '待首次回收';
+  }
+
+  if (diffFromNowInDays(item.lastReviewedAt) >= 5) {
+    return '该复习了';
+  }
+
+  return '继续巩固';
+};
+
 const sortWrongAnswers = (wrongAnswers: WrongAnswerItem[]): WrongAnswerItem[] =>
   [...wrongAnswers].sort((left, right) => {
     if (left.mastered !== right.mastered) {
       return left.mastered ? 1 : -1;
+    }
+
+    const scoreGap = getWrongAnswerPriorityScore(right) - getWrongAnswerPriorityScore(left);
+    if (scoreGap !== 0) {
+      return scoreGap;
     }
 
     if (left.wrongCount !== right.wrongCount) {
@@ -399,6 +441,15 @@ export const getActiveWrongAnswersForMode = (
       (item) => item.modeId === modeId && item.mastered === false,
     ),
   );
+
+export const getPrioritizedWrongAnswersForMode = (
+  state: ProgressState,
+  modeId: DrillModeId,
+  limit?: number,
+): WrongAnswerItem[] => {
+  const items = getActiveWrongAnswersForMode(state, modeId);
+  return typeof limit === 'number' ? items.slice(0, limit) : items;
+};
 
 export const getWrongReviewBacklogCount = (
   state: ProgressState,

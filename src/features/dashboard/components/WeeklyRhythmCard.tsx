@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+﻿import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import type { DashboardMetrics, RecentDay } from '../../../domain/models/progress';
 import { colors, fonts, radii } from '../../../theme/tokens';
@@ -37,6 +37,17 @@ export function WeeklyRhythmCard({
           <View style={[styles.progressFill, { width: `${weeklyProgress * 100}%` }]} />
         </View>
 
+        <View style={styles.summaryRow}>
+          <View style={styles.summaryPill}>
+            <Text style={styles.summaryLabel}>当前连续</Text>
+            <Text style={styles.summaryValue}>{metrics.currentStreak} 天</Text>
+          </View>
+          <View style={styles.summaryPill}>
+            <Text style={styles.summaryLabel}>最佳连续</Text>
+            <Text style={styles.summaryValue}>{metrics.bestStreak} 天</Text>
+          </View>
+        </View>
+
         <View style={styles.goalSelector}>
           {goalOptions.map((goal) => {
             const selected = goal === weeklyGoal;
@@ -47,10 +58,8 @@ export function WeeklyRhythmCard({
                 onPress={() => onGoalChange(goal)}
                 style={[styles.goalPill, selected && styles.goalPillActive]}
               >
-                <Text
-                  style={[styles.goalText, selected && styles.goalTextActive]}
-                >
-                  {goal} 场
+                <Text style={[styles.goalText, selected && styles.goalTextActive]}>
+                  {goal} 轮
                 </Text>
               </Pressable>
             );
@@ -69,15 +78,12 @@ export function WeeklyRhythmCard({
                     styles.weekBar,
                     {
                       height: barHeight,
-                      backgroundColor:
-                        item.count > 0 ? colors.teal : colors.barIdle,
+                      backgroundColor: item.count > 0 ? colors.teal : colors.barIdle,
                       opacity: isToday ? 1 : 0.82,
                     },
                   ]}
                 />
-                <Text
-                  style={[styles.weekBarLabel, isToday && styles.weekBarLabelToday]}
-                >
+                <Text style={[styles.weekBarLabel, isToday && styles.weekBarLabelToday]}>
                   {item.label}
                 </Text>
               </View>
@@ -132,6 +138,32 @@ const styles = StyleSheet.create({
     height: '100%',
     borderRadius: radii.pill,
     backgroundColor: colors.teal,
+  },
+  summaryRow: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+  summaryPill: {
+    flex: 1,
+    borderRadius: radii.md,
+    backgroundColor: colors.warmCard,
+    paddingVertical: 12,
+    paddingHorizontal: 12,
+    gap: 4,
+    borderWidth: 1,
+    borderColor: colors.lineSoft,
+  },
+  summaryLabel: {
+    fontSize: 12,
+    color: colors.inkMuted,
+    fontWeight: '700',
+    fontFamily: fonts.body,
+  },
+  summaryValue: {
+    fontSize: 15,
+    color: colors.inkStrong,
+    fontWeight: '800',
+    fontFamily: fonts.title,
   },
   goalSelector: {
     flexDirection: 'row',

@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react';
+﻿import { useMemo, useRef, useState } from 'react';
 import {
   Pressable,
   ScrollView,
@@ -140,15 +140,15 @@ export function DrillSessionScreen({
 
           <Text style={styles.heroTitle}>{mode.title}</Text>
           <Text style={styles.heroBody}>
-            做完整轮题目后会自动记录 1 次 session；答错的题会自动进入本地错题回收队列。
+            做完整轮题目后会自动记 1 轮训练；答错的题会自动进入本地错题回收队列。
           </Text>
         </View>
 
         {result ? (
           <View style={styles.sectionCard}>
-            <Text style={styles.sectionTitle}>本轮已自动记录</Text>
+            <Text style={styles.sectionTitle}>本轮训练完成</Text>
             <Text style={styles.sectionBody}>
-              本轮共答对 {result.correctCount} 题，答错 {result.wrongCount} 题。今天这个模式已累计记录 {result.recordedSessionCount} 轮。
+              本轮结果已经写入今日进度。你共答对 {result.correctCount} 题，答错 {result.wrongCount} 题；今天这个模式累计完成 {result.recordedSessionCount} 轮。
             </Text>
 
             <View style={styles.summaryGrid}>
@@ -163,7 +163,7 @@ export function DrillSessionScreen({
             </View>
 
             <View style={styles.summaryCard}>
-              <Text style={styles.summaryTitle}>复盘建议</Text>
+              <Text style={styles.summaryTitle}>下一步建议</Text>
               <Text style={styles.summaryBody}>
                 {result.wrongCount > 0
                   ? '今天的错题已经进入回收队列，接下来优先去对应的错题回收模式做一轮。'
@@ -175,11 +175,11 @@ export function DrillSessionScreen({
               onPress={onBackToDashboard}
               style={[styles.primaryButton, { backgroundColor: mode.accent }]}
             >
-              <Text style={styles.primaryButtonText}>回到首页继续安排</Text>
+              <Text style={styles.primaryButtonText}>继续今天的安排</Text>
             </Pressable>
 
             <Pressable onPress={onBackToDetail} style={styles.secondaryButton}>
-              <Text style={styles.secondaryButtonText}>回到模式详情</Text>
+              <Text style={styles.secondaryButtonText}>回到模式页</Text>
             </Pressable>
           </View>
         ) : (
@@ -203,7 +203,7 @@ export function DrillSessionScreen({
                 />
               </View>
               <Text style={styles.progressHint}>
-                中途退出不会写入记录；只有做完整轮，session 和错题才会一起落库。
+                中途退出不会写入记录；只有做完整轮，训练记录和错题才会一起保存。
               </Text>
             </View>
 
@@ -659,3 +659,5 @@ const styles = StyleSheet.create({
     fontFamily: fonts.body,
   },
 });
+
+

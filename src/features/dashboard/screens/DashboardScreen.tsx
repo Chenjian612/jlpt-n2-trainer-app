@@ -1,5 +1,5 @@
-import { useEffect, useRef } from 'react';
-import { Animated, ScrollView, StyleSheet, Text, View } from 'react-native';
+﻿import { useEffect, useRef } from 'react';
+import { Animated, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { AppBackground } from '../../../components/common/AppBackground';
 import type { TrainingMode } from '../../../domain/models/training';
@@ -44,6 +44,8 @@ export function DashboardScreen({
     weeklyGoalOptions,
     dailyProgress,
     weeklyProgress,
+    insight,
+    recommendedMode,
     todayKey,
     clearToday,
     setWeeklyGoal,
@@ -58,22 +60,22 @@ export function DashboardScreen({
       Animated.timing(heroEntrance, {
         toValue: 1,
         duration: 420,
-        useNativeDriver: true,
+        useNativeDriver: Platform.OS !== 'web',
       }),
       Animated.timing(planEntrance, {
         toValue: 1,
         duration: 420,
-        useNativeDriver: true,
+        useNativeDriver: Platform.OS !== 'web',
       }),
       Animated.timing(weekEntrance, {
         toValue: 1,
         duration: 420,
-        useNativeDriver: true,
+        useNativeDriver: Platform.OS !== 'web',
       }),
       Animated.timing(modesEntrance, {
         toValue: 1,
         duration: 420,
-        useNativeDriver: true,
+        useNativeDriver: Platform.OS !== 'web',
       }),
     ]).start();
   }, [heroEntrance, modesEntrance, planEntrance, weekEntrance]);
@@ -89,12 +91,15 @@ export function DashboardScreen({
             metrics={metrics}
             dailyProgress={dailyProgress}
             dailyTarget={dailyTarget}
+            insight={insight}
           />
         </Animated.View>
 
         <Animated.View style={createEntranceStyle(planEntrance)}>
           <TodayPlanCard
             todayPlan={todayPlan}
+            recommendedMode={recommendedMode}
+            insight={insight}
             onOpenMode={onOpenMode}
             onClearToday={clearToday}
           />
@@ -113,9 +118,9 @@ export function DashboardScreen({
         </Animated.View>
 
         <Animated.View style={[styles.section, createEntranceStyle(modesEntrance)]}>
-          <Text style={styles.sectionTitle}>八大训练模式</Text>
+          <Text style={styles.sectionTitle}>全部训练模式</Text>
           <Text style={styles.sectionBody}>
-            现在文法刷题、词汇刷题、读解实战、基于官方示例音频的听力分析和错题回收都已经接上真实训练流；记忆包模式继续承担稳定推进和回忆巩固。
+            先用刷题和记忆包稳住基本盘，再用读解、听力和错题回收补强薄弱点。每个模式都能单独进入、独立完成并记录进度。
           </Text>
 
           {trainingModes.map((mode) => (
@@ -158,3 +163,4 @@ const styles = StyleSheet.create({
     fontFamily: fonts.body,
   },
 });
+

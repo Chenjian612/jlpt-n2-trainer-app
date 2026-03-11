@@ -1,4 +1,4 @@
-import type { TrainingModeId, TrainingSessionKind } from './training';
+﻿import type { TrainingModeId, TrainingSessionKind } from './training';
 import type { WrongAnswerItem } from './trainingContent';
 
 export type TrainingSessionRecord = {
@@ -22,6 +22,15 @@ export type DashboardMetrics = {
   totalSessions: number;
   currentStreak: number;
   bestStreak: number;
+};
+
+export type DashboardInsightTone = 'review' | 'focus' | 'push' | 'steady';
+
+export type DashboardInsight = {
+  headline: string;
+  body: string;
+  recommendedModeId?: TrainingModeId;
+  tone: DashboardInsightTone;
 };
 
 export type RecentDay = {

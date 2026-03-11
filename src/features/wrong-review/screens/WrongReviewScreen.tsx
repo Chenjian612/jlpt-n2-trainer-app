@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+﻿import { useRef, useState } from 'react';
 import {
   Pressable,
   ScrollView,
@@ -13,8 +13,9 @@ import { getTrainingModeById } from '../../../data/seed/trainingModes';
 import { REVIEW_SOURCE_MODE, type ReviewModeId } from '../../../domain/models/training';
 import type { WrongReviewDecision } from '../../../domain/models/trainingContent';
 import {
-  getActiveWrongAnswersForMode,
   getModeSessionCountForDay,
+  getPrioritizedWrongAnswersForMode,
+  getWrongAnswerPriorityLabel,
 } from '../../../domain/services/progressService';
 import { colors, fonts, radii } from '../../../theme/tokens';
 
@@ -48,8 +49,8 @@ export function WrongReviewScreen({
   }
 
   const sourceModeId = REVIEW_SOURCE_MODE[modeId];
-  const allBacklog = getActiveWrongAnswersForMode(state, sourceModeId);
-  const reviewItems = allBacklog.slice(0, 5);
+  const allBacklog = getPrioritizedWrongAnswersForMode(state, sourceModeId);
+  const [reviewItems] = useState(() => allBacklog.slice(0, 5));
   const initialSessionCount = getModeSessionCountForDay(state, todayKey, mode.id);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [decisions, setDecisions] = useState<WrongReviewDecision[]>([]);
@@ -81,13 +82,13 @@ export function WrongReviewScreen({
           <View style={styles.sectionCard}>
             <Text style={styles.sectionTitle}>当前状态</Text>
             <Text style={styles.sectionBody}>
-              这个回收模式会优先读取最近答错且尚未标记掌握的题目。现在队列为空，所以本轮不计 session。
+              这个回收模式只处理最近答错且尚未标记掌握的题目。现在队列为空，所以本轮不会新增回收记录。
             </Text>
             <Pressable
               onPress={onBackToDashboard}
               style={[styles.primaryButton, { backgroundColor: mode.accent }]}
             >
-              <Text style={styles.primaryButtonText}>回到首页继续安排</Text>
+              <Text style={styles.primaryButtonText}>回到首页</Text>
             </Pressable>
           </View>
         </ScrollView>
@@ -96,6 +97,7 @@ export function WrongReviewScreen({
   }
 
   const item = reviewItems[currentIndex];
+  const priorityLabel = getWrongAnswerPriorityLabel(item);
   const lastWrongInsight =
     item.lastUserChoice !== null && item.lastUserChoice !== item.answer
       ? item.choiceInsights[item.lastUserChoice] ?? null
@@ -140,7 +142,7 @@ export function WrongReviewScreen({
         <View style={[styles.heroCard, { backgroundColor: mode.accent }]}>
           <Text style={styles.heroTitle}>{mode.title}</Text>
           <Text style={styles.heroBody}>
-            这轮会优先处理最近最典型的错题。做完本轮后自动记录 1 次 review session。
+            这轮会优先处理最值得先回收的错题。做完本轮后会自动记 1 轮回收记录。
           </Text>
           <View style={styles.heroMetaRow}>
             <View style={styles.heroMetaCard}>
@@ -156,18 +158,26 @@ export function WrongReviewScreen({
 
         {result ? (
           <View style={styles.sectionCard}>
-            <Text style={styles.sectionTitle}>本轮回收已记录</Text>
+            <Text style={styles.sectionTitle}>本轮回收完成</Text>
             <Text style={styles.sectionBody}>
-              本轮共处理 {result.reviewedCount} 题，其中标记掌握 {result.masteredCount} 题。今天这个模式已累计记录 {result.recordedSessionCount} 轮。
+              本轮结果已经写入今日进度。你共处理 {result.reviewedCount} 题，其中标记已掌握 {result.masteredCount} 题；今天这个模式累计完成 {result.recordedSessionCount} 轮。
             </Text>
+            <View style={styles.summaryCard}>
+              <Text style={styles.summaryTitle}>下一步建议</Text>
+              <Text style={styles.summaryBody}>
+                {result.masteredCount < result.reviewedCount
+                  ? '还没掌握的题会继续留在队列里，下一次优先回收同类错误。'
+                  : '这一轮处理的题都已标记掌握，接下来适合回到真实刷题继续验证。'}
+              </Text>
+            </View>
             <Pressable
               onPress={onBackToDashboard}
               style={[styles.primaryButton, { backgroundColor: mode.accent }]}
             >
-              <Text style={styles.primaryButtonText}>回到首页继续安排</Text>
+              <Text style={styles.primaryButtonText}>继续今天的安排</Text>
             </Pressable>
             <Pressable onPress={onBackToDetail} style={styles.secondaryButton}>
-              <Text style={styles.secondaryButtonText}>回到模式详情</Text>
+              <Text style={styles.secondaryButtonText}>回到模式页</Text>
             </Pressable>
           </View>
         ) : (
@@ -191,14 +201,21 @@ export function WrongReviewScreen({
                 />
               </View>
               <Text style={styles.progressHint}>
-                本轮先处理前 {reviewItems.length} 题；中途退出不计 session，也不会修改错题状态。
+                本轮优先挑最值得先处理的 {reviewItems.length} 题；中途退出不计回收轮次，也不会修改错题状态。
               </Text>
             </View>
 
             <View style={styles.sectionCard}>
+              <View style={styles.priorityRow}>
+                <View style={styles.priorityPill}>
+                  <Text style={styles.priorityPillText}>{priorityLabel}</Text>
+                </View>
+                <Text style={styles.priorityMeta}>已错 {item.wrongCount} 次</Text>
+              </View>
+
               <Text style={styles.sectionTitle}>{item.prompt}</Text>
               <Text style={styles.sectionBody}>
-                这是你最近做错的一题，先看清自己上次误选了什么，再决定这题是否已经掌握。
+                这是你最近反复出错的一题。先看清自己上次为什么误选，再判断这题现在是否已经真正掌握。
               </Text>
 
               <View style={styles.choiceList}>
@@ -230,12 +247,15 @@ export function WrongReviewScreen({
               </View>
 
               <View style={styles.summaryCard}>
-                <Text style={styles.summaryTitle}>已错 {item.wrongCount} 次</Text>
+                <Text style={styles.summaryTitle}>为什么先回收这题</Text>
                 <Text style={styles.summaryBody}>
-                  上次误选：
-                  {item.lastUserChoice === null
-                    ? '未记录'
-                    : `${item.lastUserChoice + 1}. ${item.choices[item.lastUserChoice]}`}
+                  {priorityLabel === '高优先级'
+                    ? '这题已经重复错了多次，继续拖延最容易固化成稳定误判。'
+                    : priorityLabel === '待首次回收'
+                      ? '这题刚进入错题队列，还没做过正式回收，趁记忆还新先处理更高效。'
+                      : priorityLabel === '该复习了'
+                        ? '这题之前回收过，但已经隔了一段时间，现在适合再确认一次。'
+                        : '这题已经处理过一轮，但还需要继续巩固，防止重新滑回错误。'}
                 </Text>
                 <Text style={styles.summaryFootnote}>
                   来源：{item.source} · {item.tags.join(' / ')}
@@ -301,13 +321,13 @@ export function WrongReviewScreen({
                 onPress={() => handleDecision(false)}
                 style={styles.secondaryButton}
               >
-                <Text style={styles.secondaryButtonText}>继续保留在队列</Text>
+                <Text style={styles.secondaryButtonText}>暂时还不稳</Text>
               </Pressable>
               <Pressable
                 onPress={() => handleDecision(true)}
                 style={[styles.primaryButton, { backgroundColor: mode.accent }]}
               >
-                <Text style={styles.primaryButtonText}>标记为已掌握</Text>
+                <Text style={styles.primaryButtonText}>这题我已掌握</Text>
               </Pressable>
             </View>
           </>
@@ -445,6 +465,33 @@ const styles = StyleSheet.create({
     borderRadius: radii.lg,
     padding: 18,
     gap: 14,
+  },
+  priorityRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    gap: 12,
+  },
+  priorityPill: {
+    alignSelf: 'flex-start',
+    borderRadius: radii.pill,
+    backgroundColor: colors.warmCard,
+    borderWidth: 1,
+    borderColor: colors.lineSoft,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+  },
+  priorityPillText: {
+    color: colors.inkStrong,
+    fontSize: 12,
+    fontWeight: '800',
+    fontFamily: fonts.body,
+  },
+  priorityMeta: {
+    color: colors.inkMuted,
+    fontSize: 13,
+    fontWeight: '700',
+    fontFamily: fonts.body,
   },
   sectionTitle: {
     color: colors.inkStrong,
@@ -589,3 +636,5 @@ const styles = StyleSheet.create({
     fontFamily: fonts.body,
   },
 });
+
+
