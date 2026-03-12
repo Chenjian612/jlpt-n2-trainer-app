@@ -2,7 +2,7 @@
 
 import type { DashboardInsight } from '../../../domain/models/progress';
 import type { TrainingMode } from '../../../domain/models/training';
-import { colors, fonts, radii } from '../../../theme/tokens';
+import { colors, fonts, radii, shadows } from '../../../theme/tokens';
 
 type TodayPlanCardProps = {
   todayPlan: TrainingMode[];
@@ -22,10 +22,18 @@ export function TodayPlanCard({
   return (
     <View style={styles.section}>
       <View style={styles.sectionHeader}>
-        <Text style={styles.sectionTitle}>今日计划</Text>
-        <Pressable onPress={onClearToday} style={styles.ghostButton}>
-          <Text style={styles.ghostButtonText}>清空今日</Text>
-        </Pressable>
+        <View style={styles.sectionTitleBlock}>
+          <Text style={styles.sectionTitle}>今日计划</Text>
+          <Text style={styles.sectionCaption}>把今天最值得做的三轮先排清楚。</Text>
+        </View>
+        <View style={styles.headerMetaRow}>
+          <View style={styles.headerPill}>
+            <Text style={styles.headerPillText}>已排 {todayPlan.length} 轮</Text>
+          </View>
+          <Pressable onPress={onClearToday} style={styles.ghostButton}>
+            <Text style={styles.ghostButtonText}>清空今日</Text>
+          </Pressable>
+        </View>
       </View>
 
       <View style={styles.planCard}>
@@ -39,6 +47,7 @@ export function TodayPlanCard({
               <Text style={styles.recommendMode}>{recommendedMode.title}</Text>
             </View>
             <Text style={styles.recommendBody}>{insight.body}</Text>
+            <Text style={styles.recommendAction}>进入这一模式</Text>
           </Pressable>
         ) : null}
 
@@ -70,7 +79,9 @@ export function TodayPlanCard({
                   {mode.durationLabel} · {mode.focus}
                 </Text>
               </View>
-              <Text style={styles.planAction}>查看</Text>
+              <View style={styles.planActionPill}>
+                <Text style={styles.planAction}>查看</Text>
+              </View>
             </Pressable>
           ))
         )}
@@ -84,15 +95,42 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   sectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    gap: 10,
+  },
+  sectionTitleBlock: {
+    gap: 4,
   },
   sectionTitle: {
     color: colors.inkStrong,
     fontSize: 22,
     fontWeight: '800',
     fontFamily: fonts.title,
+  },
+  sectionCaption: {
+    color: colors.inkMuted,
+    fontSize: 14,
+    lineHeight: 21,
+    fontFamily: fonts.body,
+  },
+  headerMetaRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    gap: 10,
+  },
+  headerPill: {
+    borderRadius: radii.pill,
+    backgroundColor: colors.backgroundCardMuted,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderWidth: 1,
+    borderColor: colors.lineSoft,
+  },
+  headerPillText: {
+    color: colors.inkBody,
+    fontSize: 13,
+    fontWeight: '700',
+    fontFamily: fonts.body,
   },
   ghostButton: {
     borderRadius: radii.pill,
@@ -107,33 +145,34 @@ const styles = StyleSheet.create({
     fontFamily: fonts.body,
   },
   planCard: {
-    backgroundColor: colors.warmCard,
+    backgroundColor: colors.backgroundCard,
     borderRadius: radii.lg,
     padding: 18,
-    gap: 14,
+    gap: 16,
     borderWidth: 1,
     borderColor: colors.lineSoft,
+    ...shadows.card,
   },
   recommendCard: {
     borderRadius: radii.md,
-    backgroundColor: '#FFFDF8',
+    backgroundColor: colors.warmCard,
     borderWidth: 1,
-    borderColor: colors.lineSoft,
-    padding: 14,
-    gap: 8,
+    borderColor: colors.lineStrong,
+    padding: 16,
+    gap: 10,
   },
   recommendHeader: {
     gap: 4,
   },
   recommendEyebrow: {
-    color: colors.teal,
+    color: colors.copper,
     fontSize: 12,
     fontWeight: '800',
     fontFamily: fonts.body,
   },
   recommendMode: {
     color: colors.inkStrong,
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: '800',
     fontFamily: fonts.title,
   },
@@ -143,8 +182,14 @@ const styles = StyleSheet.create({
     lineHeight: 21,
     fontFamily: fonts.body,
   },
+  recommendAction: {
+    color: colors.copper,
+    fontSize: 13,
+    fontWeight: '800',
+    fontFamily: fonts.body,
+  },
   planLead: {
-    color: '#475569',
+    color: colors.inkBody,
     fontSize: 15,
     lineHeight: 22,
     fontFamily: fonts.body,
@@ -153,11 +198,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
+    borderRadius: radii.md,
+    backgroundColor: colors.mist,
+    paddingHorizontal: 12,
+    paddingVertical: 12,
   },
   planIndex: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
+    width: 38,
+    height: 38,
+    borderRadius: 19,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -180,10 +229,16 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontFamily: fonts.body,
   },
+  planActionPill: {
+    borderRadius: radii.pill,
+    backgroundColor: colors.backgroundCard,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+  },
   planAction: {
     color: colors.teal,
     fontSize: 13,
-    fontWeight: '700',
+    fontWeight: '800',
     fontFamily: fonts.body,
   },
   allDonePill: {
@@ -194,7 +249,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   allDoneText: {
-    color: '#166534',
+    color: colors.teal,
     fontSize: 14,
     fontWeight: '700',
     fontFamily: fonts.body,

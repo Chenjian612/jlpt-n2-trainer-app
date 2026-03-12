@@ -5,7 +5,7 @@ import {
   isStudyModeId,
   type TrainingMode,
 } from '../../../domain/models/training';
-import { colors, fonts, radii } from '../../../theme/tokens';
+import { colors, fonts, radii, shadows } from '../../../theme/tokens';
 
 type TrainingModeCardProps = {
   mode: TrainingMode;
@@ -26,6 +26,11 @@ export function TrainingModeCard({
 }: TrainingModeCardProps) {
   const reviewMode = isReviewModeId(mode.id);
   const studyMode = isStudyModeId(mode.id);
+  const categoryLabel = reviewMode
+    ? '回收模式'
+    : studyMode
+      ? '积累模式'
+      : '冲分模式';
   const statusText = reviewMode
     ? backlogCount > 0
       ? `待回收 ${backlogCount} 题${completed ? ` · 今日 ${sessionCount} 轮` : ''}`
@@ -53,39 +58,46 @@ export function TrainingModeCard({
 
   return (
     <View style={styles.card}>
-      <View style={[styles.stripe, { backgroundColor: mode.accent }]} />
+      <View style={[styles.glow, { backgroundColor: mode.surface }]} />
 
       <View style={styles.body}>
         <View style={styles.header}>
           <View style={styles.titleBlock}>
+            <View style={styles.badgeRow}>
+              <View style={[styles.chip, { backgroundColor: mode.surface }]}>
+                <Text style={[styles.chipText, { color: mode.accent }]}>
+                  {mode.shortTitle}
+                </Text>
+              </View>
+              <Text style={styles.categoryLabel}>{categoryLabel}</Text>
+            </View>
             <Text style={styles.title}>{mode.title}</Text>
             <Text style={styles.subtitle}>{mode.subtitle}</Text>
-          </View>
-          <View style={[styles.chip, { backgroundColor: mode.surface }]}>
-            <Text style={[styles.chipText, { color: mode.accent }]}>
-              {mode.shortTitle}
-            </Text>
           </View>
         </View>
 
         <Text style={styles.description}>{mode.description}</Text>
-        <Text style={styles.meta}>
-          {mode.durationLabel} · {mode.focus}
-        </Text>
-        <View
-          style={[
-            styles.statusPill,
-            { backgroundColor: completed ? mode.surface : colors.slateSoft },
-          ]}
-        >
-          <Text
+        <View style={styles.metaRow}>
+          <Text style={styles.meta}>{mode.durationLabel}</Text>
+          <Text style={styles.metaDivider}>·</Text>
+          <Text style={styles.meta}>{mode.focus}</Text>
+        </View>
+        <View style={styles.statusWrap}>
+          <View
             style={[
-              styles.statusText,
-              { color: completed ? mode.accent : colors.inkMuted },
+              styles.statusPill,
+              { backgroundColor: completed ? mode.surface : colors.slateSoft },
             ]}
           >
-            {statusText}
-          </Text>
+            <Text
+              style={[
+                styles.statusText,
+                { color: completed ? mode.accent : colors.inkMuted },
+              ]}
+            >
+              {statusText}
+            </Text>
+          </View>
         </View>
 
         <View style={styles.actions}>
@@ -122,31 +134,40 @@ export function TrainingModeCard({
 
 const styles = StyleSheet.create({
   card: {
-    flexDirection: 'row',
     backgroundColor: colors.backgroundCard,
     borderRadius: radii.lg,
     overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: colors.lineSoft,
+    ...shadows.card,
   },
-  stripe: {
-    width: 8,
+  glow: {
+    position: 'absolute',
+    top: -26,
+    right: -12,
+    width: 130,
+    height: 130,
+    borderRadius: 65,
+    opacity: 0.5,
   },
   body: {
-    flex: 1,
     padding: 18,
-    gap: 10,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
     gap: 12,
   },
+  header: {
+    gap: 10,
+  },
   titleBlock: {
-    flex: 1,
-    gap: 2,
+    gap: 4,
+  },
+  badgeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
   title: {
     color: colors.inkStrong,
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: '800',
     fontFamily: fonts.title,
   },
@@ -158,13 +179,19 @@ const styles = StyleSheet.create({
   },
   chip: {
     borderRadius: radii.pill,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    paddingHorizontal: 11,
+    paddingVertical: 7,
     alignSelf: 'flex-start',
   },
   chipText: {
     fontSize: 12,
     fontWeight: '800',
+    fontFamily: fonts.body,
+  },
+  categoryLabel: {
+    color: colors.inkSoft,
+    fontSize: 12,
+    fontWeight: '700',
     fontFamily: fonts.body,
   },
   description: {
@@ -173,10 +200,24 @@ const styles = StyleSheet.create({
     lineHeight: 21,
     fontFamily: fonts.body,
   },
+  metaRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    gap: 6,
+  },
   meta: {
-    color: '#475569',
+    color: colors.inkMuted,
     fontSize: 13,
     fontFamily: fonts.body,
+  },
+  metaDivider: {
+    color: colors.inkSoft,
+    fontSize: 13,
+    fontFamily: fonts.body,
+  },
+  statusWrap: {
+    flexDirection: 'row',
   },
   statusPill: {
     alignSelf: 'flex-start',
@@ -192,6 +233,7 @@ const styles = StyleSheet.create({
   actions: {
     flexDirection: 'row',
     gap: 10,
+    paddingTop: 2,
   },
   secondaryButton: {
     flex: 1,
@@ -199,6 +241,7 @@ const styles = StyleSheet.create({
     borderRadius: radii.sm,
     paddingVertical: 14,
     alignItems: 'center',
+    backgroundColor: colors.backgroundCard,
   },
   secondaryText: {
     fontSize: 14,
@@ -221,6 +264,6 @@ const styles = StyleSheet.create({
     fontFamily: fonts.body,
   },
   repeatButtonText: {
-    color: '#166534',
+    color: colors.teal,
   },
 });

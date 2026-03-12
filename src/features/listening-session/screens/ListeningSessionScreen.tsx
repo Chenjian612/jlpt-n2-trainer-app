@@ -6,6 +6,7 @@ import {
   StyleSheet,
   Text,
   View,
+  useWindowDimensions,
 } from 'react-native';
 
 import { useProgressStore } from '../../../app/providers/ProgressProvider';
@@ -14,7 +15,7 @@ import { getListeningCasesByMode } from '../../../data/seed/listeningCases';
 import { getTrainingModeById } from '../../../data/seed/trainingModes';
 import type { ListeningModeId } from '../../../domain/models/training';
 import { getModeSessionCountForDay } from '../../../domain/services/progressService';
-import { colors, fonts, radii } from '../../../theme/tokens';
+import { colors, fonts, radii, shadows } from '../../../theme/tokens';
 
 type ListeningSessionScreenProps = {
   modeId: ListeningModeId;
@@ -44,6 +45,8 @@ export function ListeningSessionScreen({
   onBackToDashboard,
 }: ListeningSessionScreenProps) {
   const { state, todayKey, recordSession } = useProgressStore();
+  const { width } = useWindowDimensions();
+  const isWideLayout = width >= 1040;
   const mode = getTrainingModeById(modeId);
   const cases = getListeningCasesByMode(modeId);
 
@@ -90,6 +93,7 @@ export function ListeningSessionScreen({
   const currentCase = currentItem.caseData;
   const question = currentItem.question;
   const currentCaseQuestionIndex = currentItem.caseQuestionIndex;
+  const currentCaseIndex = cases.findIndex((caseData) => caseData.id === currentCase.id) + 1;
   const player = useAudioPlayer(currentCase.audioAsset, { updateInterval: 250 });
   const audioStatus = useAudioPlayerStatus(player);
 
@@ -113,6 +117,13 @@ export function ListeningSessionScreen({
       ? formatSeconds(audioStatus.duration)
       : currentCase.audioDurationLabel;
   const submitDisabled = selectedChoice === null || !hasPlayedCurrent;
+  const missionText = submitted
+    ? isCorrect
+      ? '这题已经判断到位，继续把关键转折句复述一遍。'
+      : '别急着记答案，先确认真正改写结论的是哪一句。'
+    : hasPlayedCurrent
+      ? '已经具备作答条件，重点抓转折后的决定信息。'
+      : '先听出场景和任务，再去辨认真正决定答案的信号句。';
   const wrongQuestionLabels = useMemo(
     () =>
       listeningItems.reduce<string[]>((labels, item, index) => {
@@ -229,7 +240,7 @@ export function ListeningSessionScreen({
 
   return (
     <AppBackground>
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView contentContainerStyle={[styles.content, isWideLayout && styles.contentWide]}>
         <View style={styles.header}>
           <Pressable onPress={onExit} style={styles.ghostButton}>
             <Text style={styles.ghostButtonText}>退出听力</Text>
@@ -237,7 +248,7 @@ export function ListeningSessionScreen({
           <Text style={styles.headerTag}>{mode.subtitle}</Text>
         </View>
 
-        <View style={[styles.heroCard, { backgroundColor: mode.accent }]}>
+        <View style={[styles.heroCard, shadows.card, { backgroundColor: mode.accent }]}>
           <View style={styles.heroTop}>
             <View style={[styles.modePill, { backgroundColor: mode.surface }]}>
               <Text style={[styles.modePillText, { color: mode.accent }]}>
@@ -269,7 +280,7 @@ export function ListeningSessionScreen({
         </View>
 
         {result ? (
-          <View style={styles.sectionCard}>
+          <View style={[styles.sectionCard, styles.resultCard, shadows.card]}>
             <Text style={styles.sectionTitle}>本轮听力完成</Text>
             <Text style={styles.sectionBody}>
               本轮结果已经写入今日进度。你共答对 {result.correctCount} 题，答错 {result.wrongCount} 题；今天这个模式累计完成 {result.recordedSessionCount} 轮。
@@ -315,7 +326,7 @@ export function ListeningSessionScreen({
           </View>
         ) : (
           <>
-            <View style={styles.briefingCard}>
+            <View style={[styles.briefingCard, shadows.card]}>
               <Text style={styles.sectionTitle}>{currentCase.title}</Text>
               <Text style={styles.sceneText}>场景：{currentCase.scene}</Text>
               <Text style={styles.taskText}>任务：{currentCase.task}</Text>
@@ -337,7 +348,7 @@ export function ListeningSessionScreen({
               </View>
             </View>
 
-            <View style={styles.progressCard}>
+            <View style={[styles.progressCard, shadows.card]}>
               <View style={styles.progressRow}>
                 <Text style={styles.progressLabel}>题目进度</Text>
                 <Text style={styles.progressValue}>
@@ -360,7 +371,7 @@ export function ListeningSessionScreen({
               </Text>
             </View>
 
-            <View style={styles.audioCard}>
+            <View style={[styles.audioCard, shadows.card]}>
               <View style={styles.audioHeader}>
                 <Text style={styles.sectionTitle}>官方示例音频</Text>
                 <View style={styles.audioMetaBadge}>
@@ -462,7 +473,7 @@ export function ListeningSessionScreen({
               </View>
             </View>
 
-            <View style={styles.sectionCard}>
+            <View style={[styles.sectionCard, styles.resultCard, shadows.card]}>
               <Text style={styles.questionMeta}>
                 第 {currentIndex + 1} 题 · 本材料第 {currentCaseQuestionIndex + 1} 题 · {question.tags.join(' / ')}
               </Text>
@@ -632,10 +643,18 @@ export function ListeningSessionScreen({
 
 const styles = StyleSheet.create({
   content: {
+    width: '100%',
+    maxWidth: 1180,
+    alignSelf: 'center',
     paddingHorizontal: 18,
     paddingTop: 12,
-    paddingBottom: 36,
+    paddingBottom: 40,
     gap: 18,
+  },
+  contentWide: {
+    paddingHorizontal: 28,
+    paddingTop: 20,
+    gap: 22,
   },
   missingState: {
     flex: 1,
@@ -654,6 +673,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    gap: 12,
   },
   headerTag: {
     color: colors.inkMuted,
@@ -717,9 +737,11 @@ const styles = StyleSheet.create({
   heroMetaRow: {
     flexDirection: 'row',
     gap: 12,
+    flexWrap: 'wrap',
   },
   heroMetaCard: {
-    flex: 1,
+    minWidth: 120,
+    flexGrow: 1,
     borderRadius: radii.md,
     backgroundColor: 'rgba(255,255,255,0.14)',
     paddingVertical: 14,
@@ -740,21 +762,24 @@ const styles = StyleSheet.create({
   },
   briefingCard: {
     backgroundColor: colors.backgroundCard,
-    borderRadius: radii.lg,
-    padding: 18,
-    gap: 14,
+    borderRadius: radii.xl,
+    padding: 22,
+    gap: 16,
   },
   sectionCard: {
     backgroundColor: colors.backgroundCard,
-    borderRadius: radii.lg,
-    padding: 18,
-    gap: 14,
+    borderRadius: radii.xl,
+    padding: 22,
+    gap: 16,
+  },
+  resultCard: {
+    gap: 18,
   },
   audioCard: {
     backgroundColor: colors.backgroundCard,
-    borderRadius: radii.lg,
-    padding: 18,
-    gap: 14,
+    borderRadius: radii.xl,
+    padding: 22,
+    gap: 16,
   },
   sectionTitle: {
     color: colors.inkStrong,
@@ -832,9 +857,9 @@ const styles = StyleSheet.create({
   },
   progressCard: {
     backgroundColor: colors.backgroundCard,
-    borderRadius: radii.lg,
-    padding: 18,
-    gap: 12,
+    borderRadius: radii.xl,
+    padding: 22,
+    gap: 14,
   },
   progressRow: {
     flexDirection: 'row',
@@ -1179,5 +1204,7 @@ const styles = StyleSheet.create({
     fontFamily: fonts.body,
   },
 });
+
+
 
 

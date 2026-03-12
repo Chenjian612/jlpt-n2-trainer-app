@@ -5,6 +5,7 @@ import {
   StyleSheet,
   Text,
   View,
+  useWindowDimensions,
 } from 'react-native';
 
 import { useProgressStore } from '../../../app/providers/ProgressProvider';
@@ -13,7 +14,7 @@ import { getStudyPackByMode } from '../../../data/seed/studyPacks';
 import { getTrainingModeById } from '../../../data/seed/trainingModes';
 import type { StudyModeId } from '../../../domain/models/training';
 import { getModeSessionCountForDay } from '../../../domain/services/progressService';
-import { colors, fonts, radii } from '../../../theme/tokens';
+import { colors, fonts, radii, shadows } from '../../../theme/tokens';
 
 type StudyPackScreenProps = {
   modeId: StudyModeId;
@@ -35,6 +36,8 @@ export function StudyPackScreen({
   onBackToDashboard,
 }: StudyPackScreenProps) {
   const { state, todayKey, recordSession } = useProgressStore();
+  const { width } = useWindowDimensions();
+  const isWideLayout = width >= 1040;
   const mode = getTrainingModeById(modeId);
   const pack = getStudyPackByMode(modeId);
 
@@ -106,7 +109,7 @@ export function StudyPackScreen({
 
   return (
     <AppBackground>
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView contentContainerStyle={[styles.content, isWideLayout && styles.contentWide]}>
         <View style={styles.header}>
           <Pressable onPress={onExit} style={styles.ghostButton}>
             <Text style={styles.ghostButtonText}>退出学习包</Text>
@@ -114,7 +117,7 @@ export function StudyPackScreen({
           <Text style={styles.headerTag}>{mode.subtitle}</Text>
         </View>
 
-        <View style={[styles.heroCard, { backgroundColor: mode.accent }]}>
+        <View style={[styles.heroCard, shadows.card, { backgroundColor: mode.accent }]}>
           <View style={styles.heroTop}>
             <View style={[styles.modePill, { backgroundColor: mode.surface }]}>
               <Text style={[styles.modePillText, { color: mode.accent }]}>
@@ -139,10 +142,16 @@ export function StudyPackScreen({
               <Text style={styles.heroMetaLabel}>今日已记录轮次</Text>
             </View>
           </View>
+
+          <View style={styles.heroAgendaCard}>
+            <Text style={styles.heroAgendaEyebrow}>这一轮怎么学</Text>
+            <Text style={styles.heroAgendaText}>先回忆，再展开讲解，最后只判断稳不稳，不要一上来就重新全背。</Text>
+            <Text style={styles.heroAgendaFootnote}>当前第 {currentIndex + 1} 项 · 先压缩记忆，再决定是否需要回收</Text>
+          </View>
         </View>
 
         {result ? (
-          <View style={styles.sectionCard}>
+          <View style={[styles.sectionCard, styles.resultCard, shadows.card]}>
             <Text style={styles.sectionTitle}>本轮学习完成</Text>
             <Text style={styles.sectionBody}>
               本轮学习结果已经写入今日进度。你共过了 {pack.items.length} 项，其中已记住 {result.solidCount} 项、还不稳 {result.unstableTerms.length} 项；今天这个模式累计完成 {result.recordedSessionCount} 轮。
@@ -173,7 +182,7 @@ export function StudyPackScreen({
           </View>
         ) : (
           <>
-            <View style={styles.progressCard}>
+            <View style={[styles.progressCard, shadows.card]}>
               <View style={styles.progressRow}>
                 <Text style={styles.progressLabel}>学习进度</Text>
                 <Text style={styles.progressValue}>
@@ -196,7 +205,7 @@ export function StudyPackScreen({
               </Text>
             </View>
 
-            <View style={styles.sectionCard}>
+            <View style={[styles.sectionCard, styles.resultCard, shadows.card]}>
               <Text style={styles.itemMeta}>
                 第 {currentIndex + 1} 项 · {item.reading ? `${item.term}（${item.reading}）` : item.term}
               </Text>
@@ -291,10 +300,18 @@ export function StudyPackScreen({
 
 const styles = StyleSheet.create({
   content: {
-    paddingHorizontal: 18,
-    paddingTop: 12,
-    paddingBottom: 36,
+    width: '100%',
+    maxWidth: 960,
+    alignSelf: 'center',
+    paddingHorizontal: 20,
+    paddingTop: 16,
+    paddingBottom: 40,
     gap: 18,
+  },
+  contentWide: {
+    paddingHorizontal: 28,
+    paddingTop: 20,
+    gap: 22,
   },
   missingState: {
     flex: 1,
@@ -313,6 +330,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    gap: 12,
   },
   headerTag: {
     color: colors.inkMuted,
@@ -333,9 +351,9 @@ const styles = StyleSheet.create({
     fontFamily: fonts.body,
   },
   heroCard: {
-    borderRadius: radii.xl,
-    padding: 22,
-    gap: 16,
+    borderRadius: 30,
+    padding: 24,
+    gap: 18,
   },
   heroTop: {
     flexDirection: 'row',
@@ -364,7 +382,7 @@ const styles = StyleSheet.create({
   },
   heroTitle: {
     color: '#FFFFFF',
-    fontSize: 30,
+    fontSize: 32,
     fontWeight: '800',
     fontFamily: fonts.title,
   },
@@ -373,13 +391,16 @@ const styles = StyleSheet.create({
     fontSize: 15,
     lineHeight: 23,
     fontFamily: fonts.body,
+    maxWidth: 620,
   },
   heroMetaRow: {
     flexDirection: 'row',
     gap: 12,
+    flexWrap: 'wrap',
   },
   heroMetaCard: {
-    flex: 1,
+    minWidth: 140,
+    flexGrow: 1,
     borderRadius: radii.md,
     backgroundColor: 'rgba(255,255,255,0.14)',
     paddingHorizontal: 14,
@@ -398,11 +419,40 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     fontFamily: fonts.body,
   },
-  progressCard: {
-    backgroundColor: colors.backgroundCard,
+  heroAgendaCard: {
     borderRadius: radii.lg,
     padding: 18,
-    gap: 12,
+    gap: 8,
+    backgroundColor: 'rgba(255,255,255,0.12)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.18)',
+  },
+  heroAgendaEyebrow: {
+    color: '#D8F5EA',
+    fontSize: 12,
+    fontWeight: '800',
+    letterSpacing: 0.6,
+    textTransform: 'uppercase',
+    fontFamily: fonts.body,
+  },
+  heroAgendaText: {
+    color: '#FFFFFF',
+    fontSize: 18,
+    lineHeight: 28,
+    fontWeight: '800',
+    fontFamily: fonts.title,
+  },
+  heroAgendaFootnote: {
+    color: '#D7E7E4',
+    fontSize: 13,
+    lineHeight: 20,
+    fontFamily: fonts.body,
+  },
+  progressCard: {
+    backgroundColor: colors.backgroundCard,
+    borderRadius: radii.xl,
+    padding: 22,
+    gap: 14,
   },
   progressRow: {
     flexDirection: 'row',
@@ -439,9 +489,12 @@ const styles = StyleSheet.create({
   },
   sectionCard: {
     backgroundColor: colors.backgroundCard,
-    borderRadius: radii.lg,
-    padding: 18,
-    gap: 14,
+    borderRadius: radii.xl,
+    padding: 22,
+    gap: 16,
+  },
+  resultCard: {
+    gap: 18,
   },
   itemMeta: {
     color: colors.inkMuted,
@@ -468,9 +521,11 @@ const styles = StyleSheet.create({
     fontFamily: fonts.body,
   },
   promptCard: {
-    borderRadius: radii.md,
-    backgroundColor: colors.slateSoft,
-    padding: 16,
+    borderRadius: radii.lg,
+    backgroundColor: colors.heroSoft,
+    borderWidth: 1,
+    borderColor: colors.heroLine,
+    padding: 18,
     gap: 8,
   },
   promptTitle: {
@@ -486,9 +541,9 @@ const styles = StyleSheet.create({
     fontFamily: fonts.body,
   },
   checklistCard: {
-    borderRadius: radii.md,
+    borderRadius: radii.lg,
     backgroundColor: colors.warmCard,
-    padding: 16,
+    padding: 18,
     gap: 10,
     borderWidth: 1,
     borderColor: colors.lineSoft,
@@ -511,9 +566,9 @@ const styles = StyleSheet.create({
     fontFamily: fonts.body,
   },
   analysisBlock: {
-    borderRadius: radii.md,
+    borderRadius: radii.lg,
     backgroundColor: colors.warmCard,
-    padding: 16,
+    padding: 18,
     gap: 8,
     borderWidth: 1,
     borderColor: colors.lineSoft,
@@ -531,9 +586,9 @@ const styles = StyleSheet.create({
     fontFamily: fonts.body,
   },
   summaryCard: {
-    borderRadius: radii.md,
+    borderRadius: radii.lg,
     backgroundColor: colors.warmCard,
-    padding: 16,
+    padding: 18,
     gap: 8,
     borderWidth: 1,
     borderColor: colors.lineSoft,
@@ -563,7 +618,9 @@ const styles = StyleSheet.create({
   primaryButton: {
     borderRadius: radii.sm,
     paddingVertical: 16,
+    paddingHorizontal: 18,
     alignItems: 'center',
+    justifyContent: 'center',
   },
   primaryButtonText: {
     color: '#FFFFFF',
@@ -576,7 +633,9 @@ const styles = StyleSheet.create({
     borderRadius: radii.sm,
     backgroundColor: colors.slateSoft,
     paddingVertical: 16,
+    paddingHorizontal: 18,
     alignItems: 'center',
+    justifyContent: 'center',
   },
   secondaryButtonText: {
     color: colors.inkBody,
@@ -585,5 +644,10 @@ const styles = StyleSheet.create({
     fontFamily: fonts.body,
   },
 });
+
+
+
+
+
 
 

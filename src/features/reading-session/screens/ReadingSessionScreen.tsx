@@ -5,6 +5,7 @@ import {
   StyleSheet,
   Text,
   View,
+  useWindowDimensions,
 } from 'react-native';
 
 import { useProgressStore } from '../../../app/providers/ProgressProvider';
@@ -13,7 +14,7 @@ import { getReadingPassageByMode } from '../../../data/seed/readingPassages';
 import { getTrainingModeById } from '../../../data/seed/trainingModes';
 import type { ReadingModeId } from '../../../domain/models/training';
 import { getModeSessionCountForDay } from '../../../domain/services/progressService';
-import { colors, fonts, radii } from '../../../theme/tokens';
+import { colors, fonts, radii, shadows } from '../../../theme/tokens';
 
 type ReadingSessionScreenProps = {
   modeId: ReadingModeId;
@@ -29,6 +30,8 @@ export function ReadingSessionScreen({
   onBackToDashboard,
 }: ReadingSessionScreenProps) {
   const { state, todayKey, recordSession } = useProgressStore();
+  const { width } = useWindowDimensions();
+  const isWideLayout = width >= 1040;
   const mode = getTrainingModeById(modeId);
   const passage = getReadingPassageByMode(modeId);
 
@@ -61,6 +64,11 @@ export function ReadingSessionScreen({
   const chosenAnswer = submitted ? answers[question.id] ?? selectedChoice : selectedChoice;
   const isCorrect = chosenAnswer === question.answer;
   const progressValue = (currentIndex + 1) / passage.questions.length;
+  const missionText = submitted
+    ? isCorrect
+      ? '这题已经判断到位，下一步复述证据是怎样支持答案的。'
+      : '别急着记选项，先回到文中把真正支撑答案的句子找到。'
+    : '先确认题干真正问的是什么，再回文中定位证据，最后排除最像正确项。';
   const wrongQuestionLabels = useMemo(
     () =>
       passage.questions.reduce<string[]>((labels, currentQuestion, index) => {
@@ -116,7 +124,7 @@ export function ReadingSessionScreen({
 
   return (
     <AppBackground>
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView contentContainerStyle={[styles.content, isWideLayout && styles.contentWide]}>
         <View style={styles.header}>
           <Pressable onPress={onExit} style={styles.ghostButton}>
             <Text style={styles.ghostButtonText}>退出读解</Text>
@@ -124,7 +132,7 @@ export function ReadingSessionScreen({
           <Text style={styles.headerTag}>{mode.subtitle}</Text>
         </View>
 
-        <View style={[styles.heroCard, { backgroundColor: mode.accent }]}>
+        <View style={[styles.heroCard, shadows.card, { backgroundColor: mode.accent }]}>
           <View style={styles.heroTop}>
             <View style={[styles.modePill, { backgroundColor: mode.surface }]}>
               <Text style={[styles.modePillText, { color: mode.accent }]}>
@@ -152,7 +160,7 @@ export function ReadingSessionScreen({
         </View>
 
         {result ? (
-          <View style={styles.sectionCard}>
+          <View style={[styles.sectionCard, styles.resultCard, shadows.card]}>
             <Text style={styles.sectionTitle}>本轮读解完成</Text>
             <Text style={styles.sectionBody}>
               本轮结果已经写入今日进度。你共答对 {result.correctCount} 题，答错 {result.wrongCount} 题；今天这个模式累计完成 {result.recordedSessionCount} 轮。
@@ -235,7 +243,7 @@ export function ReadingSessionScreen({
               </Text>
             </View>
 
-            <View style={styles.sectionCard}>
+            <View style={[styles.sectionCard, styles.resultCard, shadows.card]}>
               <Text style={styles.questionMeta}>
                 第 {currentIndex + 1} 题 · {question.tags.join(' / ')}
               </Text>
@@ -348,7 +356,7 @@ export function ReadingSessionScreen({
               ) : null}
             </View>
 
-            <View style={styles.footerActions}>
+              <View style={styles.footerActions}>
               <Pressable
                 onPress={submitted ? handleNext : handleSubmit}
                 disabled={!submitted && selectedChoice === null}
@@ -378,10 +386,18 @@ export function ReadingSessionScreen({
 
 const styles = StyleSheet.create({
   content: {
+    width: '100%',
+    maxWidth: 1320,
+    alignSelf: 'center',
     paddingHorizontal: 18,
     paddingTop: 12,
-    paddingBottom: 36,
+    paddingBottom: 40,
     gap: 18,
+  },
+  contentWide: {
+    paddingHorizontal: 28,
+    paddingTop: 20,
+    gap: 22,
   },
   missingState: {
     flex: 1,
@@ -400,6 +416,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    gap: 12,
   },
   headerTag: {
     color: colors.inkMuted,
@@ -463,9 +480,11 @@ const styles = StyleSheet.create({
   heroMetaRow: {
     flexDirection: 'row',
     gap: 12,
+    flexWrap: 'wrap',
   },
   heroMetaCard: {
-    flex: 1,
+    minWidth: 140,
+    flexGrow: 1,
     borderRadius: radii.md,
     backgroundColor: 'rgba(255,255,255,0.14)',
     paddingVertical: 14,
@@ -486,15 +505,18 @@ const styles = StyleSheet.create({
   },
   passagesCard: {
     backgroundColor: colors.backgroundCard,
-    borderRadius: radii.lg,
-    padding: 18,
-    gap: 14,
+    borderRadius: radii.xl,
+    padding: 22,
+    gap: 16,
   },
   sectionCard: {
     backgroundColor: colors.backgroundCard,
-    borderRadius: radii.lg,
-    padding: 18,
-    gap: 14,
+    borderRadius: radii.xl,
+    padding: 22,
+    gap: 16,
+  },
+  resultCard: {
+    gap: 18,
   },
   sectionTitle: {
     color: colors.inkStrong,
@@ -539,9 +561,9 @@ const styles = StyleSheet.create({
   },
   progressCard: {
     backgroundColor: colors.backgroundCard,
-    borderRadius: radii.lg,
-    padding: 18,
-    gap: 12,
+    borderRadius: radii.xl,
+    padding: 22,
+    gap: 14,
   },
   progressRow: {
     flexDirection: 'row',
@@ -757,5 +779,7 @@ const styles = StyleSheet.create({
     fontFamily: fonts.body,
   },
 });
+
+
 
 

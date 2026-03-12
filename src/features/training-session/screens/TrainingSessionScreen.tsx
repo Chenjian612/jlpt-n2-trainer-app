@@ -5,6 +5,7 @@ import {
   StyleSheet,
   Text,
   View,
+  useWindowDimensions,
 } from 'react-native';
 
 import { useProgressStore } from '../../../app/providers/ProgressProvider';
@@ -12,7 +13,7 @@ import { AppBackground } from '../../../components/common/AppBackground';
 import { getTrainingModeById } from '../../../data/seed/trainingModes';
 import type { TrainingModeId, TrainingSessionKind } from '../../../domain/models/training';
 import { getModeSessionCountForDay } from '../../../domain/services/progressService';
-import { colors, fonts, radii } from '../../../theme/tokens';
+import { colors, fonts, radii, shadows } from '../../../theme/tokens';
 
 type TrainingSessionScreenProps = {
   modeId: TrainingModeId;
@@ -101,6 +102,8 @@ export function TrainingSessionScreen({
   onBackToDashboard,
 }: TrainingSessionScreenProps) {
   const { state, todayKey, recordSession } = useProgressStore();
+  const { width } = useWindowDimensions();
+  const isWideLayout = width >= 1040;
   const mode = getTrainingModeById(modeId);
 
   if (!mode) {
@@ -162,6 +165,14 @@ export function TrainingSessionScreen({
   const checklistReady = checklistState.every(Boolean);
   const hasRecorded = recordedSessionCount !== null;
   const progressValue = (stageIndex + 1) / stages.length;
+  const currentStageLabel =
+    stage.kind === 'flow'
+      ? '训练步骤'
+      : stage.kind === 'checklist'
+        ? '收口检查'
+        : stage.kind === 'review'
+          ? '完成确认'
+          : '进入准备';
 
   const toggleChecklistItem = (index: number) => {
     setChecklistState((current) =>
@@ -197,7 +208,7 @@ export function TrainingSessionScreen({
 
   return (
     <AppBackground>
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView contentContainerStyle={[styles.content, isWideLayout && styles.contentWide]}>
         <View style={styles.header}>
           <Pressable onPress={onExit} style={styles.ghostButton}>
             <Text style={styles.ghostButtonText}>退出训练</Text>
@@ -205,7 +216,7 @@ export function TrainingSessionScreen({
           <Text style={styles.headerTag}>{mode.subtitle}</Text>
         </View>
 
-        <View style={[styles.heroCard, { backgroundColor: mode.accent }]}>
+        <View style={[styles.heroCard, shadows.card, { backgroundColor: mode.accent }]}> 
           <View style={styles.heroTop}>
             <View style={[styles.modePill, { backgroundColor: mode.surface }]}>
               <Text style={[styles.modePillText, { color: mode.accent }]}>
@@ -229,141 +240,261 @@ export function TrainingSessionScreen({
               </Text>
               <Text style={styles.heroMetaLabel}>今日已记录轮次</Text>
             </View>
+            <View style={styles.heroMetaCard}>
+              <Text style={styles.heroMetaValue}>{mode.checklist.length}</Text>
+              <Text style={styles.heroMetaLabel}>收口检查项</Text>
+            </View>
+          </View>
+
+          <View style={styles.heroAgendaCard}>
+            <Text style={styles.heroAgendaEyebrow}>这一轮的目标</Text>
+            <Text style={styles.heroAgendaText}>{mode.targetOutput}</Text>
+            <Text style={styles.heroAgendaFootnote}>
+              当前阶段：{currentStageLabel} · 共 {stages.length} 个步骤
+            </Text>
           </View>
         </View>
 
         {hasRecorded ? (
-          <View style={styles.sectionCard}>
-            <Text style={styles.sectionTitle}>本轮训练完成</Text>
-            <Text style={styles.sectionBody}>
+          <View style={[styles.resultShell, shadows.card]}>
+            <View style={styles.resultFlag}>
+              <Text style={styles.resultFlagText}>训练已自动记录</Text>
+            </View>
+            <Text style={styles.resultTitle}>本轮训练完成</Text>
+            <Text style={styles.resultLead}>
               本轮结果已经写入今日进度。{mode.title} 今天累计完成 {recordedSessionCount} 轮，系统是在整轮结束后自动记入的。
             </Text>
-            <View style={styles.summaryCard}>
-              <Text style={styles.summaryTitle}>下一步建议</Text>
-              <Text style={styles.summaryBody}>{mode.targetOutput}</Text>
-              <Text style={styles.summaryFootnote}>复盘建议：{mode.reviewTip}</Text>
+
+            <View style={styles.summaryGrid}>
+              <View style={styles.summaryStat}>
+                <Text style={styles.summaryValue}>{recordedSessionCount}</Text>
+                <Text style={styles.summaryLabel}>今日累计</Text>
+              </View>
+              <View style={styles.summaryStat}>
+                <Text style={styles.summaryValue}>{stages.length}</Text>
+                <Text style={styles.summaryLabel}>完成阶段</Text>
+              </View>
+              <View style={styles.summaryStat}>
+                <Text style={styles.summaryValue}>{mode.checklist.length}</Text>
+                <Text style={styles.summaryLabel}>检查项</Text>
+              </View>
             </View>
 
-            <Pressable
-              onPress={onBackToDashboard}
-              style={[styles.primaryButton, { backgroundColor: mode.accent }]}
-            >
-              <Text style={styles.primaryButtonText}>继续今天的安排</Text>
-            </Pressable>
-
-            <Pressable onPress={onBackToDetail} style={styles.secondaryButton}>
-              <Text style={styles.secondaryButtonText}>回到模式页</Text>
-            </Pressable>
-          </View>
-        ) : (
-          <>
-            <View style={styles.progressCard}>
-              <View style={styles.progressRow}>
-                <Text style={styles.progressLabel}>当前进度</Text>
-                <Text style={styles.progressValue}>
-                  {stageIndex + 1}/{stages.length}
-                </Text>
-              </View>
-              <View style={styles.progressTrack}>
-                <View
-                  style={[
-                    styles.progressFill,
-                    {
-                      width: `${progressValue * 100}%`,
-                      backgroundColor: mode.accent,
-                    },
-                  ]}
-                />
-              </View>
-              <Text style={styles.progressHint}>
-                {initialSessionCount > 0
-                  ? `今天这个模式已经记录过 ${initialSessionCount} 轮，再练完会继续累计。`
-                  : '中途退出不会写入记录，只有走完整轮才会自动记入。'}
+            <View style={styles.highlightCard}>
+              <Text style={styles.highlightEyebrow}>这轮最该带走什么</Text>
+              <Text style={styles.highlightTitle}>{mode.targetOutput}</Text>
+              <Text style={styles.highlightBody}>
+                下一轮不要只重复做动作，要先确认自己能不能更快地进入正确判断路径。
               </Text>
             </View>
 
-            <View style={styles.sectionCard}>
-              {stage.kind === 'flow' ? (
-                <View style={[styles.badge, { backgroundColor: mode.surface }]}>
-                  <Text style={[styles.badgeText, { color: mode.accent }]}>
-                    {stage.badge}
+            <View style={styles.summaryCard}>
+              <Text style={styles.summaryTitle}>下一步建议</Text>
+              <Text style={styles.summaryBody}>{mode.reviewTip}</Text>
+              <Text style={styles.summaryFootnote}>复盘建议：{mode.targetOutput}</Text>
+            </View>
+
+            <View style={styles.resultActions}>
+              <Pressable
+                onPress={onBackToDashboard}
+                style={[styles.primaryButton, { backgroundColor: mode.accent }]}
+              >
+                <Text style={styles.primaryButtonText}>继续今天的安排</Text>
+              </Pressable>
+
+              <Pressable onPress={onBackToDetail} style={styles.secondaryButton}>
+                <Text style={styles.secondaryButtonText}>回到模式页</Text>
+              </Pressable>
+            </View>
+          </View>
+        ) : (
+          <View style={[styles.pageColumns, isWideLayout && styles.pageColumnsWide]}>
+            <View style={styles.sidebarColumn}>
+              <View style={[styles.progressCard, shadows.card]}>
+                <View style={styles.cardHeaderRow}>
+                  <View>
+                    <Text style={styles.sectionEyebrow}>轮次总览</Text>
+                    <Text style={styles.cardTitle}>当前进度</Text>
+                  </View>
+                  <View style={styles.stageBadge}>
+                    <Text style={styles.stageBadgeText}>{currentStageLabel}</Text>
+                  </View>
+                </View>
+
+                <View style={styles.progressMetaRow}>
+                  <Text style={styles.progressLabel}>阶段推进</Text>
+                  <Text style={styles.progressValue}>
+                    {stageIndex + 1}/{stages.length}
                   </Text>
                 </View>
-              ) : null}
+                <View style={styles.progressTrack}>
+                  <View
+                    style={[
+                      styles.progressFill,
+                      {
+                        width: `${progressValue * 100}%`,
+                        backgroundColor: mode.accent,
+                      },
+                    ]}
+                  />
+                </View>
+                <Text style={styles.progressHint}>
+                  {initialSessionCount > 0
+                    ? `今天这个模式已经记录过 ${initialSessionCount} 轮，再练完会继续累计。`
+                    : '中途退出不会写入记录，只有走完整轮才会自动记入。'}
+                </Text>
+              </View>
 
-              <Text style={styles.sectionTitle}>{stage.title}</Text>
-              <Text style={styles.sectionBody}>{stage.body}</Text>
-
-              {stage.kind === 'checklist' ? (
-                <View style={styles.checklistBlock}>
-                  {mode.checklist.map((item, index) => {
-                    const checked = checklistState[index];
+              <View style={[styles.timelineCard, shadows.card]}>
+                <Text style={styles.sectionEyebrow}>这一轮会怎么走</Text>
+                <View style={styles.timelineList}>
+                  {stages.map((item, index) => {
+                    const active = index === stageIndex;
+                    const done = index < stageIndex;
 
                     return (
-                      <Pressable
-                        key={item}
-                        onPress={() => toggleChecklistItem(index)}
+                      <View
+                        key={`${item.kind}-${index}`}
                         style={[
-                          styles.checklistItem,
-                          checked && { borderColor: mode.accent, backgroundColor: mode.surface },
+                          styles.timelineItem,
+                          active && { borderColor: mode.accent, backgroundColor: mode.surface },
                         ]}
                       >
                         <View
                           style={[
-                            styles.checkBullet,
-                            checked && { backgroundColor: mode.accent },
+                            styles.timelineDot,
+                            done && { backgroundColor: mode.accent },
+                            active && styles.timelineDotActive,
                           ]}
                         />
-                        <Text style={styles.checklistText}>{item}</Text>
-                      </Pressable>
+                        <View style={styles.timelineTextBlock}>
+                          <Text
+                            style={[
+                              styles.timelineTitle,
+                              active && { color: mode.accent },
+                            ]}
+                          >
+                            {item.title}
+                          </Text>
+                          <Text style={styles.timelineBody}>
+                            {item.kind === 'flow'
+                              ? `步骤 ${index}`
+                              : item.kind === 'checklist'
+                                ? '逐项确认关键动作'
+                                : item.kind === 'review'
+                                  ? '收口并自动记录'
+                                  : '进入训练前预热'}
+                          </Text>
+                        </View>
+                      </View>
                     );
                   })}
                 </View>
-              ) : null}
-
-              {stage.kind === 'review' ? (
-                <View style={styles.summaryCard}>
-                  <Text style={styles.summaryTitle}>完成标准</Text>
-                  <Text style={styles.summaryBody}>{mode.targetOutput}</Text>
-                  <Text style={styles.summaryFootnote}>复盘建议：{mode.reviewTip}</Text>
-                </View>
-              ) : null}
+              </View>
             </View>
 
-            <View style={styles.footerActions}>
-              <Pressable
-                onPress={handlePrevious}
-                disabled={stageIndex === 0}
-                style={[
-                  styles.secondaryButton,
-                  stageIndex === 0 && styles.secondaryButtonDisabled,
-                ]}
-              >
-                <Text
+            <View style={styles.mainColumn}>
+              <View style={[styles.stageCard, shadows.card]}>
+                <View style={styles.cardHeaderRow}>
+                  <View>
+                    <Text style={styles.sectionEyebrow}>当前阶段</Text>
+                    <Text style={styles.cardTitle}>{stage.title}</Text>
+                  </View>
+                  {stage.kind === 'flow' ? (
+                    <View style={[styles.flowBadge, { backgroundColor: mode.surface }]}>
+                      <Text style={[styles.flowBadgeText, { color: mode.accent }]}>
+                        {stage.badge}
+                      </Text>
+                    </View>
+                  ) : null}
+                </View>
+
+                <Text style={styles.sectionBody}>{stage.body}</Text>
+
+                <View style={styles.focusCard}>
+                  <Text style={styles.focusLabel}>这一阶段最重要的动作</Text>
+                  <Text style={styles.focusText}>
+                    {stage.kind === 'intro'
+                      ? '先进入正确节奏，不要一上来就变成走流程。'
+                      : stage.kind === 'flow'
+                        ? stage.body
+                        : stage.kind === 'checklist'
+                          ? '把关键判断点逐项勾完，再进入复盘。'
+                          : mode.targetOutput}
+                  </Text>
+                </View>
+
+                {stage.kind === 'checklist' ? (
+                  <View style={styles.checklistBlock}>
+                    {mode.checklist.map((item, index) => {
+                      const checked = checklistState[index];
+
+                      return (
+                        <Pressable
+                          key={item}
+                          onPress={() => toggleChecklistItem(index)}
+                          style={[
+                            styles.checklistItem,
+                            checked && { borderColor: mode.accent, backgroundColor: mode.surface },
+                          ]}
+                        >
+                          <View
+                            style={[
+                              styles.checkBullet,
+                              checked && { backgroundColor: mode.accent },
+                            ]}
+                          />
+                          <Text style={styles.checklistText}>{item}</Text>
+                        </Pressable>
+                      );
+                    })}
+                  </View>
+                ) : null}
+
+                {stage.kind === 'review' ? (
+                  <View style={styles.summaryCard}>
+                    <Text style={styles.summaryTitle}>完成标准</Text>
+                    <Text style={styles.summaryBody}>{mode.targetOutput}</Text>
+                    <Text style={styles.summaryFootnote}>复盘建议：{mode.reviewTip}</Text>
+                  </View>
+                ) : null}
+              </View>
+
+              <View style={styles.footerActions}>
+                <Pressable
+                  onPress={handlePrevious}
+                  disabled={stageIndex === 0}
                   style={[
-                    styles.secondaryButtonText,
-                    stageIndex === 0 && styles.secondaryButtonTextDisabled,
+                    styles.secondaryButton,
+                    stageIndex === 0 && styles.secondaryButtonDisabled,
                   ]}
                 >
-                  上一步
-                </Text>
-              </Pressable>
+                  <Text
+                    style={[
+                      styles.secondaryButtonText,
+                      stageIndex === 0 && styles.secondaryButtonTextDisabled,
+                    ]}
+                  >
+                    上一步
+                  </Text>
+                </Pressable>
 
-              <Pressable
-                onPress={handleNext}
-                disabled={stage.kind === 'checklist' && !checklistReady}
-                style={[
-                  styles.primaryButton,
-                  { backgroundColor: mode.accent },
-                  stage.kind === 'checklist' &&
-                    !checklistReady &&
-                    styles.primaryButtonDisabled,
-                ]}
-              >
-                <Text style={styles.primaryButtonText}>{stage.actionLabel}</Text>
-              </Pressable>
+                <Pressable
+                  onPress={handleNext}
+                  disabled={stage.kind === 'checklist' && !checklistReady}
+                  style={[
+                    styles.primaryButton,
+                    { backgroundColor: mode.accent },
+                    stage.kind === 'checklist' &&
+                      !checklistReady &&
+                      styles.primaryButtonDisabled,
+                  ]}
+                >
+                  <Text style={styles.primaryButtonText}>{stage.actionLabel}</Text>
+                </Pressable>
+              </View>
             </View>
-          </>
+          </View>
         )}
       </ScrollView>
     </AppBackground>
@@ -372,10 +503,18 @@ export function TrainingSessionScreen({
 
 const styles = StyleSheet.create({
   content: {
+    width: '100%',
+    maxWidth: 1320,
+    alignSelf: 'center',
     paddingHorizontal: 18,
     paddingTop: 12,
-    paddingBottom: 36,
+    paddingBottom: 40,
     gap: 18,
+  },
+  contentWide: {
+    paddingHorizontal: 28,
+    paddingTop: 20,
+    gap: 22,
   },
   missingState: {
     flex: 1,
@@ -394,6 +533,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    gap: 12,
   },
   headerTag: {
     color: colors.inkMuted,
@@ -445,22 +585,25 @@ const styles = StyleSheet.create({
   },
   heroTitle: {
     color: '#FFFFFF',
-    fontSize: 30,
+    fontSize: 32,
     fontWeight: '800',
     fontFamily: fonts.title,
   },
   heroBody: {
-    color: '#F8FAFC',
+    color: '#F6FBFA',
     fontSize: 15,
     lineHeight: 23,
     fontFamily: fonts.body,
+    maxWidth: 760,
   },
   heroMetaRow: {
     flexDirection: 'row',
     gap: 12,
+    flexWrap: 'wrap',
   },
   heroMetaCard: {
-    flex: 1,
+    minWidth: 120,
+    flexGrow: 1,
     borderRadius: radii.md,
     backgroundColor: 'rgba(255,255,255,0.14)',
     paddingVertical: 14,
@@ -469,7 +612,7 @@ const styles = StyleSheet.create({
   },
   heroMetaValue: {
     color: '#FFFFFF',
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: '800',
     fontFamily: fonts.title,
   },
@@ -479,16 +622,126 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     fontFamily: fonts.body,
   },
+  heroAgendaCard: {
+    borderRadius: radii.md,
+    padding: 18,
+    gap: 8,
+    backgroundColor: 'rgba(255,255,255,0.12)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.18)',
+  },
+  heroAgendaEyebrow: {
+    color: '#D8F5EA',
+    fontSize: 12,
+    fontWeight: '800',
+    letterSpacing: 0.6,
+    textTransform: 'uppercase',
+    fontFamily: fonts.body,
+  },
+  heroAgendaText: {
+    color: '#FFFFFF',
+    fontSize: 18,
+    lineHeight: 28,
+    fontWeight: '700',
+    fontFamily: fonts.title,
+  },
+  heroAgendaFootnote: {
+    color: '#D7E7E4',
+    fontSize: 13,
+    lineHeight: 20,
+    fontFamily: fonts.body,
+  },
+  resultShell: {
+    backgroundColor: colors.backgroundCard,
+    borderRadius: radii.xl,
+    padding: 24,
+    gap: 18,
+  },
+  resultFlag: {
+    alignSelf: 'flex-start',
+    borderRadius: radii.pill,
+    backgroundColor: colors.heroSoft,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+  },
+  resultFlagText: {
+    color: colors.hero,
+    fontSize: 12,
+    fontWeight: '800',
+    fontFamily: fonts.body,
+  },
+  resultTitle: {
+    color: colors.inkStrong,
+    fontSize: 30,
+    fontWeight: '800',
+    fontFamily: fonts.title,
+  },
+  resultLead: {
+    color: colors.inkBody,
+    fontSize: 15,
+    lineHeight: 23,
+    fontFamily: fonts.body,
+  },
+  pageColumns: {
+    gap: 18,
+  },
+  pageColumnsWide: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+  },
+  sidebarColumn: {
+    flex: 0.74,
+    gap: 18,
+  },
+  mainColumn: {
+    flex: 1,
+    gap: 18,
+  },
   progressCard: {
     backgroundColor: colors.backgroundCard,
-    borderRadius: radii.lg,
-    padding: 18,
-    gap: 12,
+    borderRadius: radii.xl,
+    padding: 22,
+    gap: 16,
   },
-  progressRow: {
+  cardHeaderRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    gap: 12,
+    flexWrap: 'wrap',
+  },
+  sectionEyebrow: {
+    color: colors.inkSoft,
+    fontSize: 12,
+    fontWeight: '800',
+    letterSpacing: 0.6,
+    textTransform: 'uppercase',
+    fontFamily: fonts.body,
+  },
+  cardTitle: {
+    color: colors.inkStrong,
+    fontSize: 24,
+    lineHeight: 32,
+    fontWeight: '800',
+    fontFamily: fonts.title,
+  },
+  stageBadge: {
+    borderRadius: radii.pill,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    backgroundColor: colors.backgroundCardMuted,
+  },
+  stageBadgeText: {
+    color: colors.inkStrong,
+    fontSize: 12,
+    fontWeight: '800',
+    fontFamily: fonts.body,
+  },
+  progressMetaRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    gap: 12,
   },
   progressLabel: {
     color: colors.inkStrong,
@@ -518,33 +771,93 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     fontFamily: fonts.body,
   },
-  sectionCard: {
+  timelineCard: {
     backgroundColor: colors.backgroundCard,
-    borderRadius: radii.lg,
-    padding: 18,
-    gap: 14,
+    borderRadius: radii.xl,
+    padding: 22,
+    gap: 16,
   },
-  badge: {
-    alignSelf: 'flex-start',
+  timelineList: {
+    gap: 10,
+  },
+  timelineItem: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 12,
+    borderRadius: radii.md,
+    borderWidth: 1,
+    borderColor: colors.lineSoft,
+    backgroundColor: colors.warmCard,
+    padding: 14,
+  },
+  timelineDot: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    marginTop: 6,
+    backgroundColor: colors.barIdle,
+  },
+  timelineDotActive: {
+    borderWidth: 2,
+    borderColor: colors.hero,
+    backgroundColor: colors.backgroundCard,
+  },
+  timelineTextBlock: {
+    flex: 1,
+    gap: 4,
+  },
+  timelineTitle: {
+    color: colors.inkStrong,
+    fontSize: 14,
+    fontWeight: '800',
+    fontFamily: fonts.body,
+  },
+  timelineBody: {
+    color: colors.inkMuted,
+    fontSize: 13,
+    lineHeight: 20,
+    fontFamily: fonts.body,
+  },
+  stageCard: {
+    backgroundColor: colors.backgroundCard,
+    borderRadius: radii.xl,
+    padding: 22,
+    gap: 16,
+  },
+  flowBadge: {
     borderRadius: radii.pill,
     paddingHorizontal: 12,
     paddingVertical: 8,
   },
-  badgeText: {
+  flowBadgeText: {
     fontSize: 12,
     fontWeight: '800',
     fontFamily: fonts.body,
   },
-  sectionTitle: {
-    color: colors.inkStrong,
-    fontSize: 22,
-    fontWeight: '800',
-    fontFamily: fonts.title,
-  },
   sectionBody: {
     color: colors.inkBody,
     fontSize: 15,
-    lineHeight: 23,
+    lineHeight: 24,
+    fontFamily: fonts.body,
+  },
+  focusCard: {
+    borderRadius: radii.lg,
+    backgroundColor: colors.heroSoft,
+    borderWidth: 1,
+    borderColor: colors.heroLine,
+    padding: 16,
+    gap: 6,
+  },
+  focusLabel: {
+    color: colors.hero,
+    fontSize: 12,
+    fontWeight: '800',
+    fontFamily: fonts.body,
+  },
+  focusText: {
+    color: colors.inkStrong,
+    fontSize: 14,
+    lineHeight: 22,
     fontFamily: fonts.body,
   },
   checklistBlock: {
@@ -574,24 +887,77 @@ const styles = StyleSheet.create({
     lineHeight: 21,
     fontFamily: fonts.body,
   },
-  summaryCard: {
+  summaryGrid: {
+    flexDirection: 'row',
+    gap: 12,
+    flexWrap: 'wrap',
+  },
+  summaryStat: {
+    minWidth: 140,
+    flexGrow: 1,
     borderRadius: radii.md,
     backgroundColor: colors.warmCard,
-    padding: 16,
+    borderWidth: 1,
+    borderColor: colors.lineSoft,
+    paddingVertical: 16,
+    paddingHorizontal: 16,
+    gap: 4,
+  },
+  summaryValue: {
+    color: colors.inkStrong,
+    fontSize: 24,
+    fontWeight: '800',
+    fontFamily: fonts.title,
+  },
+  summaryLabel: {
+    color: colors.inkMuted,
+    fontSize: 13,
+    fontWeight: '700',
+    fontFamily: fonts.body,
+  },
+  highlightCard: {
+    borderRadius: radii.lg,
+    backgroundColor: colors.hero,
+    padding: 18,
+    gap: 8,
+  },
+  highlightEyebrow: {
+    color: '#D8F5EA',
+    fontSize: 12,
+    fontWeight: '800',
+    fontFamily: fonts.body,
+  },
+  highlightTitle: {
+    color: '#FFFFFF',
+    fontSize: 20,
+    lineHeight: 28,
+    fontWeight: '800',
+    fontFamily: fonts.title,
+  },
+  highlightBody: {
+    color: '#E6F6F1',
+    fontSize: 14,
+    lineHeight: 22,
+    fontFamily: fonts.body,
+  },
+  summaryCard: {
+    borderRadius: radii.lg,
+    backgroundColor: colors.warmCard,
+    padding: 18,
     gap: 8,
     borderWidth: 1,
     borderColor: colors.lineSoft,
   },
   summaryTitle: {
     color: colors.inkStrong,
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: '800',
     fontFamily: fonts.title,
   },
   summaryBody: {
     color: colors.inkBody,
     fontSize: 14,
-    lineHeight: 21,
+    lineHeight: 22,
     fontFamily: fonts.body,
   },
   summaryFootnote: {
@@ -604,11 +970,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 12,
   },
+  resultActions: {
+    gap: 12,
+  },
   primaryButton: {
-    flex: 1.4,
+    flex: 1.35,
     borderRadius: radii.sm,
     paddingVertical: 16,
+    paddingHorizontal: 18,
     alignItems: 'center',
+    justifyContent: 'center',
   },
   primaryButtonDisabled: {
     backgroundColor: colors.barIdle,
@@ -622,22 +993,24 @@ const styles = StyleSheet.create({
   secondaryButton: {
     flex: 1,
     borderRadius: radii.sm,
-    backgroundColor: colors.slateSoft,
     paddingVertical: 16,
+    paddingHorizontal: 18,
     alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: colors.lineSoft,
+    backgroundColor: colors.backgroundCard,
   },
   secondaryButtonDisabled: {
-    opacity: 0.55,
+    opacity: 0.48,
   },
   secondaryButtonText: {
     color: colors.inkBody,
     fontSize: 14,
-    fontWeight: '700',
+    fontWeight: '800',
     fontFamily: fonts.body,
   },
   secondaryButtonTextDisabled: {
     color: colors.inkMuted,
   },
 });
-
-

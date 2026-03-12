@@ -5,6 +5,7 @@ import {
   StyleSheet,
   Text,
   View,
+  useWindowDimensions,
 } from 'react-native';
 
 import { useProgressStore } from '../../../app/providers/ProgressProvider';
@@ -14,7 +15,7 @@ import { getTrainingModeById } from '../../../data/seed/trainingModes';
 import type { DrillModeId } from '../../../domain/models/training';
 import type { WrongAnswerDraft } from '../../../domain/models/trainingContent';
 import { getModeSessionCountForDay } from '../../../domain/services/progressService';
-import { colors, fonts, radii } from '../../../theme/tokens';
+import { colors, fonts, radii, shadows } from '../../../theme/tokens';
 
 type DrillSessionScreenProps = {
   modeId: DrillModeId;
@@ -30,6 +31,7 @@ export function DrillSessionScreen({
   onBackToDashboard,
 }: DrillSessionScreenProps) {
   const { state, todayKey, recordDrillSession } = useProgressStore();
+  const { width } = useWindowDimensions();
   const mode = getTrainingModeById(modeId);
   const questions = getDrillQuestionsByMode(modeId);
 
@@ -46,7 +48,10 @@ export function DrillSessionScreen({
     );
   }
 
-  const initialSessionCount = getModeSessionCountForDay(state, todayKey, mode.id);
+  const initialSessionCountRef = useRef(
+    getModeSessionCountForDay(state, todayKey, mode.id),
+  );
+  const initialSessionCount = initialSessionCountRef.current;
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedChoice, setSelectedChoice] = useState<number | null>(null);
   const [submitted, setSubmitted] = useState(false);
@@ -61,6 +66,21 @@ export function DrillSessionScreen({
   const chosenAnswer = submitted ? answers[question.id] ?? selectedChoice : selectedChoice;
   const isCorrect = chosenAnswer === question.answer;
   const progressValue = (currentIndex + 1) / questions.length;
+  const isWideLayout = width >= 1040;
+  const answeredCount = Object.keys(answers).length;
+  const pendingCount = questions.length - answeredCount;
+  const displayedSessionCount = result ? result.recordedSessionCount : initialSessionCount;
+  const missionText = result
+    ? result.wrongCount > 0
+      ? '新增错题已经自动入队，接下来优先回收最容易再次做错的那几题。'
+      : '这一轮判断很稳，可以直接切到下一组内容，保持今天的节奏。'
+    : submitted
+      ? isCorrect
+        ? '这题判断方向没问题，下一步把正确项的依据复述一遍。'
+        : '别急着记答案，先回到题干里看清楚真正被考的判断点。'
+      : selectedChoice === null
+        ? '先锁定题干在考什么，再排掉最像正确项的干扰答案。'
+        : '已经有初步判断了，提交前再检查一次题干限制条件。';
 
   const wrongAnswerDrafts = useMemo<WrongAnswerDraft[]>(
     () =>
@@ -120,7 +140,7 @@ export function DrillSessionScreen({
 
   return (
     <AppBackground>
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView contentContainerStyle={[styles.content, isWideLayout && styles.contentWide]}>
         <View style={styles.header}>
           <Pressable onPress={onExit} style={styles.ghostButton}>
             <Text style={styles.ghostButtonText}>退出训练</Text>
@@ -128,24 +148,47 @@ export function DrillSessionScreen({
           <Text style={styles.headerTag}>{mode.subtitle}</Text>
         </View>
 
-        <View style={[styles.heroCard, { backgroundColor: mode.accent }]}>
+        <View style={[styles.heroCard, shadows.card, { backgroundColor: mode.accent }]}>
           <View style={styles.heroTop}>
             <View style={[styles.modePill, { backgroundColor: mode.surface }]}>
-              <Text style={[styles.modePillText, { color: mode.accent }]}>
-                {mode.shortTitle}
-              </Text>
+              <Text style={[styles.modePillText, { color: mode.accent }]}>{mode.shortTitle}</Text>
             </View>
             <Text style={styles.heroSource}>{mode.sourceLabel}</Text>
           </View>
 
           <Text style={styles.heroTitle}>{mode.title}</Text>
           <Text style={styles.heroBody}>
-            做完整轮题目后会自动记 1 轮训练；答错的题会自动进入本地错题回收队列。
+            做完整轮题目后会自动记 1 轮训练；答错的题会直接进入本地错题回收队列。
           </Text>
+
+          <View style={styles.heroMetaRow}>
+            <View style={styles.heroMetaChip}>
+              <Text style={styles.heroMetaLabel}>当前进度</Text>
+              <Text style={styles.heroMetaValue}>
+                {result ? questions.length : currentIndex + 1}/{questions.length}
+              </Text>
+            </View>
+            <View style={styles.heroMetaChip}>
+              <Text style={styles.heroMetaLabel}>今日累计</Text>
+              <Text style={styles.heroMetaValue}>{displayedSessionCount} 轮</Text>
+            </View>
+            <View style={styles.heroMetaChip}>
+              <Text style={styles.heroMetaLabel}>待完成</Text>
+              <Text style={styles.heroMetaValue}>{result ? 0 : pendingCount} 题</Text>
+            </View>
+          </View>
+
+          <View style={styles.heroAgendaCard}>
+            <Text style={styles.heroAgendaEyebrow}>这一轮先抓什么</Text>
+            <Text style={styles.heroAgendaText}>{missionText}</Text>
+            <Text style={styles.heroAgendaFootnote}>
+              当前第 {Math.min(currentIndex + 1, questions.length)} 题 · 先看题干限制，再判断选项
+            </Text>
+          </View>
         </View>
 
         {result ? (
-          <View style={styles.sectionCard}>
+          <View style={[styles.sectionCard, styles.resultShell, shadows.card]}>
             <Text style={styles.sectionTitle}>本轮训练完成</Text>
             <Text style={styles.sectionBody}>
               本轮结果已经写入今日进度。你共答对 {result.correctCount} 题，答错 {result.wrongCount} 题；今天这个模式累计完成 {result.recordedSessionCount} 轮。
@@ -160,15 +203,41 @@ export function DrillSessionScreen({
                 <Text style={styles.summaryValue}>{result.wrongCount}</Text>
                 <Text style={styles.summaryLabel}>加入错题队列</Text>
               </View>
+              <View style={styles.summaryStat}>
+                <Text style={styles.summaryValue}>{result.recordedSessionCount}</Text>
+                <Text style={styles.summaryLabel}>今日累计</Text>
+              </View>
             </View>
 
-            <View style={styles.summaryCard}>
-              <Text style={styles.summaryTitle}>下一步建议</Text>
-              <Text style={styles.summaryBody}>
+            <View style={styles.summaryHighlight}>
+              <Text style={styles.summaryHighlightTitle}>下一步建议</Text>
+              <Text style={styles.summaryHighlightBody}>
                 {result.wrongCount > 0
-                  ? '今天的错题已经进入回收队列，接下来优先去对应的错题回收模式做一轮。'
-                  : '本轮没有新增错题，可以直接回到首页继续今天的安排。'}
+                  ? '今天的错题已经进入回收队列，接下来先去对应的错题回收模式做一轮，把判断点重新压实。'
+                  : '本轮没有新增错题，可以直接回到首页继续今天的安排，或者再刷一轮保持题感。'}
               </Text>
+            </View>
+
+            <View style={[styles.timelineCard, styles.timelineCardResult]}>
+              <Text style={styles.timelineTitle}>这一轮发生了什么</Text>
+              <View style={styles.timelineList}>
+                <View style={styles.timelineItem}>
+                  <View style={[styles.timelineDot, styles.timelineDotDone]} />
+                  <Text style={styles.timelineText}>题目已全部作答，整轮记录已保存。</Text>
+                </View>
+                <View style={styles.timelineItem}>
+                  <View style={[styles.timelineDot, result.wrongCount > 0 ? styles.timelineDotAlert : styles.timelineDotDone]} />
+                  <Text style={styles.timelineText}>
+                    {result.wrongCount > 0
+                      ? '新增错题已送入回收队列，后续会优先推荐。'
+                      : '本轮没有新增错题，今天可以继续推进新内容。'}
+                  </Text>
+                </View>
+                <View style={styles.timelineItem}>
+                  <View style={[styles.timelineDot, styles.timelineDotDone]} />
+                  <Text style={styles.timelineText}>返回首页后会继续沿用今天的推荐顺序。</Text>
+                </View>
+              </View>
             </View>
 
             <Pressable
@@ -183,160 +252,203 @@ export function DrillSessionScreen({
             </Pressable>
           </View>
         ) : (
-          <>
-            <View style={styles.progressCard}>
-              <View style={styles.progressRow}>
-                <Text style={styles.progressLabel}>题目进度</Text>
-                <Text style={styles.progressValue}>
-                  {currentIndex + 1}/{questions.length}
+          <View style={[styles.sessionGrid, isWideLayout && styles.sessionGridWide]}>
+            <View style={styles.primaryColumn}>
+              <View style={[styles.progressCard, shadows.card]}>
+                <View style={styles.progressRow}>
+                  <Text style={styles.progressLabel}>题目进度</Text>
+                  <Text style={styles.progressValue}>
+                    {currentIndex + 1}/{questions.length}
+                  </Text>
+                </View>
+                <View style={styles.progressTrack}>
+                  <View
+                    style={[
+                      styles.progressFill,
+                      {
+                        width: `${progressValue * 100}%`,
+                        backgroundColor: mode.accent,
+                      },
+                    ]}
+                  />
+                </View>
+                <Text style={styles.progressHint}>
+                  中途退出不会写入记录；只有做完整轮，训练记录和错题才会一起保存。
                 </Text>
               </View>
-              <View style={styles.progressTrack}>
-                <View
-                  style={[
-                    styles.progressFill,
-                    {
-                      width: `${progressValue * 100}%`,
-                      backgroundColor: mode.accent,
-                    },
-                  ]}
-                />
-              </View>
-              <Text style={styles.progressHint}>
-                中途退出不会写入记录；只有做完整轮，训练记录和错题才会一起保存。
-              </Text>
-            </View>
 
-            <View style={styles.sectionCard}>
-              <Text style={styles.questionMeta}>
-                来源：{question.source} · {question.tags.join(' / ')}
-              </Text>
-              <Text style={styles.sectionTitle}>{question.prompt}</Text>
+              <View style={[styles.sectionCard, shadows.card]}>
+                <Text style={styles.questionMeta}>
+                  来源：{question.source} · {question.tags.join(' / ')}
+                </Text>
+                <Text style={styles.sectionTitle}>{question.prompt}</Text>
 
-              <View style={styles.choiceList}>
-                {question.choices.map((choice, index) => {
-                  const isSelected = chosenAnswer === index;
-                  const isAnswer = question.answer === index;
+                <View style={styles.missionCard}>
+                  <Text style={styles.missionTitle}>这一题先判断什么</Text>
+                  <Text style={styles.missionBody}>{missionText}</Text>
+                </View>
 
-                  return (
-                    <Pressable
-                      key={choice}
-                      onPress={() => !submitted && setSelectedChoice(index)}
-                      style={[
-                        styles.choiceButton,
-                        isSelected && styles.choiceButtonSelected,
-                        submitted && isAnswer && styles.choiceButtonCorrect,
-                        submitted &&
-                          isSelected &&
-                          !isCorrect &&
-                          styles.choiceButtonWrong,
-                      ]}
-                    >
-                      <Text
+                <View style={styles.choiceList}>
+                  {question.choices.map((choice, index) => {
+                    const isSelected = chosenAnswer === index;
+                    const isAnswer = question.answer === index;
+
+                    return (
+                      <Pressable
+                        key={choice}
+                        onPress={() => !submitted && setSelectedChoice(index)}
                         style={[
-                          styles.choiceLabel,
-                          submitted && isAnswer && styles.choiceLabelCorrect,
-                          submitted &&
-                            isSelected &&
-                            !isCorrect &&
-                            styles.choiceLabelWrong,
+                          styles.choiceButton,
+                          isSelected && styles.choiceButtonSelected,
+                          submitted && isAnswer && styles.choiceButtonCorrect,
+                          submitted && isSelected && !isCorrect && styles.choiceButtonWrong,
                         ]}
                       >
-                        {index + 1}. {choice}
-                      </Text>
-                    </Pressable>
-                  );
-                })}
+                        <Text
+                          style={[
+                            styles.choiceLabel,
+                            submitted && isAnswer && styles.choiceLabelCorrect,
+                            submitted && isSelected && !isCorrect && styles.choiceLabelWrong,
+                          ]}
+                        >
+                          {index + 1}. {choice}
+                        </Text>
+                      </Pressable>
+                    );
+                  })}
+                </View>
+
+                {submitted ? (
+                  <View style={styles.explanationCard}>
+                    <Text
+                      style={[
+                        styles.explanationHeading,
+                        { color: isCorrect ? '#166534' : '#B91C1C' },
+                      ]}
+                    >
+                      {isCorrect ? '回答正确' : `正确答案：${question.choices[question.answer]}`}
+                    </Text>
+
+                    <View style={styles.analysisBlock}>
+                      <Text style={styles.analysisTitle}>核心判断</Text>
+                      <Text style={styles.explanationBody}>{question.explanation}</Text>
+                    </View>
+
+                    {!isCorrect && chosenAnswer !== null ? (
+                      <View style={styles.analysisBlock}>
+                        <Text style={styles.analysisTitle}>你这次为什么会错</Text>
+                        <Text style={styles.explanationBody}>{question.choiceInsights[chosenAnswer]}</Text>
+                      </View>
+                    ) : null}
+
+                    <View style={styles.analysisBlock}>
+                      <Text style={styles.analysisTitle}>选项拆解</Text>
+                      <View style={styles.analysisList}>
+                        {question.choices.map((choice, index) => {
+                          const isAnswerChoice = index === question.answer;
+                          const isChosenChoice = chosenAnswer === index;
+
+                          return (
+                            <View key={choice} style={styles.analysisItem}>
+                              <Text
+                                style={[
+                                  styles.analysisItemLabel,
+                                  isAnswerChoice && styles.analysisItemLabelCorrect,
+                                  isChosenChoice && !isCorrect && styles.analysisItemLabelWrong,
+                                ]}
+                              >
+                                {isAnswerChoice
+                                  ? `正确项 ${index + 1}. ${choice}`
+                                  : isChosenChoice && !isCorrect
+                                    ? `你选了 ${index + 1}. ${choice}`
+                                    : `${index + 1}. ${choice}`}
+                              </Text>
+                              <Text style={styles.analysisItemBody}>{question.choiceInsights[index]}</Text>
+                            </View>
+                          );
+                        })}
+                      </View>
+                    </View>
+
+                    <View style={styles.analysisBlock}>
+                      <Text style={styles.analysisTitle}>复盘提醒</Text>
+                      <Text style={styles.explanationBody}>{question.reviewNote}</Text>
+                    </View>
+                  </View>
+                ) : null}
               </View>
 
-              {submitted ? (
-                <View style={styles.explanationCard}>
-                  <Text
-                    style={[
-                      styles.explanationHeading,
-                      { color: isCorrect ? '#166534' : '#B91C1C' },
-                    ]}
-                  >
-                    {isCorrect ? '回答正确' : `正确答案：${question.choices[question.answer]}`}
+              <View style={styles.footerActions}>
+                <Pressable
+                  onPress={submitted ? handleNext : handleSubmit}
+                  disabled={!submitted && selectedChoice === null}
+                  style={[
+                    styles.primaryButton,
+                    { backgroundColor: mode.accent },
+                    !submitted && selectedChoice === null && styles.primaryButtonDisabled,
+                  ]}
+                >
+                  <Text style={styles.primaryButtonText}>
+                    {submitted
+                      ? currentIndex === questions.length - 1
+                        ? '完成并自动记录'
+                        : '进入下一题'
+                      : '提交答案'}
                   </Text>
+                </Pressable>
+              </View>
+            </View>
 
-                  <View style={styles.analysisBlock}>
-                    <Text style={styles.analysisTitle}>核心判断</Text>
-                    <Text style={styles.explanationBody}>{question.explanation}</Text>
+            <View style={styles.sideColumn}>
+              <View style={[styles.timelineCard, shadows.card]}>
+                <Text style={styles.timelineTitle}>这一轮的节奏</Text>
+                <View style={styles.timelineList}>
+                  <View style={styles.timelineItem}>
+                    <View style={[styles.timelineDot, styles.timelineDotDone]} />
+                    <Text style={styles.timelineText}>先读题干，确认真正被考的判断点。</Text>
                   </View>
-
-                  {!isCorrect && chosenAnswer !== null ? (
-                    <View style={styles.analysisBlock}>
-                      <Text style={styles.analysisTitle}>你这次为什么会错</Text>
-                      <Text style={styles.explanationBody}>
-                        {question.choiceInsights[chosenAnswer]}
-                      </Text>
-                    </View>
-                  ) : null}
-
-                  <View style={styles.analysisBlock}>
-                    <Text style={styles.analysisTitle}>选项拆解</Text>
-                    <View style={styles.analysisList}>
-                      {question.choices.map((choice, index) => {
-                        const isAnswerChoice = index === question.answer;
-                        const isChosenChoice = chosenAnswer === index;
-
-                        return (
-                          <View key={choice} style={styles.analysisItem}>
-                            <Text
-                              style={[
-                                styles.analysisItemLabel,
-                                isAnswerChoice && styles.analysisItemLabelCorrect,
-                                isChosenChoice &&
-                                  !isCorrect &&
-                                  styles.analysisItemLabelWrong,
-                              ]}
-                            >
-                              {isAnswerChoice
-                                ? `正确项 ${index + 1}. ${choice}`
-                                : isChosenChoice && !isCorrect
-                                  ? `你选了 ${index + 1}. ${choice}`
-                                  : `${index + 1}. ${choice}`}
-                            </Text>
-                            <Text style={styles.analysisItemBody}>
-                              {question.choiceInsights[index]}
-                            </Text>
-                          </View>
-                        );
-                      })}
-                    </View>
+                  <View style={styles.timelineItem}>
+                    <View style={[styles.timelineDot, submitted ? styles.timelineDotDone : styles.timelineDotActive]} />
+                    <Text style={styles.timelineText}>
+                      {submitted ? '答案已提交，正在做选项拆解和复盘。' : '先排干扰项，再提交你的最终判断。'}
+                    </Text>
                   </View>
-
-                  <View style={styles.analysisBlock}>
-                    <Text style={styles.analysisTitle}>复盘提醒</Text>
-                    <Text style={styles.explanationBody}>{question.reviewNote}</Text>
+                  <View style={styles.timelineItem}>
+                    <View
+                      style={[
+                        styles.timelineDot,
+                        submitted && currentIndex < questions.length - 1
+                          ? styles.timelineDotActive
+                          : styles.timelineDotIdle,
+                      ]}
+                    />
+                    <Text style={styles.timelineText}>
+                      {currentIndex === questions.length - 1
+                        ? '这题做完后就会自动结算整轮结果。'
+                        : '复盘完这一题后，直接推进下一题。'}
+                    </Text>
                   </View>
                 </View>
-              ) : null}
-            </View>
+              </View>
 
-            <View style={styles.footerActions}>
-              <Pressable
-                onPress={submitted ? handleNext : handleSubmit}
-                disabled={!submitted && selectedChoice === null}
-                style={[
-                  styles.primaryButton,
-                  { backgroundColor: mode.accent },
-                  !submitted &&
-                    selectedChoice === null &&
-                    styles.primaryButtonDisabled,
-                ]}
-              >
-                <Text style={styles.primaryButtonText}>
-                  {submitted
-                    ? currentIndex === questions.length - 1
-                      ? '完成并自动记录'
-                      : '进入下一题'
-                    : '提交答案'}
+              <View style={[styles.focusCard, shadows.card]}>
+                <Text style={styles.focusTitle}>当前轮次概览</Text>
+                <View style={styles.focusStatRow}>
+                  <View style={styles.focusStat}>
+                    <Text style={styles.focusValue}>{answeredCount}</Text>
+                    <Text style={styles.focusLabel}>已提交</Text>
+                  </View>
+                  <View style={styles.focusStat}>
+                    <Text style={styles.focusValue}>{pendingCount}</Text>
+                    <Text style={styles.focusLabel}>待完成</Text>
+                  </View>
+                </View>
+                <Text style={styles.focusBody}>
+                  做完整轮才会统一写入进度。你现在的目标不是做快，而是把每题真正的判断依据说清楚。
                 </Text>
-              </Pressable>
+              </View>
             </View>
-          </>
+          </View>
         )}
       </ScrollView>
     </AppBackground>
@@ -345,10 +457,18 @@ export function DrillSessionScreen({
 
 const styles = StyleSheet.create({
   content: {
+    width: '100%',
+    maxWidth: 960,
+    alignSelf: 'center',
     paddingHorizontal: 18,
     paddingTop: 12,
     paddingBottom: 36,
     gap: 18,
+  },
+  contentWide: {
+    paddingHorizontal: 24,
+    paddingBottom: 48,
+    gap: 20,
   },
   missingState: {
     flex: 1,
@@ -367,12 +487,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    gap: 12,
   },
   headerTag: {
     color: colors.inkMuted,
     fontSize: 13,
     fontWeight: '700',
     fontFamily: fonts.body,
+    textAlign: 'right',
   },
   ghostButton: {
     borderRadius: radii.pill,
@@ -388,14 +510,15 @@ const styles = StyleSheet.create({
   },
   heroCard: {
     borderRadius: radii.xl,
-    padding: 22,
-    gap: 16,
+    padding: 24,
+    gap: 18,
   },
   heroTop: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     gap: 12,
+    flexWrap: 'wrap',
   },
   modePill: {
     borderRadius: radii.pill,
@@ -409,6 +532,7 @@ const styles = StyleSheet.create({
   },
   heroSource: {
     flex: 1,
+    minWidth: 180,
     textAlign: 'right',
     color: '#ECFEFF',
     fontSize: 12,
@@ -426,11 +550,87 @@ const styles = StyleSheet.create({
     fontSize: 15,
     lineHeight: 23,
     fontFamily: fonts.body,
+    maxWidth: 720,
+  },
+  heroMetaRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
+  },
+  heroMetaChip: {
+    minWidth: 132,
+    borderRadius: radii.md,
+    paddingHorizontal: 14,
+    paddingVertical: 14,
+    backgroundColor: 'rgba(255,255,255,0.14)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.22)',
+    gap: 4,
+  },
+  heroMetaLabel: {
+    color: '#DDF5EE',
+    fontSize: 12,
+    fontWeight: '700',
+    fontFamily: fonts.body,
+  },
+  heroMetaValue: {
+    color: '#FFFFFF',
+    fontSize: 20,
+    fontWeight: '800',
+    fontFamily: fonts.title,
+  },
+  heroAgendaCard: {
+    borderRadius: radii.lg,
+    paddingHorizontal: 18,
+    paddingVertical: 18,
+    gap: 8,
+    backgroundColor: 'rgba(245, 237, 223, 0.14)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.22)',
+  },
+  heroAgendaEyebrow: {
+    color: '#DDF5EE',
+    fontSize: 12,
+    fontWeight: '800',
+    fontFamily: fonts.body,
+    letterSpacing: 0.6,
+  },
+  heroAgendaText: {
+    color: '#FFFFFF',
+    fontSize: 17,
+    lineHeight: 26,
+    fontWeight: '700',
+    fontFamily: fonts.body,
+  },
+  heroAgendaFootnote: {
+    color: '#DDF5EE',
+    fontSize: 13,
+    lineHeight: 20,
+    fontFamily: fonts.body,
+  },
+  resultShell: {
+    borderRadius: radii.xl,
+    padding: 22,
+  },
+  sessionGrid: {
+    gap: 18,
+  },
+  sessionGridWide: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+  },
+  primaryColumn: {
+    flex: 1.55,
+    gap: 18,
+  },
+  sideColumn: {
+    flex: 1,
+    gap: 18,
   },
   progressCard: {
     backgroundColor: colors.backgroundCard,
-    borderRadius: radii.lg,
-    padding: 18,
+    borderRadius: radii.xl,
+    padding: 20,
     gap: 12,
   },
   progressRow: {
@@ -468,15 +668,16 @@ const styles = StyleSheet.create({
   },
   sectionCard: {
     backgroundColor: colors.backgroundCard,
-    borderRadius: radii.lg,
-    padding: 18,
+    borderRadius: radii.xl,
+    padding: 20,
     gap: 14,
   },
   sectionTitle: {
     color: colors.inkStrong,
-    fontSize: 22,
+    fontSize: 24,
     fontWeight: '800',
     fontFamily: fonts.title,
+    lineHeight: 31,
   },
   sectionBody: {
     color: colors.inkBody,
@@ -490,15 +691,35 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     fontFamily: fonts.body,
   },
+  missionCard: {
+    borderRadius: radii.lg,
+    backgroundColor: colors.warmCard,
+    padding: 16,
+    gap: 8,
+    borderWidth: 1,
+    borderColor: colors.lineSoft,
+  },
+  missionTitle: {
+    color: colors.inkStrong,
+    fontSize: 16,
+    fontWeight: '800',
+    fontFamily: fonts.title,
+  },
+  missionBody: {
+    color: colors.inkBody,
+    fontSize: 14,
+    lineHeight: 22,
+    fontFamily: fonts.body,
+  },
   choiceList: {
     gap: 10,
   },
   choiceButton: {
-    borderRadius: radii.md,
+    borderRadius: radii.lg,
     borderWidth: 1,
     borderColor: colors.lineSoft,
     paddingHorizontal: 16,
-    paddingVertical: 14,
+    paddingVertical: 15,
     backgroundColor: colors.warmCard,
   },
   choiceButtonSelected: {
@@ -526,7 +747,7 @@ const styles = StyleSheet.create({
     color: '#991B1B',
   },
   explanationCard: {
-    borderRadius: radii.md,
+    borderRadius: radii.lg,
     backgroundColor: colors.warmCard,
     padding: 16,
     gap: 8,
@@ -558,7 +779,7 @@ const styles = StyleSheet.create({
   },
   analysisItem: {
     gap: 4,
-    borderRadius: radii.sm,
+    borderRadius: radii.md,
     backgroundColor: '#FFFDF8',
     paddingHorizontal: 12,
     paddingVertical: 12,
@@ -583,13 +804,110 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     fontFamily: fonts.body,
   },
-  summaryGrid: {
+  timelineCard: {
+    backgroundColor: colors.backgroundCard,
+    borderRadius: radii.xl,
+    padding: 20,
+    gap: 14,
+  },
+  timelineCardResult: {
+    backgroundColor: colors.warmCard,
+    borderWidth: 1,
+    borderColor: colors.lineSoft,
+  },
+  timelineTitle: {
+    color: colors.inkStrong,
+    fontSize: 18,
+    fontWeight: '800',
+    fontFamily: fonts.title,
+  },
+  timelineList: {
+    gap: 12,
+  },
+  timelineItem: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 10,
+  },
+  timelineDot: {
+    width: 11,
+    height: 11,
+    borderRadius: radii.pill,
+    marginTop: 6,
+    flexShrink: 0,
+  },
+  timelineDotDone: {
+    backgroundColor: colors.teal,
+  },
+  timelineDotActive: {
+    backgroundColor: colors.yellow,
+  },
+  timelineDotAlert: {
+    backgroundColor: colors.copper,
+  },
+  timelineDotIdle: {
+    backgroundColor: colors.barIdle,
+  },
+  timelineText: {
+    flex: 1,
+    color: colors.inkBody,
+    fontSize: 14,
+    lineHeight: 22,
+    fontFamily: fonts.body,
+  },
+  focusCard: {
+    backgroundColor: colors.backgroundCard,
+    borderRadius: radii.xl,
+    padding: 20,
+    gap: 14,
+  },
+  focusTitle: {
+    color: colors.inkStrong,
+    fontSize: 18,
+    fontWeight: '800',
+    fontFamily: fonts.title,
+  },
+  focusStatRow: {
     flexDirection: 'row',
     gap: 12,
   },
-  summaryStat: {
+  focusStat: {
     flex: 1,
-    borderRadius: radii.md,
+    borderRadius: radii.lg,
+    backgroundColor: colors.warmCard,
+    paddingVertical: 16,
+    alignItems: 'center',
+    gap: 4,
+    borderWidth: 1,
+    borderColor: colors.lineSoft,
+  },
+  focusValue: {
+    color: colors.inkStrong,
+    fontSize: 24,
+    fontWeight: '800',
+    fontFamily: fonts.title,
+  },
+  focusLabel: {
+    color: colors.inkMuted,
+    fontSize: 13,
+    fontWeight: '700',
+    fontFamily: fonts.body,
+  },
+  focusBody: {
+    color: colors.inkBody,
+    fontSize: 14,
+    lineHeight: 22,
+    fontFamily: fonts.body,
+  },
+  summaryGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
+  },
+  summaryStat: {
+    flexGrow: 1,
+    flexBasis: 180,
+    borderRadius: radii.lg,
     backgroundColor: colors.warmCard,
     paddingVertical: 16,
     alignItems: 'center',
@@ -609,31 +927,31 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     fontFamily: fonts.body,
   },
-  summaryCard: {
-    borderRadius: radii.md,
+  summaryHighlight: {
+    borderRadius: radii.lg,
     backgroundColor: colors.warmCard,
     padding: 16,
     gap: 8,
     borderWidth: 1,
     borderColor: colors.lineSoft,
   },
-  summaryTitle: {
+  summaryHighlightTitle: {
     color: colors.inkStrong,
     fontSize: 16,
     fontWeight: '800',
     fontFamily: fonts.title,
   },
-  summaryBody: {
+  summaryHighlightBody: {
     color: colors.inkBody,
     fontSize: 14,
-    lineHeight: 21,
+    lineHeight: 22,
     fontFamily: fonts.body,
   },
   footerActions: {
     gap: 12,
   },
   primaryButton: {
-    borderRadius: radii.sm,
+    borderRadius: radii.md,
     paddingVertical: 16,
     alignItems: 'center',
   },
@@ -647,7 +965,7 @@ const styles = StyleSheet.create({
     fontFamily: fonts.body,
   },
   secondaryButton: {
-    borderRadius: radii.sm,
+    borderRadius: radii.md,
     backgroundColor: colors.slateSoft,
     paddingVertical: 16,
     alignItems: 'center',
@@ -659,5 +977,4 @@ const styles = StyleSheet.create({
     fontFamily: fonts.body,
   },
 });
-
 

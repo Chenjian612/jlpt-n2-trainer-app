@@ -1,8 +1,20 @@
-﻿import { useEffect, useRef } from 'react';
-import { Animated, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
+﻿import { useEffect, useMemo, useRef } from 'react';
+import {
+  Animated,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+  useWindowDimensions,
+} from 'react-native';
 
 import { AppBackground } from '../../../components/common/AppBackground';
-import type { TrainingMode } from '../../../domain/models/training';
+import {
+  isReviewModeId,
+  isStudyModeId,
+  type TrainingMode,
+} from '../../../domain/models/training';
 import { colors, fonts } from '../../../theme/tokens';
 import { HeroCard } from '../components/HeroCard';
 import { TodayPlanCard } from '../components/TodayPlanCard';
@@ -31,6 +43,8 @@ export function DashboardScreen({
   onOpenMode,
   onStartMode,
 }: DashboardScreenProps) {
+  const { width } = useWindowDimensions();
+  const isWide = width >= 1080;
   const {
     metrics,
     recentWeek,
@@ -54,6 +68,31 @@ export function DashboardScreen({
   const planEntrance = useRef(new Animated.Value(0)).current;
   const weekEntrance = useRef(new Animated.Value(0)).current;
   const modesEntrance = useRef(new Animated.Value(0)).current;
+  const modeGroups = useMemo(
+    () => [
+      {
+        key: 'impact',
+        title: '快速提分',
+        body: '先做反馈最快的模式，把今天的状态拉起来。',
+        modes: trainingModes.filter(
+          (mode) => !isStudyModeId(mode.id) && !isReviewModeId(mode.id),
+        ),
+      },
+      {
+        key: 'steady',
+        title: '稳态积累',
+        body: '用记忆包压缩文法和词汇，适合稳定补总量。',
+        modes: trainingModes.filter((mode) => isStudyModeId(mode.id)),
+      },
+      {
+        key: 'recovery',
+        title: '薄弱点回收',
+        body: '只处理已经暴露的问题，不和新内容混在一起。',
+        modes: trainingModes.filter((mode) => isReviewModeId(mode.id)),
+      },
+    ],
+    [trainingModes],
+  );
 
   useEffect(() => {
     Animated.stagger(110, [
@@ -86,55 +125,73 @@ export function DashboardScreen({
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
       >
-        <Animated.View style={createEntranceStyle(heroEntrance)}>
-          <HeroCard
-            metrics={metrics}
-            dailyProgress={dailyProgress}
-            dailyTarget={dailyTarget}
-            insight={insight}
-          />
-        </Animated.View>
+        <View style={[styles.layout, isWide && styles.layoutWide]}>
+          <View style={[styles.primaryColumn, isWide && styles.primaryColumnWide]}>
+            <Animated.View style={createEntranceStyle(heroEntrance)}>
+              <HeroCard
+                metrics={metrics}
+                dailyProgress={dailyProgress}
+                dailyTarget={dailyTarget}
+                insight={insight}
+                recommendedModeTitle={recommendedMode?.title ?? null}
+              />
+            </Animated.View>
 
-        <Animated.View style={createEntranceStyle(planEntrance)}>
-          <TodayPlanCard
-            todayPlan={todayPlan}
-            recommendedMode={recommendedMode}
-            insight={insight}
-            onOpenMode={onOpenMode}
-            onClearToday={clearToday}
-          />
-        </Animated.View>
+            <Animated.View style={createEntranceStyle(planEntrance)}>
+              <TodayPlanCard
+                todayPlan={todayPlan}
+                recommendedMode={recommendedMode}
+                insight={insight}
+                onOpenMode={onOpenMode}
+                onClearToday={clearToday}
+              />
+            </Animated.View>
+          </View>
 
-        <Animated.View style={createEntranceStyle(weekEntrance)}>
-          <WeeklyRhythmCard
-            metrics={metrics}
-            weeklyGoal={weeklyGoal}
-            weeklyProgress={weeklyProgress}
-            recentWeek={recentWeek}
-            todayKey={todayKey}
-            goalOptions={weeklyGoalOptions}
-            onGoalChange={setWeeklyGoal}
-          />
-        </Animated.View>
+          <View style={[styles.secondaryColumn, isWide && styles.secondaryColumnWide]}>
+            <Animated.View style={createEntranceStyle(weekEntrance)}>
+              <WeeklyRhythmCard
+                metrics={metrics}
+                weeklyGoal={weeklyGoal}
+                weeklyProgress={weeklyProgress}
+                recentWeek={recentWeek}
+                todayKey={todayKey}
+                goalOptions={weeklyGoalOptions}
+                onGoalChange={setWeeklyGoal}
+              />
+            </Animated.View>
 
-        <Animated.View style={[styles.section, createEntranceStyle(modesEntrance)]}>
-          <Text style={styles.sectionTitle}>全部训练模式</Text>
-          <Text style={styles.sectionBody}>
-            先用刷题和记忆包稳住基本盘，再用读解、听力和错题回收补强薄弱点。每个模式都能单独进入、独立完成并记录进度。
-          </Text>
+            <Animated.View style={[styles.section, createEntranceStyle(modesEntrance)]}>
+              <View style={styles.sectionIntro}>
+                <Text style={styles.sectionTitle}>训练模式总览</Text>
+                <Text style={styles.sectionBody}>
+                  不再把 8 个模式平铺在一层。先把冲分、积累、回收拆开，用户会更容易判断下一步该点哪里。
+                </Text>
+              </View>
 
-          {trainingModes.map((mode) => (
-            <TrainingModeCard
-              key={mode.id}
-              mode={mode}
-              completed={todayCompletedModeIds.includes(mode.id)}
-              sessionCount={todaySessionCounts[mode.id] ?? 0}
-              backlogCount={reviewBacklogCounts[mode.id]}
-              onOpenMode={onOpenMode}
-              onStartMode={onStartMode}
-            />
-          ))}
-        </Animated.View>
+              {modeGroups.map((group) => (
+                <View key={group.key} style={styles.modeGroup}>
+                  <View style={styles.modeGroupHeader}>
+                    <Text style={styles.modeGroupTitle}>{group.title}</Text>
+                    <Text style={styles.modeGroupBody}>{group.body}</Text>
+                  </View>
+
+                  {group.modes.map((mode) => (
+                    <TrainingModeCard
+                      key={mode.id}
+                      mode={mode}
+                      completed={todayCompletedModeIds.includes(mode.id)}
+                      sessionCount={todaySessionCounts[mode.id] ?? 0}
+                      backlogCount={reviewBacklogCounts[mode.id]}
+                      onOpenMode={onOpenMode}
+                      onStartMode={onStartMode}
+                    />
+                  ))}
+                </View>
+              ))}
+            </Animated.View>
+          </View>
+        </View>
       </ScrollView>
     </AppBackground>
   );
@@ -144,11 +201,35 @@ const styles = StyleSheet.create({
   content: {
     paddingHorizontal: 18,
     paddingTop: 12,
-    paddingBottom: 36,
+    paddingBottom: 42,
+  },
+  layout: {
+    width: '100%',
+    maxWidth: 1180,
+    alignSelf: 'center',
     gap: 18,
   },
+  layoutWide: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+  },
+  primaryColumn: {
+    gap: 18,
+  },
+  primaryColumnWide: {
+    flex: 1.08,
+  },
+  secondaryColumn: {
+    gap: 18,
+  },
+  secondaryColumnWide: {
+    flex: 0.92,
+  },
   section: {
-    gap: 12,
+    gap: 16,
+  },
+  sectionIntro: {
+    gap: 6,
   },
   sectionTitle: {
     color: colors.inkStrong,
@@ -162,5 +243,27 @@ const styles = StyleSheet.create({
     lineHeight: 21,
     fontFamily: fonts.body,
   },
+  modeGroup: {
+    gap: 12,
+    padding: 16,
+    borderRadius: 24,
+    backgroundColor: colors.backgroundCardMuted,
+    borderWidth: 1,
+    borderColor: colors.lineSoft,
+  },
+  modeGroupHeader: {
+    gap: 4,
+  },
+  modeGroupTitle: {
+    color: colors.inkStrong,
+    fontSize: 18,
+    fontWeight: '800',
+    fontFamily: fonts.title,
+  },
+  modeGroupBody: {
+    color: colors.inkMuted,
+    fontSize: 13,
+    lineHeight: 20,
+    fontFamily: fonts.body,
+  },
 });
-

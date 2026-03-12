@@ -1,7 +1,7 @@
 ﻿import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import type { DashboardMetrics, RecentDay } from '../../../domain/models/progress';
-import { colors, fonts, radii } from '../../../theme/tokens';
+import { colors, fonts, radii, shadows } from '../../../theme/tokens';
 
 type WeeklyRhythmCardProps = {
   metrics: DashboardMetrics;
@@ -22,9 +22,25 @@ export function WeeklyRhythmCard({
   goalOptions,
   onGoalChange,
 }: WeeklyRhythmCardProps) {
+  const remainingCount = Math.max(weeklyGoal - metrics.weeklySessions, 0);
+
   return (
     <View style={styles.section}>
-      <Text style={styles.sectionTitle}>本周节奏</Text>
+      <View style={styles.sectionHeader}>
+        <View style={styles.sectionTitleBlock}>
+          <Text style={styles.sectionTitle}>本周节奏</Text>
+          <Text style={styles.sectionCaption}>
+            {remainingCount > 0
+              ? `再完成 ${remainingCount} 轮就能碰到本周目标。`
+              : '本周目标已经达成，接下来重点保持连续性。'}
+          </Text>
+        </View>
+        <View style={styles.badgePill}>
+          <Text style={styles.badgePillText}>
+            {remainingCount > 0 ? `差 ${remainingCount} 轮` : '已达标'}
+          </Text>
+        </View>
+      </View>
 
       <View style={styles.weekCard}>
         <View style={styles.progressRow}>
@@ -99,17 +115,50 @@ const styles = StyleSheet.create({
   section: {
     gap: 12,
   },
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    gap: 12,
+  },
+  sectionTitleBlock: {
+    flex: 1,
+    gap: 4,
+  },
   sectionTitle: {
     color: colors.inkStrong,
     fontSize: 22,
     fontWeight: '800',
     fontFamily: fonts.title,
   },
+  sectionCaption: {
+    color: colors.inkMuted,
+    fontSize: 14,
+    lineHeight: 21,
+    fontFamily: fonts.body,
+  },
+  badgePill: {
+    borderRadius: radii.pill,
+    backgroundColor: colors.backgroundCardMuted,
+    borderWidth: 1,
+    borderColor: colors.lineSoft,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+  },
+  badgePillText: {
+    color: colors.copper,
+    fontSize: 13,
+    fontWeight: '800',
+    fontFamily: fonts.body,
+  },
   weekCard: {
     backgroundColor: colors.backgroundCard,
     borderRadius: radii.lg,
     padding: 18,
-    gap: 16,
+    gap: 18,
+    borderWidth: 1,
+    borderColor: colors.lineSoft,
+    ...shadows.card,
   },
   progressRow: {
     flexDirection: 'row',
@@ -130,7 +179,7 @@ const styles = StyleSheet.create({
   },
   progressTrack: {
     height: 12,
-    backgroundColor: '#DDEAE7',
+    backgroundColor: colors.slateSoft,
     borderRadius: radii.pill,
     overflow: 'hidden',
   },
@@ -147,7 +196,7 @@ const styles = StyleSheet.create({
     flex: 1,
     borderRadius: radii.md,
     backgroundColor: colors.warmCard,
-    paddingVertical: 12,
+    paddingVertical: 14,
     paddingHorizontal: 12,
     gap: 4,
     borderWidth: 1,
@@ -172,7 +221,7 @@ const styles = StyleSheet.create({
   goalPill: {
     flex: 1,
     borderRadius: radii.pill,
-    paddingVertical: 10,
+    paddingVertical: 11,
     alignItems: 'center',
     backgroundColor: colors.slateSoft,
   },
@@ -182,7 +231,7 @@ const styles = StyleSheet.create({
   goalText: {
     fontSize: 13,
     fontWeight: '700',
-    color: '#475569',
+    color: colors.inkBody,
     fontFamily: fonts.body,
   },
   goalTextActive: {
@@ -192,7 +241,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-end',
-    paddingTop: 4,
+    paddingTop: 8,
+    borderRadius: radii.md,
+    backgroundColor: colors.mist,
+    paddingHorizontal: 10,
+    paddingBottom: 10,
   },
   weekBarColumn: {
     flex: 1,
