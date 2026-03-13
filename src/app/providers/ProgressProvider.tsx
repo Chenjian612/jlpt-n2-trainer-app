@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+﻿import type { ReactNode } from 'react';
 import {
   createContext,
   useContext,
@@ -11,6 +11,7 @@ import {
 import { progressRepository } from '../../data/repositories/progressRepository';
 import type { ProgressState } from '../../domain/models/progress';
 import type {
+  WeaknessSignalDraft,
   WrongAnswerDraft,
   WrongReviewDecision,
 } from '../../domain/models/trainingContent';
@@ -28,6 +29,7 @@ import {
   getDayKey,
   recordDrillSessionResult,
   recordTrainingSession,
+  recordWeaknessSignals,
   recordWrongReviewSession,
   removeLatestSessionForMode,
 } from '../../domain/services/progressService';
@@ -36,7 +38,11 @@ type ProgressContextValue = {
   isHydrated: boolean;
   state: ProgressState;
   todayKey: string;
-  recordSession: (modeId: TrainingModeId, kind: TrainingSessionKind) => void;
+  recordSession: (
+    modeId: TrainingModeId,
+    kind: TrainingSessionKind,
+    weaknessSignals?: WeaknessSignalDraft[],
+  ) => void;
   recordDrillSession: (
     modeId: DrillModeId,
     wrongAnswers: WrongAnswerDraft[],
@@ -100,14 +106,18 @@ export function ProgressProvider({ children }: ProgressProviderProps) {
       isHydrated,
       state,
       todayKey,
-      recordSession: (modeId, kind) => {
-        setState((current) =>
-          recordTrainingSession(
+      recordSession: (modeId, kind, weaknessSignals = []) => {
+        setState((current) => {
+          const nextState = recordTrainingSession(
             current,
             todayKey,
             createTrainingSession(todayKey, modeId, kind),
-          ),
-        );
+          );
+
+          return weaknessSignals.length > 0
+            ? recordWeaknessSignals(nextState, weaknessSignals)
+            : nextState;
+        });
       },
       recordDrillSession: (modeId, wrongAnswers) => {
         setState((current) =>

@@ -1,5 +1,9 @@
 ﻿import type { TrainingModeId, TrainingSessionKind } from './training';
-import type { WrongAnswerItem } from './trainingContent';
+import type {
+  WeaknessErrorType,
+  WeaknessSignalItem,
+  WrongAnswerItem,
+} from './trainingContent';
 
 export type TrainingSessionRecord = {
   id: string;
@@ -14,6 +18,7 @@ export type ProgressState = {
   weeklyGoal: number;
   sessionsByDay: SessionsByDay;
   wrongAnswers: WrongAnswerItem[];
+  weaknessSignals: WeaknessSignalItem[];
 };
 
 export type DashboardMetrics = {
@@ -37,4 +42,30 @@ export type RecentDay = {
   dayKey: string;
   label: string;
   count: number;
+};
+
+export type WeaknessFocusItem = {
+  id: WeaknessErrorType;
+  label: string;
+  questionCount: number;
+  wrongCount: number;
+  statusLabel: string;
+  sourceModeId: TrainingModeId;
+  recommendedModeId: TrainingModeId;
+  body: string;
+  coachPoint: string;
+};
+
+export type CoachPlanStep = {
+  title: string;
+  body: string;
+  recommendedModeId?: TrainingModeId;
+};
+
+export type DashboardWeaknessSnapshot = {
+  headline: string;
+  body: string;
+  focusItems: WeaknessFocusItem[];
+  planSteps: CoachPlanStep[];
+  recommendedModeId?: TrainingModeId;
 };

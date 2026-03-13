@@ -2,6 +2,7 @@
 
 import { useProgressStore } from '../../../app/providers/ProgressProvider';
 import { TRAINING_MODES } from '../../../data/seed/trainingModes';
+import { getDashboardWeaknessSnapshot } from '../../../domain/services/coachService';
 import {
   buildRecentWeek,
   DAILY_TARGET,
@@ -65,8 +66,22 @@ export function useDashboardViewModel() {
     [state, todayKey, todayPlan],
   );
   const recommendedMode = useMemo(
-    () => todayPlan.find((mode) => mode.id === insight.recommendedModeId) ?? todayPlan[0] ?? null,
+    () =>
+      todayPlan.find((mode) => mode.id === insight.recommendedModeId) ??
+      todayPlan[0] ??
+      null,
     [insight.recommendedModeId, todayPlan],
+  );
+  const weaknessSnapshot = useMemo(
+    () => getDashboardWeaknessSnapshot(state),
+    [state],
+  );
+  const weaknessRecommendedMode = useMemo(
+    () =>
+      TRAINING_MODES.find(
+        (mode) => mode.id === weaknessSnapshot.recommendedModeId,
+      ) ?? null,
+    [weaknessSnapshot.recommendedModeId],
   );
 
   return {
@@ -84,6 +99,8 @@ export function useDashboardViewModel() {
     weeklyProgress: getProgressRatio(metrics.weeklySessions, state.weeklyGoal),
     insight,
     recommendedMode,
+    weaknessSnapshot,
+    weaknessRecommendedMode,
     todayKey,
     clearToday,
     setWeeklyGoal,

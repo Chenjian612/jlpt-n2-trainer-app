@@ -14,7 +14,9 @@ import { getReadingPassageByMode } from '../../../data/seed/readingPassages';
 import { getTrainingModeById } from '../../../data/seed/trainingModes';
 import type { ReadingModeId } from '../../../domain/models/training';
 import { getModeSessionCountForDay } from '../../../domain/services/progressService';
+import { inferReadingWeaknessErrorTypes } from '../../../domain/services/wrongAnswerClassifier';
 import { colors, fonts, radii, shadows } from '../../../theme/tokens';
+import { withKana } from '../../../utils/withKana';
 
 type ReadingSessionScreenProps = {
   modeId: ReadingModeId;
@@ -66,9 +68,10 @@ export function ReadingSessionScreen({
   const progressValue = (currentIndex + 1) / passage.questions.length;
   const missionText = submitted
     ? isCorrect
-      ? '这题已经判断到位，下一步复述证据是怎样支持答案的。'
-      : '别急着记选项，先回到文中把真正支撑答案的句子找到。'
-    : '先确认题干真正问的是什么，再回文中定位证据，最后排除最像正确项。';
+      ? '这题判断得对，下一步把依据句用自己的话复述一遍。'
+      : '先别记选项，回到原文确认真正支撑答案的是哪一句。'
+    : '先确认题干到底问什么，再回文中找依据，最后排掉最像正确项的干扰项。';
+  const questionMetaText = `第 ${currentIndex + 1} 题 / 第 ${currentIndex + 1} 問`;
   const wrongQuestionLabels = useMemo(
     () =>
       passage.questions.reduce<string[]>((labels, currentQuestion, index) => {
@@ -81,6 +84,21 @@ export function ReadingSessionScreen({
         return labels;
       }, []),
     [answers, passage.questions],
+  );
+  const readingWeaknessSignals = useMemo(
+    () =>
+      passage.questions
+        .filter((currentQuestion) => answers[currentQuestion.id] !== undefined)
+        .map((currentQuestion) => ({
+          questionId: currentQuestion.id,
+          modeId,
+          prompt: currentQuestion.prompt,
+          source: passage.source,
+          tags: currentQuestion.tags,
+          errorTypes: inferReadingWeaknessErrorTypes(currentQuestion.tags),
+          wasCorrect: answers[currentQuestion.id] === currentQuestion.answer,
+        })),
+    [answers, modeId, passage.questions, passage.source],
   );
 
   const handleSubmit = () => {
@@ -114,7 +132,7 @@ export function ReadingSessionScreen({
     finishedRef.current = true;
     const wrongCount = wrongQuestionLabels.length;
 
-    recordSession(mode.id, 'drill');
+    recordSession(modeId, 'drill', readingWeaknessSignals);
     setResult({
       correctCount: passage.questions.length - wrongCount,
       wrongCount,
@@ -239,14 +257,12 @@ export function ReadingSessionScreen({
                 />
               </View>
               <Text style={styles.progressHint}>
-                先回文中定位证据，再看选项。做完整轮后会自动记 1 轮读解。
+                先回文中定位依据，再看选项。做完整轮后会自动记 1 轮读解。
               </Text>
             </View>
 
             <View style={[styles.sectionCard, styles.resultCard, shadows.card]}>
-              <Text style={styles.questionMeta}>
-                第 {currentIndex + 1} 题 · {question.tags.join(' / ')}
-              </Text>
+              <Text style={styles.questionMeta}>{questionMetaText}</Text>
               <Text style={styles.sectionTitle}>{question.prompt}</Text>
 
               <View style={styles.choiceList}>
@@ -293,24 +309,24 @@ export function ReadingSessionScreen({
                       { color: isCorrect ? '#166534' : '#B91C1C' },
                     ]}
                   >
-                    {isCorrect ? '回答正确' : `正确答案：${question.choices[question.answer]}`}
+                    {isCorrect ? '回答正确' : `正确答案：${withKana(question.choices[question.answer])}`}
                   </Text>
 
                   <View style={styles.analysisBlock}>
                     <Text style={styles.analysisTitle}>证据位置</Text>
-                    <Text style={styles.explanationBody}>{question.evidence}</Text>
+                    <Text style={styles.explanationBody}>{withKana(question.evidence)}</Text>
                   </View>
 
                   <View style={styles.analysisBlock}>
                     <Text style={styles.analysisTitle}>核心判断</Text>
-                    <Text style={styles.explanationBody}>{question.explanation}</Text>
+                    <Text style={styles.explanationBody}>{withKana(question.explanation)}</Text>
                   </View>
 
                   {!isCorrect && chosenAnswer !== null ? (
                     <View style={styles.analysisBlock}>
                       <Text style={styles.analysisTitle}>你这次为什么会错</Text>
                       <Text style={styles.explanationBody}>
-                        {question.choiceInsights[chosenAnswer]}
+                        {withKana(question.choiceInsights[chosenAnswer])}
                       </Text>
                     </View>
                   ) : null}
@@ -333,14 +349,16 @@ export function ReadingSessionScreen({
                                   styles.analysisItemLabelWrong,
                               ]}
                             >
-                              {isAnswerChoice
-                                ? `正确项 ${index + 1}. ${choice}`
-                                : isChosenChoice && !isCorrect
-                                  ? `你选了 ${index + 1}. ${choice}`
-                                  : `${index + 1}. ${choice}`}
+                              {withKana(
+                                isAnswerChoice
+                                  ? `正确项 ${index + 1}. ${choice}`
+                                  : isChosenChoice && !isCorrect
+                                    ? `你选了 ${index + 1}. ${choice}`
+                                    : `${index + 1}. ${choice}`,
+                              )}
                             </Text>
                             <Text style={styles.analysisItemBody}>
-                              {question.choiceInsights[index]}
+                              {withKana(question.choiceInsights[index])}
                             </Text>
                           </View>
                         );
@@ -350,7 +368,7 @@ export function ReadingSessionScreen({
 
                   <View style={styles.analysisBlock}>
                     <Text style={styles.analysisTitle}>复盘提醒</Text>
-                    <Text style={styles.explanationBody}>{question.reviewNote}</Text>
+                    <Text style={styles.explanationBody}>{withKana(question.reviewNote)}</Text>
                   </View>
                 </View>
               ) : null}
@@ -371,8 +389,8 @@ export function ReadingSessionScreen({
                 <Text style={styles.primaryButtonText}>
                   {submitted
                     ? currentIndex === passage.questions.length - 1
-                      ? '完成并自动记录'
-                      : '进入下一题'
+                      ? '完成并记录'
+                      : '下一题'
                     : '提交答案'}
                 </Text>
               </Pressable>
@@ -779,6 +797,8 @@ const styles = StyleSheet.create({
     fontFamily: fonts.body,
   },
 });
+
+
 
 
 

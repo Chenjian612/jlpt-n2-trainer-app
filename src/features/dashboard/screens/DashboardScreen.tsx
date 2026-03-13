@@ -19,6 +19,7 @@ import { colors, fonts } from '../../../theme/tokens';
 import { HeroCard } from '../components/HeroCard';
 import { TodayPlanCard } from '../components/TodayPlanCard';
 import { TrainingModeCard } from '../components/TrainingModeCard';
+import { WeaknessCoachCard } from '../components/WeaknessCoachCard';
 import { WeeklyRhythmCard } from '../components/WeeklyRhythmCard';
 import { useDashboardViewModel } from '../hooks/useDashboardViewModel';
 
@@ -60,12 +61,15 @@ export function DashboardScreen({
     weeklyProgress,
     insight,
     recommendedMode,
+    weaknessSnapshot,
+    weaknessRecommendedMode,
     todayKey,
     clearToday,
     setWeeklyGoal,
   } = useDashboardViewModel();
   const heroEntrance = useRef(new Animated.Value(0)).current;
   const planEntrance = useRef(new Animated.Value(0)).current;
+  const coachEntrance = useRef(new Animated.Value(0)).current;
   const weekEntrance = useRef(new Animated.Value(0)).current;
   const modesEntrance = useRef(new Animated.Value(0)).current;
   const modeGroups = useMemo(
@@ -106,6 +110,11 @@ export function DashboardScreen({
         duration: 420,
         useNativeDriver: Platform.OS !== 'web',
       }),
+      Animated.timing(coachEntrance, {
+        toValue: 1,
+        duration: 420,
+        useNativeDriver: Platform.OS !== 'web',
+      }),
       Animated.timing(weekEntrance, {
         toValue: 1,
         duration: 420,
@@ -117,7 +126,7 @@ export function DashboardScreen({
         useNativeDriver: Platform.OS !== 'web',
       }),
     ]).start();
-  }, [heroEntrance, modesEntrance, planEntrance, weekEntrance]);
+  }, [coachEntrance, heroEntrance, modesEntrance, planEntrance, weekEntrance]);
 
   return (
     <AppBackground>
@@ -144,6 +153,14 @@ export function DashboardScreen({
                 insight={insight}
                 onOpenMode={onOpenMode}
                 onClearToday={clearToday}
+              />
+            </Animated.View>
+
+            <Animated.View style={createEntranceStyle(coachEntrance)}>
+              <WeaknessCoachCard
+                snapshot={weaknessSnapshot}
+                recommendedMode={weaknessRecommendedMode}
+                onOpenMode={onOpenMode}
               />
             </Animated.View>
           </View>

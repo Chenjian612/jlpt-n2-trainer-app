@@ -15,7 +15,9 @@ import { getListeningCasesByMode } from '../../../data/seed/listeningCases';
 import { getTrainingModeById } from '../../../data/seed/trainingModes';
 import type { ListeningModeId } from '../../../domain/models/training';
 import { getModeSessionCountForDay } from '../../../domain/services/progressService';
+import { inferListeningWeaknessErrorTypes } from '../../../domain/services/wrongAnswerClassifier';
 import { colors, fonts, radii, shadows } from '../../../theme/tokens';
+import { withKana } from '../../../utils/withKana';
 
 type ListeningSessionScreenProps = {
   modeId: ListeningModeId;
@@ -119,11 +121,12 @@ export function ListeningSessionScreen({
   const submitDisabled = selectedChoice === null || !hasPlayedCurrent;
   const missionText = submitted
     ? isCorrect
-      ? '这题已经判断到位，继续把关键转折句复述一遍。'
-      : '别急着记答案，先确认真正改写结论的是哪一句。'
+      ? '这题判断方向对了，下一步把改变结论的那一句再复述一遍。'
+      : '先别记答案，先确认是哪一句把结论改写掉了。'
     : hasPlayedCurrent
-      ? '已经具备作答条件，重点抓转折后的决定信息。'
-      : '先听出场景和任务，再去辨认真正决定答案的信号句。';
+      ? '现在已经可以作答，重点抓转折后的决定信息。'
+      : '先听出场景和任务，再去辨认真正决定答案的那一句。';
+  const questionMetaText = `第 ${currentIndex + 1} 题 · 本材料第 ${currentCaseQuestionIndex + 1} 题`;
   const wrongQuestionLabels = useMemo(
     () =>
       listeningItems.reduce<string[]>((labels, item, index) => {
@@ -136,6 +139,21 @@ export function ListeningSessionScreen({
         return labels;
       }, []),
     [answers, listeningItems],
+  );
+  const listeningWeaknessSignals = useMemo(
+    () =>
+      listeningItems
+        .filter((item) => answers[item.question.id] !== undefined)
+        .map((item) => ({
+          questionId: item.question.id,
+          modeId,
+          prompt: item.question.prompt,
+          source: item.caseData.source,
+          tags: item.question.tags,
+          errorTypes: inferListeningWeaknessErrorTypes(item.question.tags),
+          wasCorrect: answers[item.question.id] === item.question.answer,
+        })),
+    [answers, listeningItems, modeId],
   );
 
   useEffect(() => {
@@ -230,7 +248,7 @@ export function ListeningSessionScreen({
     finishedRef.current = true;
     const wrongCount = wrongQuestionLabels.length;
 
-    recordSession(mode.id, 'drill');
+    recordSession(modeId, 'drill', listeningWeaknessSignals);
     setResult({
       correctCount: listeningItems.length - wrongCount,
       wrongCount,
@@ -367,7 +385,7 @@ export function ListeningSessionScreen({
                 />
               </View>
               <Text style={styles.progressHint}>
-                这一轮已经是先听后答的完整流程。每题至少播放 1 次官方示例音频，做完整轮后会自动记 1 轮听力。
+                这一轮采用先听后答的流程。每题至少播放 1 次官方示例音频，做完整轮后会自动记 1 轮听力。
               </Text>
             </View>
 
@@ -474,9 +492,7 @@ export function ListeningSessionScreen({
             </View>
 
             <View style={[styles.sectionCard, styles.resultCard, shadows.card]}>
-              <Text style={styles.questionMeta}>
-                第 {currentIndex + 1} 题 · 本材料第 {currentCaseQuestionIndex + 1} 题 · {question.tags.join(' / ')}
-              </Text>
+              <Text style={styles.questionMeta}>{questionMetaText}</Text>
               <Text style={styles.sectionTitle}>{question.prompt}</Text>
               <Text style={styles.questionHint}>
                 {hasPlayedCurrent
@@ -528,7 +544,7 @@ export function ListeningSessionScreen({
                       { color: isCorrect ? '#166534' : '#B91C1C' },
                     ]}
                   >
-                    {isCorrect ? '回答正确' : `正确答案：${question.choices[question.answer]}`}
+                    {isCorrect ? '回答正确' : `正确答案：${withKana(question.choices[question.answer])}`}
                   </Text>
 
                   <View style={styles.analysisBlock}>
@@ -537,7 +553,7 @@ export function ListeningSessionScreen({
                       {currentCase.dialogue.map((line, index) => (
                         <View key={`${line.speaker}-${index}`} style={styles.dialogueItem}>
                           <Text style={styles.dialogueSpeaker}>{line.speaker}</Text>
-                          <Text style={styles.dialogueText}>{line.text}</Text>
+                          <Text style={styles.dialogueText}>{withKana(line.text)}</Text>
                         </View>
                       ))}
                     </View>
@@ -545,29 +561,29 @@ export function ListeningSessionScreen({
 
                   <View style={styles.analysisBlock}>
                     <Text style={styles.analysisTitle}>关键转折</Text>
-                    <Text style={styles.explanationBody}>{question.keySignal}</Text>
+                    <Text style={styles.explanationBody}>{withKana(question.keySignal)}</Text>
                   </View>
 
                   <View style={styles.analysisBlock}>
                     <Text style={styles.analysisTitle}>原文依据</Text>
-                    <Text style={styles.explanationBody}>{question.basisLine}</Text>
+                    <Text style={styles.explanationBody}>{withKana(question.basisLine)}</Text>
                   </View>
 
                   <View style={styles.analysisBlock}>
                     <Text style={styles.analysisTitle}>陷阱点</Text>
-                    <Text style={styles.explanationBody}>{question.trapPoint}</Text>
+                    <Text style={styles.explanationBody}>{withKana(question.trapPoint)}</Text>
                   </View>
 
                   <View style={styles.analysisBlock}>
                     <Text style={styles.analysisTitle}>核心判断</Text>
-                    <Text style={styles.explanationBody}>{question.explanation}</Text>
+                    <Text style={styles.explanationBody}>{withKana(question.explanation)}</Text>
                   </View>
 
                   {!isCorrect && chosenAnswer !== null ? (
                     <View style={styles.analysisBlock}>
                       <Text style={styles.analysisTitle}>你这次为什么会错</Text>
                       <Text style={styles.explanationBody}>
-                        {question.choiceInsights[chosenAnswer]}
+                        {withKana(question.choiceInsights[chosenAnswer])}
                       </Text>
                     </View>
                   ) : null}
@@ -590,14 +606,16 @@ export function ListeningSessionScreen({
                                   styles.analysisItemLabelWrong,
                               ]}
                             >
-                              {isAnswerChoice
-                                ? `正确项 ${index + 1}. ${choice}`
-                                : isChosenChoice && !isCorrect
-                                  ? `你选了 ${index + 1}. ${choice}`
-                                  : `${index + 1}. ${choice}`}
+                              {withKana(
+                                isAnswerChoice
+                                  ? `正确项 ${index + 1}. ${choice}`
+                                  : isChosenChoice && !isCorrect
+                                    ? `你选了 ${index + 1}. ${choice}`
+                                    : `${index + 1}. ${choice}`,
+                              )}
                             </Text>
                             <Text style={styles.analysisItemBody}>
-                              {question.choiceInsights[index]}
+                              {withKana(question.choiceInsights[index])}
                             </Text>
                           </View>
                         );
@@ -607,7 +625,7 @@ export function ListeningSessionScreen({
 
                   <View style={styles.analysisBlock}>
                     <Text style={styles.analysisTitle}>复盘提醒</Text>
-                    <Text style={styles.explanationBody}>{question.reviewNote}</Text>
+                    <Text style={styles.explanationBody}>{withKana(question.reviewNote)}</Text>
                   </View>
                 </View>
               ) : null}
@@ -626,8 +644,8 @@ export function ListeningSessionScreen({
                 <Text style={styles.primaryButtonText}>
                   {submitted
                     ? currentIndex === listeningItems.length - 1
-                      ? '完成并自动记录'
-                      : '进入下一题'
+                      ? '完成并记录'
+                      : '下一题'
                     : hasPlayedCurrent
                       ? '提交答案'
                       : '请先播放音频'}
@@ -1204,6 +1222,7 @@ const styles = StyleSheet.create({
     fontFamily: fonts.body,
   },
 });
+
 
 
 

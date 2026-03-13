@@ -16,6 +16,7 @@ import type { DrillModeId } from '../../../domain/models/training';
 import type { WrongAnswerDraft } from '../../../domain/models/trainingContent';
 import { getModeSessionCountForDay } from '../../../domain/services/progressService';
 import { colors, fonts, radii, shadows } from '../../../theme/tokens';
+import { withKana } from '../../../utils/withKana';
 
 type DrillSessionScreenProps = {
   modeId: DrillModeId;
@@ -72,15 +73,16 @@ export function DrillSessionScreen({
   const displayedSessionCount = result ? result.recordedSessionCount : initialSessionCount;
   const missionText = result
     ? result.wrongCount > 0
-      ? '新增错题已经自动入队，接下来优先回收最容易再次做错的那几题。'
-      : '这一轮判断很稳，可以直接切到下一组内容，保持今天的节奏。'
+      ? '新增错题已经自动进入回收队列，下一步先处理优先级更高的题。'
+      : '这一轮判断比较稳，可以直接继续下一组内容。'
     : submitted
       ? isCorrect
-        ? '这题判断方向没问题，下一步把正确项的依据复述一遍。'
-        : '别急着记答案，先回到题干里看清楚真正被考的判断点。'
+        ? '这题判断方向没问题，下一步把正确依据用自己的话再说一遍。'
+        : '先别记答案，回到题干确认真正决定答案的是哪一点。'
       : selectedChoice === null
-        ? '先锁定题干在考什么，再排掉最像正确项的干扰答案。'
-        : '已经有初步判断了，提交前再检查一次题干限制条件。';
+        ? '先看题干在问什么，再排掉最像正确项的干扰答案。'
+        : '提交前再核对一次句子条件和语感。';
+  const questionMetaText = `来源：${question.source} · 第 ${currentIndex + 1} 题`;
 
   const wrongAnswerDrafts = useMemo<WrongAnswerDraft[]>(
     () =>
@@ -182,7 +184,7 @@ export function DrillSessionScreen({
             <Text style={styles.heroAgendaEyebrow}>这一轮先抓什么</Text>
             <Text style={styles.heroAgendaText}>{missionText}</Text>
             <Text style={styles.heroAgendaFootnote}>
-              当前第 {Math.min(currentIndex + 1, questions.length)} 题 · 先看题干限制，再判断选项
+              第 {Math.min(currentIndex + 1, questions.length)} 题 · 先确认题干条件
             </Text>
           </View>
         </View>
@@ -273,18 +275,16 @@ export function DrillSessionScreen({
                   />
                 </View>
                 <Text style={styles.progressHint}>
-                  中途退出不会写入记录；只有做完整轮，训练记录和错题才会一起保存。
+                  中途退出不会写入记录；只有做完整轮，训练记录和错题回收才会一起保存。
                 </Text>
               </View>
 
               <View style={[styles.sectionCard, shadows.card]}>
-                <Text style={styles.questionMeta}>
-                  来源：{question.source} · {question.tags.join(' / ')}
-                </Text>
+                <Text style={styles.questionMeta}>{questionMetaText}</Text>
                 <Text style={styles.sectionTitle}>{question.prompt}</Text>
 
                 <View style={styles.missionCard}>
-                  <Text style={styles.missionTitle}>这一题先判断什么</Text>
+                  <Text style={styles.missionTitle}>这一题先看什么</Text>
                   <Text style={styles.missionBody}>{missionText}</Text>
                 </View>
 
@@ -326,18 +326,18 @@ export function DrillSessionScreen({
                         { color: isCorrect ? '#166534' : '#B91C1C' },
                       ]}
                     >
-                      {isCorrect ? '回答正确' : `正确答案：${question.choices[question.answer]}`}
+                      {isCorrect ? '回答正确' : `正确答案：${withKana(question.choices[question.answer])}`}
                     </Text>
 
                     <View style={styles.analysisBlock}>
                       <Text style={styles.analysisTitle}>核心判断</Text>
-                      <Text style={styles.explanationBody}>{question.explanation}</Text>
+                      <Text style={styles.explanationBody}>{withKana(question.explanation)}</Text>
                     </View>
 
                     {!isCorrect && chosenAnswer !== null ? (
                       <View style={styles.analysisBlock}>
                         <Text style={styles.analysisTitle}>你这次为什么会错</Text>
-                        <Text style={styles.explanationBody}>{question.choiceInsights[chosenAnswer]}</Text>
+                        <Text style={styles.explanationBody}>{withKana(question.choiceInsights[chosenAnswer])}</Text>
                       </View>
                     ) : null}
 
@@ -357,13 +357,15 @@ export function DrillSessionScreen({
                                   isChosenChoice && !isCorrect && styles.analysisItemLabelWrong,
                                 ]}
                               >
-                                {isAnswerChoice
-                                  ? `正确项 ${index + 1}. ${choice}`
-                                  : isChosenChoice && !isCorrect
-                                    ? `你选了 ${index + 1}. ${choice}`
-                                    : `${index + 1}. ${choice}`}
+                                {withKana(
+                                  isAnswerChoice
+                                    ? `正确项 ${index + 1}. ${choice}`
+                                    : isChosenChoice && !isCorrect
+                                      ? `你选了 ${index + 1}. ${choice}`
+                                      : `${index + 1}. ${choice}`,
+                                )}
                               </Text>
-                              <Text style={styles.analysisItemBody}>{question.choiceInsights[index]}</Text>
+                              <Text style={styles.analysisItemBody}>{withKana(question.choiceInsights[index])}</Text>
                             </View>
                           );
                         })}
@@ -372,7 +374,7 @@ export function DrillSessionScreen({
 
                     <View style={styles.analysisBlock}>
                       <Text style={styles.analysisTitle}>复盘提醒</Text>
-                      <Text style={styles.explanationBody}>{question.reviewNote}</Text>
+                      <Text style={styles.explanationBody}>{withKana(question.reviewNote)}</Text>
                     </View>
                   </View>
                 ) : null}
@@ -391,8 +393,8 @@ export function DrillSessionScreen({
                   <Text style={styles.primaryButtonText}>
                     {submitted
                       ? currentIndex === questions.length - 1
-                        ? '完成并自动记录'
-                        : '进入下一题'
+                        ? '完成并记录'
+                        : '下一题'
                       : '提交答案'}
                   </Text>
                 </Pressable>
@@ -410,7 +412,7 @@ export function DrillSessionScreen({
                   <View style={styles.timelineItem}>
                     <View style={[styles.timelineDot, submitted ? styles.timelineDotDone : styles.timelineDotActive]} />
                     <Text style={styles.timelineText}>
-                      {submitted ? '答案已提交，正在做选项拆解和复盘。' : '先排干扰项，再提交你的最终判断。'}
+                      {submitted ? '答案已提交，接下来重点看各个选项差在哪里。' : '先排掉迷惑项，再提交你的最终判断。'}
                     </Text>
                   </View>
                   <View style={styles.timelineItem}>

@@ -4,7 +4,11 @@
   TrainingSessionRecord,
 } from '../models/progress';
 import type {
+  WeaknessErrorType,
+  WeaknessSignalDraft,
+  WeaknessSignalItem,
   WrongAnswerDraft,
+  WrongAnswerErrorType,
   WrongAnswerItem,
   WrongReviewDecision,
 } from '../models/trainingContent';
@@ -14,7 +18,18 @@ import type {
   TrainingModeId,
   TrainingSessionKind,
 } from '../models/training';
-import { REVIEW_SOURCE_MODE, isDrillModeId } from '../models/training';
+import {
+  REVIEW_SOURCE_MODE,
+  isDrillModeId,
+  isListeningModeId,
+  isReadingModeId,
+} from '../models/training';
+import {
+  inferModeWeaknessErrorTypes,
+  inferWrongAnswerErrorTypes,
+  isWeaknessErrorType,
+  isWrongAnswerErrorType,
+} from './wrongAnswerClassifier';
 
 export const DEFAULT_WEEKLY_GOAL = 14;
 const MAX_HISTORY_DAYS = 45;
@@ -54,6 +69,7 @@ export const createDefaultProgressState = (): ProgressState => ({
   weeklyGoal: DEFAULT_WEEKLY_GOAL,
   sessionsByDay: {},
   wrongAnswers: [],
+  weaknessSignals: [],
 });
 
 export const getDayKey = (date: Date): string => {
@@ -208,6 +224,16 @@ export const getWrongAnswerPriorityLabel = (item: WrongAnswerItem): string => {
   return '继续巩固';
 };
 
+export const getWeaknessSignalPriorityScore = (
+  item: WeaknessSignalItem,
+): number => {
+  const wrongWeight = item.wrongCount * 10;
+  const recencyWeight = Math.max(0, 14 - diffFromNowInDays(item.lastWrongAt));
+  const unresolvedWeight = item.active ? 6 : 0;
+
+  return wrongWeight + recencyWeight + unresolvedWeight;
+};
+
 const sortWrongAnswers = (wrongAnswers: WrongAnswerItem[]): WrongAnswerItem[] =>
   [...wrongAnswers].sort((left, right) => {
     if (left.mastered !== right.mastered) {
@@ -215,6 +241,26 @@ const sortWrongAnswers = (wrongAnswers: WrongAnswerItem[]): WrongAnswerItem[] =>
     }
 
     const scoreGap = getWrongAnswerPriorityScore(right) - getWrongAnswerPriorityScore(left);
+    if (scoreGap !== 0) {
+      return scoreGap;
+    }
+
+    if (left.wrongCount !== right.wrongCount) {
+      return right.wrongCount - left.wrongCount;
+    }
+
+    return right.lastWrongAt.localeCompare(left.lastWrongAt);
+  });
+
+const sortWeaknessSignals = (
+  weaknessSignals: WeaknessSignalItem[],
+): WeaknessSignalItem[] =>
+  [...weaknessSignals].sort((left, right) => {
+    if (left.active !== right.active) {
+      return left.active ? -1 : 1;
+    }
+
+    const scoreGap = getWeaknessSignalPriorityScore(right) - getWeaknessSignalPriorityScore(left);
     if (scoreGap !== 0) {
       return scoreGap;
     }
@@ -235,6 +281,22 @@ const normalizeChoiceInsights = (
   return choices.map((_, index) =>
     typeof rawInsights[index] === 'string' ? rawInsights[index] : '',
   );
+};
+
+const normalizeWrongAnswerErrorTypes = (
+  value: unknown,
+  modeId: DrillModeId,
+  tags: string[],
+): WrongAnswerErrorType[] => {
+  if (Array.isArray(value)) {
+    const errorTypes = value.filter(isWrongAnswerErrorType);
+
+    if (errorTypes.length > 0) {
+      return Array.from(new Set(errorTypes));
+    }
+  }
+
+  return inferWrongAnswerErrorTypes(modeId, tags);
 };
 
 const normalizeWrongAnswer = (value: unknown): WrongAnswerItem | null => {
@@ -274,6 +336,9 @@ const normalizeWrongAnswer = (value: unknown): WrongAnswerItem | null => {
     Number.isInteger(parsed.lastUserChoice)
       ? parsed.lastUserChoice
       : null;
+  const tags = Array.isArray(parsed.tags)
+    ? parsed.tags.filter((tag): tag is string => typeof tag === 'string')
+    : [];
 
   return {
     questionId: parsed.questionId,
@@ -287,9 +352,7 @@ const normalizeWrongAnswer = (value: unknown): WrongAnswerItem | null => {
       typeof parsed.reviewNote === 'string' && parsed.reviewNote.length > 0
         ? parsed.reviewNote
         : parsed.explanation,
-    tags: Array.isArray(parsed.tags)
-      ? parsed.tags.filter((tag): tag is string => typeof tag === 'string')
-      : [],
+    tags,
     source: parsed.source,
     wrongCount,
     firstWrongAt:
@@ -306,6 +369,11 @@ const normalizeWrongAnswer = (value: unknown): WrongAnswerItem | null => {
         ? parsed.lastReviewedAt
         : undefined,
     mastered: Boolean(parsed.mastered),
+    errorTypes: normalizeWrongAnswerErrorTypes(
+      parsed.errorTypes,
+      parsed.modeId as DrillModeId,
+      tags,
+    ),
   };
 };
 
@@ -318,6 +386,83 @@ const normalizeWrongAnswers = (value: unknown): WrongAnswerItem[] => {
     value
       .map((item) => normalizeWrongAnswer(item))
       .filter((item): item is WrongAnswerItem => item !== null),
+  );
+};
+
+const normalizeWeaknessSignalErrorTypes = (
+  value: unknown,
+  modeId: Extract<TrainingModeId, 'reading_drill' | 'listening_analyze'>,
+  tags: string[],
+): WeaknessErrorType[] => {
+  if (Array.isArray(value)) {
+    const errorTypes = value.filter(isWeaknessErrorType);
+
+    if (errorTypes.length > 0) {
+      return Array.from(new Set(errorTypes));
+    }
+  }
+
+  return inferModeWeaknessErrorTypes(modeId, tags);
+};
+
+const normalizeWeaknessSignal = (value: unknown): WeaknessSignalItem | null => {
+  if (!value || typeof value !== 'object') {
+    return null;
+  }
+
+  const parsed = value as Partial<WeaknessSignalItem>;
+  const modeId = parsed.modeId as TrainingModeId;
+
+  if (
+    typeof parsed.questionId !== 'string' ||
+    (!isReadingModeId(modeId) && !isListeningModeId(modeId)) ||
+    typeof parsed.prompt !== 'string' ||
+    typeof parsed.source !== 'string'
+  ) {
+    return null;
+  }
+
+  const tags = Array.isArray(parsed.tags)
+    ? parsed.tags.filter((tag): tag is string => typeof tag === 'string')
+    : [];
+  const wrongCount =
+    typeof parsed.wrongCount === 'number' && parsed.wrongCount > 0
+      ? Math.round(parsed.wrongCount)
+      : 1;
+
+  return {
+    questionId: parsed.questionId,
+    modeId,
+    prompt: parsed.prompt,
+    source: parsed.source,
+    tags,
+    wrongCount,
+    firstWrongAt:
+      typeof parsed.firstWrongAt === 'string' && parsed.firstWrongAt.length > 0
+        ? parsed.firstWrongAt
+        : new Date().toISOString(),
+    lastWrongAt:
+      typeof parsed.lastWrongAt === 'string' && parsed.lastWrongAt.length > 0
+        ? parsed.lastWrongAt
+        : new Date().toISOString(),
+    lastResolvedAt:
+      typeof parsed.lastResolvedAt === 'string' && parsed.lastResolvedAt.length > 0
+        ? parsed.lastResolvedAt
+        : undefined,
+    active: typeof parsed.active === 'boolean' ? parsed.active : true,
+    errorTypes: normalizeWeaknessSignalErrorTypes(parsed.errorTypes, modeId, tags),
+  };
+};
+
+const normalizeWeaknessSignals = (value: unknown): WeaknessSignalItem[] => {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return sortWeaknessSignals(
+    value
+      .map((item) => normalizeWeaknessSignal(item))
+      .filter((item): item is WeaknessSignalItem => item !== null),
   );
 };
 
@@ -387,6 +532,7 @@ export const normalizeProgressState = (raw: string | null): ProgressState => {
       weeklyGoal,
       sessionsByDay: pruneHistory(sessionsByDay),
       wrongAnswers: normalizeWrongAnswers(parsed.wrongAnswers),
+      weaknessSignals: normalizeWeaknessSignals(parsed.weaknessSignals),
     };
   } catch {
     return createDefaultProgressState();
@@ -439,6 +585,16 @@ export const getActiveWrongAnswersForMode = (
   sortWrongAnswers(
     state.wrongAnswers.filter(
       (item) => item.modeId === modeId && item.mastered === false,
+    ),
+  );
+
+export const getActiveWeaknessSignals = (
+  state: ProgressState,
+  modeId?: Extract<TrainingModeId, 'reading_drill' | 'listening_analyze'>,
+): WeaknessSignalItem[] =>
+  sortWeaknessSignals(
+    state.weaknessSignals.filter(
+      (item) => item.active && (!modeId || item.modeId === modeId),
     ),
   );
 
@@ -506,6 +662,10 @@ export const recordWrongAnswers = (
         lastWrongAt: recordedAtIso,
         lastUserChoice: draft.selectedChoice,
         mastered: false,
+        errorTypes: inferWrongAnswerErrorTypes(
+          draft.question.modeId,
+          draft.question.tags,
+        ),
       });
       continue;
     }
@@ -525,12 +685,96 @@ export const recordWrongAnswers = (
       lastWrongAt: recordedAtIso,
       lastUserChoice: draft.selectedChoice,
       mastered: false,
+      errorTypes: inferWrongAnswerErrorTypes(
+        draft.question.modeId,
+        draft.question.tags,
+      ),
     };
   }
 
   return {
     ...state,
     wrongAnswers: sortWrongAnswers(nextWrongAnswers),
+  };
+};
+
+export const recordWeaknessSignals = (
+  state: ProgressState,
+  weaknessSignals: WeaknessSignalDraft[],
+  recordedAt: Date = new Date(),
+): ProgressState => {
+  if (weaknessSignals.length === 0) {
+    return state;
+  }
+
+  const recordedAtIso = recordedAt.toISOString();
+  const nextWeaknessSignals = [...state.weaknessSignals];
+
+  for (const draft of weaknessSignals) {
+    const existingIndex = nextWeaknessSignals.findIndex(
+      (item) => item.questionId === draft.questionId,
+    );
+
+    if (draft.wasCorrect) {
+      if (existingIndex < 0) {
+        continue;
+      }
+
+      const existing = nextWeaknessSignals[existingIndex];
+      nextWeaknessSignals[existingIndex] = {
+        ...existing,
+        prompt: draft.prompt,
+        source: draft.source,
+        tags: draft.tags,
+        active: false,
+        lastResolvedAt: recordedAtIso,
+        errorTypes:
+          draft.errorTypes.length > 0
+            ? Array.from(new Set(draft.errorTypes))
+            : existing.errorTypes,
+      };
+      continue;
+    }
+
+    if (existingIndex < 0) {
+      nextWeaknessSignals.push({
+        questionId: draft.questionId,
+        modeId: draft.modeId,
+        prompt: draft.prompt,
+        source: draft.source,
+        tags: draft.tags,
+        wrongCount: 1,
+        firstWrongAt: recordedAtIso,
+        lastWrongAt: recordedAtIso,
+        active: true,
+        errorTypes:
+          draft.errorTypes.length > 0
+            ? Array.from(new Set(draft.errorTypes))
+            : inferModeWeaknessErrorTypes(draft.modeId, draft.tags),
+      });
+      continue;
+    }
+
+    const existing = nextWeaknessSignals[existingIndex];
+    nextWeaknessSignals[existingIndex] = {
+      ...existing,
+      modeId: draft.modeId,
+      prompt: draft.prompt,
+      source: draft.source,
+      tags: draft.tags,
+      wrongCount: existing.wrongCount + 1,
+      lastWrongAt: recordedAtIso,
+      active: true,
+      errorTypes:
+        draft.errorTypes.length > 0
+          ? Array.from(new Set(draft.errorTypes))
+          : inferModeWeaknessErrorTypes(draft.modeId, draft.tags),
+    };
+  }
+
+  return {
+    ...state,
+    weaknessSignals: sortWeaknessSignals(nextWeaknessSignals),
   };
 };
 
@@ -643,3 +887,6 @@ export const clearDay = (state: ProgressState, dayKey: string): ProgressState =>
     sessionsByDay: nextSessionsByDay,
   };
 };
+
+
+

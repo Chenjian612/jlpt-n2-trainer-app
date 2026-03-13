@@ -1,4 +1,4 @@
-import type {
+﻿import type {
   DrillModeId,
   ListeningModeId,
   ReadingModeId,
@@ -23,6 +23,32 @@ export type WrongAnswerDraft = {
   selectedChoice: number | null;
 };
 
+export type WrongAnswerErrorType =
+  | 'grammar_constraint'
+  | 'grammar_judgement'
+  | 'grammar_conclusion'
+  | 'grammar_parallel'
+  | 'grammar_concession'
+  | 'vocab_collocation'
+  | 'vocab_context'
+  | 'vocab_nuance';
+
+export type ReadingWeaknessErrorType =
+  | 'reading_evidence'
+  | 'reading_main_idea'
+  | 'reading_distractor';
+
+export type ListeningWeaknessErrorType =
+  | 'listening_turning_point'
+  | 'listening_detail_tracking'
+  | 'listening_final_decision'
+  | 'listening_main_point';
+
+export type WeaknessErrorType =
+  | WrongAnswerErrorType
+  | ReadingWeaknessErrorType
+  | ListeningWeaknessErrorType;
+
 export type WrongAnswerItem = {
   questionId: string;
   modeId: DrillModeId;
@@ -40,6 +66,31 @@ export type WrongAnswerItem = {
   lastUserChoice: number | null;
   lastReviewedAt?: string;
   mastered: boolean;
+  errorTypes: WrongAnswerErrorType[];
+};
+
+export type WeaknessSignalDraft = {
+  questionId: string;
+  modeId: ReadingModeId | ListeningModeId;
+  prompt: string;
+  source: string;
+  tags: string[];
+  errorTypes: WeaknessErrorType[];
+  wasCorrect: boolean;
+};
+
+export type WeaknessSignalItem = {
+  questionId: string;
+  modeId: ReadingModeId | ListeningModeId;
+  prompt: string;
+  source: string;
+  tags: string[];
+  wrongCount: number;
+  firstWrongAt: string;
+  lastWrongAt: string;
+  lastResolvedAt?: string;
+  active: boolean;
+  errorTypes: WeaknessErrorType[];
 };
 
 export type WrongReviewDecision = {
@@ -123,3 +174,4 @@ export type ListeningCase = {
   dialogue: ListeningDialogueLine[];
   questions: ListeningQuestion[];
 };
+

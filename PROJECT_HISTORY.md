@@ -4,6 +4,51 @@
 
 ## Unreleased
 
+### 2026-03-13 `跨模式薄弱点追踪扩展到读解与听力，并补充首页教练聚合`
+
+本轮重点不是继续堆 UI，而是把“薄弱点系统”从文法/词汇刷题错题扩展成真正跨模式可用的本地教练层。
+
+已完成：
+
+- 新增 `weaknessSignals` 持久化结构，用来记录读解与听力的题级弱点。
+- 保留原有 `wrongAnswers` 机制，继续服务文法/词汇错题回收，不和读解/听力弱点混在同一条队列里。
+- 读解接入 3 类错误类型：
+  - 读解证据定位
+  - 读解主旨判断
+  - 读解干扰项排除
+- 听力接入 4 类错误类型：
+  - 听力转折漏听
+  - 听力信息追踪
+  - 听力最终结论
+  - 听力主任务判断
+- 首页“薄弱点摘要”现在会统一聚合：
+  - 文法/词汇刷题错题
+  - 读解 weakness signal
+  - 听力 weakness signal
+- 首页攻克计划会根据弱点来源自动推荐回到读解实战或听力要点拆解，而不是只推荐错题回收模式。
+- 读解/听力页面在整轮结束时会把题级对错折成 weakness signal，用于后续首页推荐与攻克建议。
+
+本轮实际验证通过的内容：
+
+- `npx tsc --noEmit`
+- 浏览器读解整轮回归：错误会影响首页“薄弱点摘要”
+- 浏览器听力首题闭环：播放 -> 选项 -> 提交 -> 进入讲解态
+- 服务层教练聚合校验：
+  - listening weakness signal 会生成“当前最该先补：听力最终结论”
+  - reading weakness signal 会生成“当前最该先补：读解主旨判断”
+  - 正确重做后，对应弱点会被清除
+
+涉及的核心文件：
+
+- `src/app/providers/ProgressProvider.tsx`
+- `src/domain/models/progress.ts`
+- `src/domain/models/trainingContent.ts`
+- `src/domain/services/progressService.ts`
+- `src/domain/services/wrongAnswerClassifier.ts`
+- `src/domain/services/coachService.ts`
+- `src/features/reading-session/*`
+- `src/features/listening-session/*`
+
 ### 2026-03-12 `主训练链路 UI 升级、刷题页重构与浏览器回归修正`
 
 本轮继续把“首页点进去之后真正长时间停留的页面”做成统一的产品化体验。
