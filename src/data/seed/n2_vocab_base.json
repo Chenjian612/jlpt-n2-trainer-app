@@ -1,0 +1,2102 @@
+[
+  {
+    "id": "ext-vocab-1",
+    "term": "揃う",
+    "reading": "そろう",
+    "coreMeaning": "齐全，备齐，到齐。",
+    "keyUsage": "常用于 资料が揃う、メンバーが揃う。",
+    "example": "必要な書類がすべて揃いました。",
+    "memoryHook": "想大家排排站，一个不少。",
+    "sourceHint": "引用自官方样题 N2L 听解。"
+  },
+  {
+    "id": "ext-vocab-2",
+    "term": "省く",
+    "reading": "はぶく",
+    "coreMeaning": "省略，省去。",
+    "keyUsage": "常搭配 手間を省く、説明を省く。",
+    "example": "無駄な工程を省いて効率を上げる。",
+    "memoryHook": "“省”是直接跳过不要。",
+    "sourceHint": "引用自官方样题 N2V。"
+  },
+  {
+    "id": "ext-vocab-3",
+    "term": "补う",
+    "reading": "おぎなう",
+    "coreMeaning": "补充，弥补。",
+    "keyUsage": "常见于 欠点を補う、不足を補う。",
+    "example": "足りない経験を知識で补う。",
+    "memoryHook": "看到缺口（衣字旁），用东西补上。",
+    "sourceHint": "引用自官方样题 N2V。"
+  },
+  {
+    "id": "ext-vocab-4",
+    "term": "劣る",
+    "reading": "おとる",
+    "coreMeaning": "逊色，劣于。",
+    "keyUsage": "常用于 AはBに劣る。",
+    "example": "性能は他社の製品に劣らない。",
+    "memoryHook": "下面一个“少”，说明力量不够。",
+    "sourceHint": "引用自官方真题，对比类读解。"
+  },
+  {
+    "id": "ext-vocab-5",
+    "term": "蓄える",
+    "reading": "たくわえる",
+    "coreMeaning": "积蓄，储备。",
+    "keyUsage": "常用于 知識を蓄える、実力を蓄える。",
+    "example": "将来のために実力を蓄えておく。",
+    "memoryHook": "想仓库里堆满了草（草字头），长期的积累。",
+    "sourceHint": "引用自官方样题。"
+  },
+  {
+    "id": "ext-vocab-6",
+    "term": "鮮やか",
+    "reading": "あざやか",
+    "coreMeaning": "鲜明，出色。",
+    "keyUsage": "既指颜色，也指动作熟练。",
+    "example": "彼は鮮やかなプレーで観客を魅了した。",
+    "memoryHook": "“新”且“鱼”，刚捞上来的鱼色彩最亮。",
+    "sourceHint": "引用自官方真题。"
+  },
+  {
+    "id": "ext-vocab-7",
+    "term": "穏やか",
+    "reading": "おだやか",
+    "coreMeaning": "平静，温和。",
+    "keyUsage": "常用：穏やかな海、穏やかな性格。",
+    "example": "今日は風もなくて穏やかな天気だ。",
+    "memoryHook": "想禾苗在风中静静摇摆。",
+    "sourceHint": "引用自官方样题 N2V。"
+  },
+  {
+    "id": "ext-vocab-8",
+    "term": "速やか",
+    "reading": "すみやか",
+    "coreMeaning": "迅速，及时。",
+    "keyUsage": "常用于 速やかに対応する。",
+    "example": "問題が発生したら、速やかに報告してください。",
+    "memoryHook": "它是“速度”的代名词，严肃正式。",
+    "sourceHint": "引用自官方样题。"
+  },
+  {
+    "id": "ext-vocab-9",
+    "term": "契機",
+    "reading": "けいき",
+    "coreMeaning": "契机，转机。",
+    "keyUsage": "常搭配 〜を契機に。",
+    "example": "その事件が、彼が政治に興味を持つ契機となった。",
+    "memoryHook": "想一个齿轮被拨动了。",
+    "sourceHint": "引用自官方样题 N2G 文法。"
+  },
+  {
+    "id": "ext-vocab-10",
+    "term": "矛盾",
+    "reading": "むじゅん",
+    "coreMeaning": "矛盾，前后不一。",
+    "keyUsage": "读解中常考“作者认为什么是矛盾的”。",
+    "example": "彼の言動は矛盾している。",
+    "memoryHook": "左手拿盾，右手拿矛。",
+    "sourceHint": "引用自官方样题 N2R。"
+  },
+  {
+    "id": "ext-vocab-11",
+    "term": "一概に",
+    "reading": "いちがいに",
+    "coreMeaning": "一概，一概而论。",
+    "keyUsage": "常用于 一概に〜とは言えない。",
+    "example": "高いからいいとは一概に言えない。",
+    "memoryHook": "一根木头，不要想得那么死。",
+    "sourceHint": "引用自官方样题 N2R。"
+  },
+  {
+    "id": "ext-vocab-12",
+    "term": "究極",
+    "reading": "きゅうきょく",
+    "coreMeaning": "终极，极致。",
+    "keyUsage": "常用于 究極の選択。",
+    "example": "それは究極の目標と言えるだろう。",
+    "memoryHook": "究竟到了极点，没地方再去了。",
+    "sourceHint": "引用自官方真题。"
+  },
+  {
+    "id": "ext-vocab-13",
+    "term": "応急",
+    "reading": "おうきゅう",
+    "coreMeaning": "应急，紧急。",
+    "keyUsage": "常搭配 応急処置、応急手当。",
+    "example": "応急処置のおかげで、被害が最小限に抑えられた。",
+    "memoryHook": "应对急事，能救火。",
+    "sourceHint": "引用自官方样题 N2L。"
+  },
+  {
+    "id": "ext-vocab-14",
+    "term": "妥協",
+    "reading": "だきょう",
+    "coreMeaning": "妥协，让步。",
+    "keyUsage": "常用于 妥協を許さない。",
+    "example": "品質については、一切の妥協を許しません。",
+    "memoryHook": "两方都妥了，各退一步。",
+    "sourceHint": "引用自官方真题。"
+  },
+  {
+    "id": "ext-vocab-15",
+    "term": "貴重",
+    "reading": "きちょう",
+    "coreMeaning": "珍贵，宝贵。",
+    "keyUsage": "常见于 貴重な体験、貴重な意見。",
+    "example": "今日は貴重なお話をありがとうございました。",
+    "memoryHook": "既贵又重，分量极高。",
+    "sourceHint": "引用自官方样题。"
+  },
+  {
+    "id": "ext-vocab-16",
+    "term": "克服",
+    "reading": "こくふく",
+    "coreMeaning": "克服，战胜（困难、弱点）。",
+    "keyUsage": "常用于 弱点を克服する。",
+    "example": "彼は努力の末、苦手を克服した。",
+    "memoryHook": "克制并服从，踩在脚下。",
+    "sourceHint": "引用自官方真题。"
+  },
+  {
+    "id": "ext-vocab-17",
+    "term": "考慮",
+    "reading": "こうりょ",
+    "coreMeaning": "考虑，顾及（多种因素）。",
+    "keyUsage": "常用于 〜を考慮に入れる。",
+    "example": "予算を考慮して、計画を立てる。",
+    "memoryHook": "考查所有的因素，想得很全面。",
+    "sourceHint": "引用自官方样题 N2V。"
+  },
+  {
+    "id": "ext-vocab-18",
+    "term": "収集",
+    "reading": "しゅうしゅう",
+    "coreMeaning": "收集，采集。",
+    "keyUsage": "常用于 情報を収集する。",
+    "example": "インターネットで最新の情報を収集する。",
+    "memoryHook": "收拢并集中，强调从各处拿回来。",
+    "sourceHint": "引用自官方样题。"
+  },
+  {
+    "id": "ext-vocab-19",
+    "term": "柔軟",
+    "reading": "じゅうなん",
+    "coreMeaning": "柔软，灵活。",
+    "keyUsage": "指身体，也指想法灵活。",
+    "example": "状況に合わせて柔軟に対応してください。",
+    "memoryHook": "像柔道一样，不硬碰硬。",
+    "sourceHint": "引用自官方真题。"
+  },
+  {
+    "id": "ext-vocab-20",
+    "term": "推測",
+    "reading": "すいそく",
+    "coreMeaning": "推测，猜测。",
+    "keyUsage": "常用于 理由を推測する。",
+    "example": "データに基づいて、今後の傾向を推測する。",
+    "memoryHook": "推理出测量值，不是瞎猜。",
+    "sourceHint": "引用自官方样题 N2R。"
+  },
+  {
+    "id": "ext-vocab-21",
+    "term": "引き受ける",
+    "reading": "ひきうける",
+    "coreMeaning": "承担，接手。",
+    "keyUsage": "常用于 仕事を引き受ける。",
+    "example": "彼がリーダーの役目を引き受けてくれた。",
+    "memoryHook": "拉过来，自己受着。",
+    "sourceHint": "引用自官方样题 N2L。"
+  },
+  {
+    "id": "ext-vocab-22",
+    "term": "打ち合わせる",
+    "reading": "うちあわせる",
+    "coreMeaning": "商量，碰头。",
+    "keyUsage": "常见名词形式 打ち合わせ。",
+    "example": "会議の前に内容を打ち合わせておこう。",
+    "memoryHook": "打磨想法，让大家合在一起。",
+    "sourceHint": "引用自官方样题 N2L。"
+  },
+  {
+    "id": "ext-vocab-23",
+    "term": "取り組む",
+    "reading": "とりくむ",
+    "coreMeaning": "致力于，埋头苦干。",
+    "keyUsage": "常用于 新しい課題に取り組む。",
+    "example": "全力でこの問題に取り組んでいます。",
+    "memoryHook": "拿起任务，与之摔跤。",
+    "sourceHint": "引用自官方真题。"
+  },
+  {
+    "id": "ext-vocab-24",
+    "term": "差し支える",
+    "reading": "さしつかえる",
+    "coreMeaning": "妨碍，有影响。",
+    "keyUsage": "常用于 仕事に差し支える。",
+    "example": "夜更かしは明日の仕事に差し支える。",
+    "memoryHook": "有东西插进来，支在那让你过不去。",
+    "sourceHint": "引用自官方真题。"
+  },
+  {
+    "id": "ext-vocab-25",
+    "term": "見合わせる",
+    "reading": "みあわせる",
+    "coreMeaning": "暂缓，推迟；也指互相看。",
+    "keyUsage": "常用于 運転を見合わせる。",
+    "example": "大雨のため、電車の運転を見合わせている。",
+    "memoryHook": "大家互相看一眼，觉得不行先停下。",
+    "sourceHint": "引用自官方样题 N2L。"
+  },
+  {
+    "id": "ext-vocab-26",
+    "term": "申し込む",
+    "reading": "もうしこむ",
+    "coreMeaning": "申请，报名。",
+    "keyUsage": "常用于 ツアーに申し込む。",
+    "example": "期限までに受講を申し込んでください。",
+    "memoryHook": "把自己想说的话（申）插进流程里。",
+    "sourceHint": "引用自官方样题 N2L。"
+  },
+  {
+    "id": "ext-vocab-27",
+    "term": "張り切る",
+    "reading": "はりきる",
+    "coreMeaning": "劲头十足，精神百倍。",
+    "keyUsage": "描述非常有干劲的状态。",
+    "example": "彼は新入社員で、とても張り切っている。",
+    "memoryHook": "弦张得紧紧的，充满了力量。",
+    "sourceHint": "引用自官方真题。"
+  },
+  {
+    "id": "ext-vocab-28",
+    "term": "結び付く",
+    "reading": "むすびつく",
+    "coreMeaning": "结合，产生联系。",
+    "keyUsage": "常用于 努力が成功に結び付く。",
+    "example": "この発見が新しい薬の開発に結び付いた。",
+    "memoryHook": "结成绳子，产生了因果。",
+    "sourceHint": "引用自官方真题。"
+  },
+  {
+    "id": "ext-vocab-29",
+    "term": "せめて",
+    "reading": "せめて",
+    "coreMeaning": "哪怕是，至少。",
+    "keyUsage": "表示最低限度的渴望。",
+    "example": "せめて名前だけでも教えてください。",
+    "memoryHook": "心里被挤压到极限后的祈求。",
+    "sourceHint": "引用自官方样题。"
+  },
+  {
+    "id": "ext-vocab-30",
+    "term": "あえて",
+    "reading": "あえて",
+    "coreMeaning": "硬是，非要。",
+    "keyUsage": "挑战性地，明知困难却要做。",
+    "example": "反対されると分かっていたが、あえて挑戦した。",
+    "memoryHook": "敢于在压力下做出选择。",
+    "sourceHint": "引用自官方真题。"
+  },
+  {
+    "id": "ext-vocab-31",
+    "term": "わずか",
+    "reading": "わずか",
+    "coreMeaning": "仅仅，微小。",
+    "keyUsage": "强调数量极少。",
+    "example": "合格点まで、わずか2点足りなかった。",
+    "memoryHook": "极其微小的划痕。",
+    "sourceHint": "引用自官方样题 N2R。"
+  },
+  {
+    "id": "ext-vocab-32",
+    "term": "おそらく",
+    "reading": "おそらく",
+    "coreMeaning": "恐怕，大概。",
+    "keyUsage": "带有一种担心的推测。",
+    "example": "明日はおそらく雨になるだろう。",
+    "memoryHook": "恐怕会有结果，理性概率估计。",
+    "sourceHint": "引用自官方样题 N2L。"
+  },
+  {
+    "id": "ext-vocab-33",
+    "term": "常に",
+    "reading": "つねに",
+    "coreMeaning": "经常，总是。",
+    "keyUsage": "正式书面语。",
+    "example": "客のニーズを常に意識することが大切だ。",
+    "memoryHook": "常态化的，没有中断。",
+    "sourceHint": "引用自官方样题。"
+  },
+  {
+    "id": "ext-vocab-34",
+    "term": "次第に",
+    "reading": "しだいに",
+    "coreMeaning": "逐渐，渐渐。",
+    "keyUsage": "强调程度慢慢变化。",
+    "example": "景気が次第に回復してきた。",
+    "memoryHook": "按次序递进，形成变化。",
+    "sourceHint": "引用自官方真题。"
+  },
+  {
+    "id": "ext-vocab-35",
+    "term": "直ちに",
+    "reading": "ただちに",
+    "coreMeaning": "立刻，马上。",
+    "keyUsage": "比 すぐに 更正式。",
+    "example": "火災報知器が鳴ったら、直ちに避難してください。",
+    "memoryHook": "直奔目标，无停留。",
+    "sourceHint": "引用自官方样题 N2L。"
+  },
+  {
+    "id": "ext-vocab-36",
+    "term": "お互いに",
+    "reading": "おたがいに",
+    "coreMeaning": "互相。",
+    "keyUsage": "强调双向关系。",
+    "example": "お互いに助け合って仕事をしよう。",
+    "memoryHook": "你在彼我在此，大家一起用力。",
+    "sourceHint": "引用自官方真题。"
+  },
+  {
+    "id": "ext-vocab-37",
+    "term": "果たして",
+    "reading": "はたして",
+    "coreMeaning": "果真，到底。",
+    "keyUsage": "常用于 疑问句。",
+    "example": "その計画は果たして成功するだろうか。",
+    "memoryHook": "果然到了最后看是否实现。",
+    "sourceHint": "引用自官方真题。"
+  },
+  {
+    "id": "ext-vocab-38",
+    "term": "まさに",
+    "reading": "まさに",
+    "coreMeaning": "确实，正是，即将。",
+    "keyUsage": "表示强调。",
+    "example": "これこそがまさに私が探していた本だ。",
+    "memoryHook": "正是如此，无偏差。",
+    "sourceHint": "引用自官方样题。"
+  },
+  {
+    "id": "ext-vocab-39",
+    "term": "むしろ",
+    "reading": "むしろ",
+    "coreMeaning": "反而，倒不如说。",
+    "keyUsage": "二选一中的强调。",
+    "example": "損得より、むしろ名誉が問題だ。",
+    "memoryHook": "宁愿要此，不想要彼。",
+    "sourceHint": "引用自官方样题 N2R。"
+  },
+  {
+    "id": "ext-vocab-40",
+    "term": "余計",
+    "reading": "よけい",
+    "coreMeaning": "多余，更进一步（负面）。",
+    "keyUsage": "常用于 余計な心配。",
+    "example": "口を出すと、余計に话がややこしくなる。",
+    "memoryHook": "余出来的多余计划是累赘。",
+    "sourceHint": "引用自官方真题。"
+  },
+  {
+    "id": "ext-vocab-41",
+    "term": "背景",
+    "reading": "はいけい",
+    "coreMeaning": "背景。",
+    "keyUsage": "事件发生的原因 or 深层逻辑。",
+    "example": "この問題の背景には、深刻な少子化がある。",
+    "memoryHook": "背后的场景，决定了前面的走向。",
+    "sourceHint": "引用自官方样题 N2R。"
+  },
+  {
+    "id": "ext-vocab-42",
+    "term": "展開",
+    "reading": "てんかい",
+    "coreMeaning": "展开，进展。",
+    "keyUsage": "故事、事业或逻辑的进一步推演。",
+    "example": "物語の意外な展開に驚いた。",
+    "memoryHook": "像地图一样慢慢摊开，看到全貌。",
+    "sourceHint": "引用自官方真题。"
+  },
+  {
+    "id": "ext-vocab-43",
+    "term": "焦点",
+    "reading": "しょうてん",
+    "coreMeaning": "焦点。",
+    "keyUsage": "讨论或注意力的中心。",
+    "example": "今回の会議では、コスト削減が焦点となる。",
+    "memoryHook": "光线汇聚的一点，最亮最重要。",
+    "sourceHint": "引用自官方真题。"
+  },
+  {
+    "id": "ext-vocab-44",
+    "term": "連携",
+    "reading": "れんけい",
+    "coreMeaning": "协作，联动。",
+    "keyUsage": "不同部门或系统间的配合。",
+    "example": "他部署と連携して、プロジェクトを進める。",
+    "memoryHook": "连在一起，携手并进。",
+    "sourceHint": "引用自官方样题。"
+  },
+  {
+    "id": "ext-vocab-45",
+    "term": "视野",
+    "reading": "しや",
+    "coreMeaning": "视野，眼界。",
+    "keyUsage": "看问题的广度。",
+    "example": "留学を通して、自分の视野が広がった。",
+    "memoryHook": "眼睛能看到的范围，决定了心有多大。",
+    "sourceHint": "引用自官方真题。"
+  },
+  {
+    "id": "ext-vocab-46",
+    "term": "拠点",
+    "reading": "きょてん",
+    "coreMeaning": "据点，基地。",
+    "keyUsage": "活动的中心地。",
+    "example": "アジア進出のための拠点をタイに置く。",
+    "memoryHook": "占据的一点，作为扩张的基地。",
+    "sourceHint": "引用自官方样题。"
+  },
+  {
+    "id": "ext-vocab-47",
+    "term": "格差",
+    "reading": "かくさ",
+    "coreMeaning": "差距，等级差别。",
+    "keyUsage": "常用于 貧富の格差、情報の格差。",
+    "example": "都市と地方の格差が広がっている。",
+    "memoryHook": "格外的差距，像梯子一样明显。",
+    "sourceHint": "引用自官方真题。"
+  },
+  {
+    "id": "ext-vocab-48",
+    "term": "意図",
+    "reading": "いと",
+    "coreMeaning": "意图，打算。",
+    "keyUsage": "背后的目的。",
+    "example": "作者の意図を正確に読み取ることが大切だ。",
+    "memoryHook": "心里的图谋，想做的事。",
+    "sourceHint": "引用自官方样题 N2R。"
+  },
+  {
+    "id": "ext-vocab-49",
+    "term": "効率",
+    "reading": "こうりつ",
+    "coreMeaning": "效率。",
+    "keyUsage": "投入与产出的比率。",
+    "example": "仕事の効率を上げるために、工夫が必要だ。",
+    "memoryHook": "用最小的功力换取最高的利率。",
+    "sourceHint": "引用自官方样题。"
+  },
+  {
+    "id": "ext-vocab-50",
+    "term": "意欲",
+    "reading": "いよく",
+    "coreMeaning": "意欲，积极性。",
+    "keyUsage": "想做某事的积极心态。",
+    "example": "彼は学習意欲が非常に高い。",
+    "memoryHook": "心里的欲望，想变强的动力。",
+    "sourceHint": "引用自官方真题。"
+  },
+  {
+    "id": "ext-vocab-51",
+    "term": "負担",
+    "reading": "ふたん",
+    "coreMeaning": "负担，责任。",
+    "keyUsage": "不仅是经济负担，也指心理、工作量。",
+    "example": "家賃が生活の大きな负担になっている。",
+    "memoryHook": "负在肩膀上的重担。",
+    "sourceHint": "引用自官方样题。"
+  },
+  {
+    "id": "ext-vocab-52",
+    "term": "反映",
+    "reading": "はんえい",
+    "coreMeaning": "反映。",
+    "keyUsage": "时代、意见或状态的体现。",
+    "example": "この小説には当時の世相が反映されている。",
+    "memoryHook": "镜子反照，映出真实。",
+    "sourceHint": "引用自官方样题。"
+  },
+  {
+    "id": "ext-vocab-53",
+    "term": "把握",
+    "reading": "はあく",
+    "coreMeaning": "把握，理解。",
+    "keyUsage": "对复杂情况的掌握。",
+    "example": "状況を的確に把握することが求められる。",
+    "memoryHook": "用手紧紧握住要点。",
+    "sourceHint": "引用自官方样题。"
+  },
+  {
+    "id": "ext-vocab-54",
+    "term": "一環",
+    "reading": "いっかん",
+    "coreMeaning": "一环，一部分。",
+    "keyUsage": "整体计划中的一个环节。",
+    "example": "地域貢献の一環として、清掃活動を行う。",
+    "memoryHook": "一个大圆环中的一节。",
+    "sourceHint": "引用自官方真题。"
+  },
+  {
+    "id": "ext-vocab-55",
+    "term": "基盤",
+    "reading": "きばん",
+    "coreMeaning": "基盘，基础。",
+    "keyUsage": "发展的根本，常用于经济、技术。",
+    "example": "生活の基盤を安定させることが先決だ。",
+    "memoryHook": "地基里的盘子，托起所有。",
+    "sourceHint": "引用自官方真题。"
+  },
+  {
+    "id": "ext-vocab-56",
+    "term": "多様性",
+    "reading": "たようせい",
+    "coreMeaning": "多样性。",
+    "keyUsage": "不同属性并存的状态。",
+    "example": "生物の多様性を守る努力が続けられている。",
+    "memoryHook": "多样的属性，精彩纷呈。",
+    "sourceHint": "引用自官方样题。"
+  },
+  {
+    "id": "ext-vocab-57",
+    "term": "矛盾",
+    "reading": "むじゅん",
+    "coreMeaning": "矛盾。",
+    "keyUsage": "逻辑冲突。",
+    "example": "彼の理論はどこか矛盾している。",
+    "memoryHook": "最坚固的盾 and 最锋利的矛。",
+    "sourceHint": "引用自官方样题。"
+  },
+  {
+    "id": "ext-vocab-58",
+    "term": "転換",
+    "reading": "てんかん",
+    "coreMeaning": "转换，转变。",
+    "keyUsage": "常用于 方向転換、気分転換。",
+    "example": "エネルギー政策の大転換が必要だ。",
+    "memoryHook": "转个身，换个跑道。",
+    "sourceHint": "引用自官方真题。"
+  },
+  {
+    "id": "ext-vocab-59",
+    "term": "格差",
+    "reading": "かくさ",
+    "coreMeaning": "差距。",
+    "keyUsage": "贫富、信息、能力的差别。",
+    "example": "格差社会の問題を解決すべきだ。",
+    "memoryHook": "格子间的巨大落差。",
+    "sourceHint": "引用自官方真题。"
+  },
+  {
+    "id": "ext-vocab-60",
+    "term": "象徴",
+    "reading": "しょうちょう",
+    "coreMeaning": "象征。",
+    "keyUsage": "代表某种意义的事物。",
+    "example": "平和の象徴としてハトが描かれている。",
+    "memoryHook": "用形象的特征来指代抽象。",
+    "sourceHint": "引用自官方真题。"
+  },
+  {
+    "id": "ext-vocab-61",
+    "term": "うっかり",
+    "reading": "うっかり",
+    "coreMeaning": "不留神，马虎。",
+    "keyUsage": "常搭配 忘れる、ミスする。",
+    "example": "うっかりして、宿題を家に忘れてしまった。",
+    "memoryHook": "脑袋空了一下（呜），事情就漏了。",
+    "sourceHint": "引用自官方样题 N2V。"
+  },
+  {
+    "id": "ext-vocab-62",
+    "term": "がっかり",
+    "reading": "がっかり",
+    "coreMeaning": "失望，气馁。",
+    "keyUsage": "用于期待落空后的沮丧。",
+    "example": "試験の結果が悪くて、がっかりした。",
+    "memoryHook": "心像嘎的一声碎了。",
+    "sourceHint": "引用自官方样题。"
+  },
+  {
+    "id": "ext-vocab-63",
+    "term": "じっくり",
+    "reading": "じっくり",
+    "coreMeaning": "仔细地，踏实地。",
+    "keyUsage": "用于思考或慢火炖菜。",
+    "example": "時間をかけてじっくり考えたい。",
+    "memoryHook": "慢慢地积累力气。",
+    "sourceHint": "引用自官方样题。"
+  },
+  {
+    "id": "ext-vocab-64",
+    "term": "めっきり",
+    "reading": "めっきり",
+    "coreMeaning": "显著地，明显地。",
+    "keyUsage": "常用于 寒くなる、減る。",
+    "example": "最近、めっきり寒くなってきた。",
+    "memoryHook": "眼睛一下子就看出了区别。",
+    "sourceHint": "引用自官方真题。"
+  },
+  {
+    "id": "ext-vocab-65",
+    "term": "ぎっしり",
+    "reading": "ぎっしり",
+    "coreMeaning": "满满地，密密麻麻。",
+    "keyUsage": "常形容 日程、箱子。",
+    "example": "予定がぎっしり詰まっている。",
+    "memoryHook": "挤在一起，没一点缝。",
+    "sourceHint": "引用自官方样题。"
+  },
+  {
+    "id": "ext-vocab-66",
+    "term": "ぐっすり",
+    "reading": "ぐっすり",
+    "coreMeaning": "熟睡。",
+    "keyUsage": "形容睡得很香。",
+    "example": "昨夜はぐっすり眠れた。",
+    "memoryHook": "睡得像个古董一样沉。",
+    "sourceHint": "引用自官方样题。"
+  },
+  {
+    "id": "ext-vocab-67",
+    "term": "さっぱり",
+    "reading": "さっぱり",
+    "coreMeaning": "清爽；完全不（接否定）。",
+    "keyUsage": "既指味道，也指心情，或者“一窍不通”。",
+    "example": "シャワーを浴びてさっぱりした。 / 内容がさっぱり分からない。",
+    "memoryHook": "把坏心情洒掉了，就是清爽。",
+    "sourceHint": "引用自官方样题。"
+  },
+  {
+    "id": "ext-vocab-68",
+    "term": "すっきり",
+    "reading": "すっきり",
+    "coreMeaning": "舒畅，爽快，简洁。",
+    "keyUsage": "问题解决了之后的畅快感。",
+    "example": "悩みが解決してすっきりした。",
+    "memoryHook": "丝滑般通畅的感觉。",
+    "sourceHint": "引用自官方真题。"
+  },
+  {
+    "id": "ext-vocab-69",
+    "term": "たっぷり",
+    "reading": "たっぷり",
+    "coreMeaning": "充分，绰绰有余。",
+    "keyUsage": "常用于 时间、分量。",
+    "example": "時間はたっぷりあるから、焦らなくていい。",
+    "memoryHook": "大袋子装得满满的。",
+    "sourceHint": "引用自官方样题。"
+  },
+  {
+    "id": "ext-vocab-70",
+    "term": "ぴったり",
+    "reading": "ぴったり",
+    "coreMeaning": "恰好，合适，严丝合缝。",
+    "keyUsage": "尺寸或想法完全吻合。",
+    "example": "この靴は私のサイズにぴったりだ。",
+    "memoryHook": "啪嗒一下合上了，没缝隙。",
+    "sourceHint": "引用自官方样题。"
+  },
+  {
+    "id": "ext-vocab-71",
+    "term": "うろうろ",
+    "reading": "うろうろ",
+    "coreMeaning": "彷徨，徘徊。",
+    "keyUsage": "不知所措地走来走去。",
+    "example": "道に迷ってうろうろしてしまった。",
+    "memoryHook": "无路无路走不通，打转转。",
+    "sourceHint": "引用自官方真题。"
+  },
+  {
+    "id": "ext-vocab-72",
+    "term": "ぐらぐら",
+    "reading": "ぐらぐら",
+    "coreMeaning": "摇晃，晃动。",
+    "keyUsage": "牙齿松了，或地震了。",
+    "example": "地震で建物がぐらぐら揺れた。",
+    "memoryHook": "地壳在咕噜咕噜动。",
+    "sourceHint": "引用自官方真题。"
+  },
+  {
+    "id": "ext-vocab-73",
+    "term": "ぶらぶら",
+    "reading": "ぶらぶら",
+    "coreMeaning": "溜达，闲逛。",
+    "keyUsage": "无所事事地走。",
+    "example": "休日は街をぶらぶらするのが好きだ。",
+    "memoryHook": "步子啦步子啦，随便走走。",
+    "sourceHint": "引用自官方样题。"
+  },
+  {
+    "id": "ext-vocab-74",
+    "term": "のろのろ",
+    "reading": "のろのろ",
+    "coreMeaning": "慢吞吞，磨叽。",
+    "keyUsage": "形容速度极慢。",
+    "example": "渋滞で車がのろのろ動いている。",
+    "memoryHook": "像蜗牛一样挪。",
+    "sourceHint": "引用自官方真题。"
+  },
+  {
+    "id": "ext-vocab-75",
+    "term": "はきはき",
+    "reading": "はきはき",
+    "coreMeaning": "爽快，干脆。",
+    "keyUsage": "形容说话或态度。",
+    "example": "質問にははきはきと答えましょう。",
+    "memoryHook": "哈气哈气地说话，很有活力。",
+    "sourceHint": "引用自官方真题。"
+  },
+  {
+    "id": "ext-vocab-76",
+    "term": "わくわく",
+    "reading": "わくわく",
+    "coreMeaning": "欢欣雀跃，期待。",
+    "keyUsage": "心情兴奋的状态。",
+    "example": "旅行の計画を立てるだけでわくわくする。",
+    "memoryHook": "心里涌出了期待的水花。",
+    "sourceHint": "引用自官方样题。"
+  },
+  {
+    "id": "ext-vocab-77",
+    "term": "ばらばら",
+    "reading": "ばらばら",
+    "coreMeaning": "支离破碎，不统一。",
+    "keyUsage": "意见不一或物体散落。",
+    "example": "家族の意見がばらばらで困る。",
+    "memoryHook": "散落一地的玻璃碴子。",
+    "sourceHint": "引用自官方真题。"
+  },
+  {
+    "id": "ext-vocab-78",
+    "term": "どきどき",
+    "reading": "どきどき",
+    "coreMeaning": "心跳。",
+    "keyUsage": "紧张或兴奋时的心跳。",
+    "example": "発表の順番を待つ間、どきどきしていた。",
+    "memoryHook": "心脏咚咚敲。",
+    "sourceHint": "引用自官方样题。"
+  },
+  {
+    "id": "ext-vocab-79",
+    "term": "ぺらぺら",
+    "reading": "ぺらぺら",
+    "coreMeaning": "流利；薄。",
+    "keyUsage": "说话流畅，或纸张薄。",
+    "example": "彼は日本語がぺらぺらだ。",
+    "memoryHook": "舌头像拍子一样飞快动。",
+    "sourceHint": "引用自官方样题。"
+  },
+  {
+    "id": "ext-vocab-80",
+    "term": "ふらふら",
+    "reading": "ふらふら",
+    "coreMeaning": "摇晃，头晕。",
+    "keyUsage": "没精神或没主见。",
+    "example": "徹夜明けで頭がふらふらする。",
+    "memoryHook": "飘来飘去的，没根。",
+    "sourceHint": "引用自官方真题。"
+  },
+  {
+    "id": "ext-vocab-81",
+    "term": "伴う",
+    "reading": "ともなう",
+    "coreMeaning": "伴随。",
+    "keyUsage": "常用于 Aに伴ってB。",
+    "example": "開発には危険が伴う。",
+    "memoryHook": "带上伙伴一起走。",
+    "sourceHint": "引用自官方样题 N2G。"
+  },
+  {
+    "id": "ext-vocab-82",
+    "term": "関わる",
+    "reading": "かかわる",
+    "coreMeaning": "涉及，关系到。",
+    "keyUsage": "重大责任或生命。",
+    "example": "命に関わる重大な問題だ。",
+    "memoryHook": "被关在同一个扣里。",
+    "sourceHint": "引用自官方真题。"
+  },
+  {
+    "id": "ext-vocab-83",
+    "term": "踏まえる",
+    "reading": "ふまえる",
+    "coreMeaning": "立足于，根据。",
+    "keyUsage": "常用于 〜を踏まえて。",
+    "example": "前回の反省を踏まえて対策を練る。",
+    "memoryHook": "脚踏在实地（证据）上。",
+    "sourceHint": "引用自官方真题。"
+  },
+  {
+    "id": "ext-vocab-84",
+    "term": "覆す",
+    "reading": "くつがえす",
+    "coreMeaning": "推翻，颠覆。",
+    "keyUsage": "常用于 予想を覆す、常識を覆す。",
+    "example": "彼はこれまでの定説を覆した。",
+    "memoryHook": "鞋子反过来穿，反了天。",
+    "sourceHint": "引用自官方真题。"
+  },
+  {
+    "id": "ext-vocab-85",
+    "term": "遡る",
+    "reading": "さかのぼる",
+    "coreMeaning": "溯流而上，追溯。",
+    "keyUsage": "常用于 過去に遡る。",
+    "example": "その起源は千年以上前に遡る。",
+    "memoryHook": "逆流而上回老家。",
+    "sourceHint": "引用自官方真题。"
+  },
+  {
+    "id": "ext-vocab-86",
+    "term": "尽くす",
+    "reading": "つくす",
+    "coreMeaning": "竭尽，尽力。",
+    "keyUsage": "常用于 全力を尽くす。",
+    "example": "やれるだけのことはすべて尽くした。",
+    "memoryHook": "已经做到了尽头。",
+    "sourceHint": "引用自官方样题。"
+  },
+  {
+    "id": "ext-vocab-87",
+    "term": "導く",
+    "reading": "みちびく",
+    "coreMeaning": "引导，导致。",
+    "keyUsage": "带路或得出结论。",
+    "example": "先生に導かれて今の自分がある。",
+    "memoryHook": "指出一条路。",
+    "sourceHint": "引用自官方真题。"
+  },
+  {
+    "id": "ext-vocab-88",
+    "term": "補う",
+    "reading": "おぎなう",
+    "coreMeaning": "补偿。",
+    "keyUsage": "补足不足。",
+    "example": "不足を補うために人を雇う。",
+    "memoryHook": "再记一次这个极其重要的词。",
+    "sourceHint": "引用自官方样题。"
+  },
+  {
+    "id": "ext-vocab-89",
+    "term": "妨げる",
+    "reading": "さまたげる",
+    "coreMeaning": "妨碍。",
+    "keyUsage": "干扰发展或视野。",
+    "example": "大きな建物が日当たりを妨げている。",
+    "memoryHook": "在门口挡住去路。",
+    "sourceHint": "引用自官方样题。"
+  },
+  {
+    "id": "ext-vocab-90",
+    "term": "掲げる",
+    "reading": "かかげる",
+    "coreMeaning": "高举，揭示。",
+    "keyUsage": "高举旗帜 or 提出目标。",
+    "example": "スローガンを掲げて行進する。",
+    "memoryHook": "高高举起，让大家看见。",
+    "sourceHint": "引用自官方真题。"
+  },
+  {
+    "id": "ext-vocab-91",
+    "term": "促す",
+    "reading": "うながす",
+    "coreMeaning": "促使，催促。",
+    "keyUsage": "促进成长 or 提醒注意。",
+    "example": "注意を促すために看板を立てる。",
+    "memoryHook": "在后面推一把。",
+    "sourceHint": "引用自官方真题。"
+  },
+  {
+    "id": "ext-vocab-92",
+    "term": "捉える",
+    "reading": "とらえる",
+    "coreMeaning": "捕捉，抓住。",
+    "keyUsage": "抓住机会、要点 or 心。",
+    "example": "チャンスを確実に捉える。",
+    "memoryHook": "像捉贼一样抓住核心。",
+    "sourceHint": "引用自官方样题。"
+  },
+  {
+    "id": "ext-vocab-93",
+    "term": "蓄える",
+    "reading": "たくわえる",
+    "coreMeaning": "积蓄。",
+    "keyUsage": "储蓄力量。",
+    "example": "知識を蓄えて今後に備える。",
+    "memoryHook": "再记一次这种长线词。",
+    "sourceHint": "引用自官方样题。"
+  },
+  {
+    "id": "ext-vocab-94",
+    "term": "及ぼす",
+    "reading": "およぼす",
+    "coreMeaning": "波及，产生影响。",
+    "keyUsage": "常用于 影響を及ぼす。",
+    "example": "環境に悪影響を及ぼす。",
+    "memoryHook": "波纹扩散，一直传到远处。",
+    "sourceHint": "引用自官方样题。"
+  },
+  {
+    "id": "ext-vocab-95",
+    "term": "担う",
+    "reading": "になう",
+    "coreMeaning": "担负，承担。",
+    "keyUsage": "重要责任 or 未来。",
+    "example": "次代を担う子供たち。",
+    "memoryHook": "挑在肩膀上的未来。",
+    "sourceHint": "引用自官方真题。"
+  },
+  {
+    "id": "ext-vocab-96",
+    "term": "励む",
+    "reading": "はげむ",
+    "coreMeaning": "努力，勤奋。",
+    "keyUsage": "常用于 学業に励む。",
+    "example": "毎日練習に励んでいる。",
+    "memoryHook": "心像被抽了一鞭子，动起来。",
+    "sourceHint": "引用自官方样题。"
+  },
+  {
+    "id": "ext-vocab-97",
+    "term": "立ち寄る",
+    "reading": "たちよる",
+    "coreMeaning": "顺便到访。",
+    "keyUsage": "半路停一下。",
+    "example": "帰りにコンビニに立ち寄る。",
+    "memoryHook": "走着走着靠了边。",
+    "sourceHint": "引用自官方样题 N2L。"
+  },
+  {
+    "id": "ext-vocab-98",
+    "term": "見送る",
+    "reading": "みおくる",
+    "coreMeaning": "送行；推迟执行。",
+    "keyUsage": "常考“放弃了目前的方案”。",
+    "example": "今回の計画は見送ることにした。",
+    "memoryHook": "看着它走远，不带走。",
+    "sourceHint": "引用自官方真题。"
+  },
+  {
+    "id": "ext-vocab-99",
+    "term": "振り返る",
+    "reading": "ふりかえる",
+    "coreMeaning": "回头看，回顾。",
+    "keyUsage": "回顾历史 or 过去。",
+    "example": "過去を振り返って反省する。",
+    "memoryHook": "转过身看看走过的路。",
+    "sourceHint": "引用自官方样题。"
+  },
+  {
+    "id": "ext-vocab-100",
+    "term": "組み合わせる",
+    "reading": "くみあわせる",
+    "coreMeaning": "组合，配套。",
+    "keyUsage": "零件 or 队伍的组合。",
+    "example": "色を組み合わせてデザインする。",
+    "memoryHook": "组装起来，合为一体。",
+    "sourceHint": "引用自官方样题。"
+  },
+  {
+    "id": "ext-vocab-101",
+    "term": "恐縮",
+    "reading": "きょうしゅく",
+    "coreMeaning": "惶恐，不好意思。",
+    "keyUsage": "用于正式道歉 or 承蒙关照时。",
+    "example": "お忙しいところ申し訳ありませんが、恐縮です。",
+    "memoryHook": "心里感到恐惧（太客气了）到缩成一团。",
+    "sourceHint": "引用自官方听解 N2L。"
+  },
+  {
+    "id": "ext-vocab-102",
+    "term": "憧れる",
+    "reading": "あこがれる",
+    "coreMeaning": "向往，憧憬。",
+    "keyUsage": "常用于 憧れの職業。",
+    "example": "子供の頃から、宇宙飛行士に憧れていた。",
+    "memoryHook": "心里的小火苗在向往远方。",
+    "sourceHint": "引用自官方样题 N2V。"
+  },
+  {
+    "id": "ext-vocab-103",
+    "term": "戸惑う",
+    "reading": "とまどう",
+    "coreMeaning": "困惑，不知所措。",
+    "keyUsage": "因不习惯 or 意外而迷茫。",
+    "example": "日本での生活習慣の違いに戸惑うこともある。",
+    "memoryHook": "在门（户）口迷了路（惑）。",
+    "sourceHint": "引用自官方真题。"
+  },
+  {
+    "id": "ext-vocab-104",
+    "term": "慎む",
+    "reading": "つつしむ",
+    "coreMeaning": "慎重，节制。",
+    "keyUsage": "常用于 私語を慎む。",
+    "example": "公共の場では、大きな声で話すのを慎むべきだ。",
+    "memoryHook": "真心地（心里）控制住自己的行为。",
+    "sourceHint": "引用自官方样题 N2V。"
+  },
+  {
+    "id": "ext-vocab-105",
+    "term": "和らぐ",
+    "reading": "やわらぐ",
+    "coreMeaning": "缓和，减轻。",
+    "keyUsage": "用于 痛みが和らぐ、緊張が和らぐ。",
+    "example": "薬を飲んで、ようやく痛みが和らいだ。",
+    "memoryHook": "像禾苗在微风中变得柔顺。",
+    "sourceHint": "引用自官方真题。"
+  },
+  {
+    "id": "ext-vocab-106",
+    "term": "焦る",
+    "reading": "あせる",
+    "coreMeaning": "焦虑，着急。",
+    "keyUsage": "因时间紧迫而慌张。",
+    "example": "締め切りが近づいて、焦ってしまう。",
+    "memoryHook": "心里像着了火（火字旁）一样急。",
+    "sourceHint": "引用自官方样题。"
+  },
+  {
+    "id": "ext-vocab-107",
+    "term": "惜しむ",
+    "reading": "おしむ",
+    "coreMeaning": "珍惜，吝啬；惋惜。",
+    "keyUsage": "常用于 別れを惜しむ、努力を惜しまない。",
+    "example": "彼は成功のために、努力を惜しまなかった。",
+    "memoryHook": "心里不舍得让它过去。",
+    "sourceHint": "引用自官方真题。"
+  },
+  {
+    "id": "ext-vocab-108",
+    "term": "こだわり",
+    "reading": "こだわり",
+    "coreMeaning": "拘泥，讲究。",
+    "keyUsage": "褒贬皆可，多指对品质的坚持。",
+    "example": "この店は、素材選びに強いこだわりを持っている。",
+    "memoryHook": "像钩子一样勾在某个点上不放。",
+    "sourceHint": "引用自官方样题。"
+  },
+  {
+    "id": "ext-vocab-109",
+    "term": "憂鬱",
+    "reading": "ゆううつ",
+    "coreMeaning": "忧郁，心情沉重。",
+    "keyUsage": "常形容雨天 or 周一的心情。",
+    "example": "雨が続くと、なんとなく憂鬱な気分になる。",
+    "memoryHook": "心里积压了太多的阴影。",
+    "sourceHint": "引用自官方真题。"
+  },
+  {
+    "id": "ext-vocab-110",
+    "term": "憤る",
+    "reading": "いきどおる",
+    "coreMeaning": "愤慨，愤怒。",
+    "keyUsage": "对社会不公 or 错误行为感到气愤。",
+    "example": "国民は、その不公平な判決に憤った。",
+    "memoryHook": "气愤的情绪在心里膨胀。",
+    "sourceHint": "引用自官方真题。"
+  },
+  {
+    "id": "ext-vocab-111",
+    "term": "著しい",
+    "reading": "いちじるしい",
+    "coreMeaning": "显著的，显著。",
+    "keyUsage": "常形容 成長、進歩、変化。",
+    "example": "近年、IT技術の進歩は著しいものがある。",
+    "memoryHook": "一眼就能看出惊人的变化。",
+    "sourceHint": "引用自官方样题 N2R。"
+  },
+  {
+    "id": "ext-vocab-112",
+    "term": "わずか",
+    "reading": "わずか",
+    "coreMeaning": "仅仅，微小。",
+    "keyUsage": "强调极少的量。",
+    "example": "わずかな時間も无駄にできない。",
+    "memoryHook": "小到可以忽略不计。",
+    "sourceHint": "引用自官方样题。"
+  },
+  {
+    "id": "ext-vocab-113",
+    "term": "極めて",
+    "reading": "きわめて",
+    "coreMeaning": "极其，非常。",
+    "keyUsage": "正式书面语，程度极高。",
+    "example": "その問題の解決は、極めて困難だ。",
+    "memoryHook": "已经到了极致。",
+    "sourceHint": "引用自官方真题。"
+  },
+  {
+    "id": "ext-vocab-114",
+    "term": "大幅",
+    "reading": "おおはば",
+    "coreMeaning": "大幅度。",
+    "keyUsage": "常用：大幅に増加、大幅に短縮。",
+    "example": "コストの大幅な削減に成功した。",
+    "memoryHook": "像大幅度的跨步一样。",
+    "sourceHint": "引用自官方真题。"
+  },
+  {
+    "id": "ext-vocab-115",
+    "term": "徐々に",
+    "reading": "じょじょに",
+    "coreMeaning": "徐徐，慢慢。",
+    "keyUsage": "形容平稳的变化过程。",
+    "example": "春になり、気温が徐々に上がってきた。",
+    "memoryHook": "双人徐行，慢步走。",
+    "sourceHint": "引用自官方样题。"
+  },
+  {
+    "id": "ext-vocab-116",
+    "term": "依然",
+    "reading": "いぜん",
+    "coreMeaning": "依然，照旧。",
+    "keyUsage": "状态没有发生改变。",
+    "example": "不況が続き、依然として厳しい状況だ。",
+    "memoryHook": "和依附在以前的状态一样。",
+    "sourceHint": "引用自官方真题。"
+  },
+  {
+    "id": "ext-vocab-117",
+    "term": "絶えず",
+    "reading": "たえず",
+    "coreMeaning": "不断地，接连不断。",
+    "keyUsage": "强调动作没有中断。",
+    "example": "絶えず努力を続けることが大切だ。",
+    "memoryHook": "绝对不（不）会中断（绝）。",
+    "sourceHint": "引用自官方真题。"
+  },
+  {
+    "id": "ext-vocab-118",
+    "term": "一挙に",
+    "reading": "いっきょに",
+    "coreMeaning": "一举，一下子。",
+    "keyUsage": "一下子完成 or 发生大变化。",
+    "example": "新しいシステムを導入し、一挙に効率を高めた。",
+    "memoryHook": "一只拳头打过去，全解决了。",
+    "sourceHint": "引用自官方真题。"
+  },
+  {
+    "id": "ext-vocab-119",
+    "term": "着々と",
+    "reading": "ちゃくちゃくと",
+    "coreMeaning": "稳步地，顺利地。",
+    "keyUsage": "强调有条不紊。",
+    "example": "準備は着々と進んでいる。",
+    "memoryHook": "踏实地走好每一步。",
+    "sourceHint": "引用自官方样题。"
+  },
+  {
+    "id": "ext-vocab-120",
+    "term": "概ね",
+    "reading": "おおむね",
+    "coreMeaning": "大致，大体上。",
+    "keyUsage": "正式语气，约等于 だいたい。",
+    "example": "計画は概ね予定通り進んでいる。",
+    "memoryHook": "大概的树木主干。",
+    "sourceHint": "引用自官方真题。"
+  },
+  {
+    "id": "ext-vocab-121",
+    "term": "猛烈",
+    "reading": "もうれつ",
+    "coreMeaning": "猛烈，剧烈。",
+    "keyUsage": "形容速度、力量 or 竞争。",
+    "example": "猛烈なスピードで車が走り去った。",
+    "memoryHook": "凶猛的野兽般的剧烈。",
+    "sourceHint": "引用自官方真题。"
+  },
+  {
+    "id": "ext-vocab-122",
+    "term": "頻繁",
+    "reading": "ひんぱん",
+    "coreMeaning": "频繁。",
+    "keyUsage": "次数很多。",
+    "example": "最近、この地域で地震が頻繁に起きている。",
+    "memoryHook": "繁琐且多次发生。",
+    "sourceHint": "引用自官方真题。"
+  },
+  {
+    "id": "ext-vocab-123",
+    "term": "膨大",
+    "reading": "ぼうだい",
+    "coreMeaning": "庞大，巨额。",
+    "keyUsage": "用于 予算、データ、資料。",
+    "example": "この研究には膨大な費用がかかる。",
+    "memoryHook": "膨胀到大得离谱。",
+    "sourceHint": "引用自官方样题。"
+  },
+  {
+    "id": "ext-vocab-124",
+    "term": "過剰",
+    "reading": "かじょう",
+    "coreMeaning": "过剩，过度。",
+    "keyUsage": "常用：過剰な期待、自信過剰。",
+    "example": "過剰な包装は環境に良くない。",
+    "memoryHook": "超过了正常的额度（剩）。",
+    "sourceHint": "引用自官方真题。"
+  },
+  {
+    "id": "ext-vocab-125",
+    "term": "至急",
+    "reading": "しきゅう",
+    "coreMeaning": "火速，赶快。",
+    "keyUsage": "极其紧急的商务要求。",
+    "example": "至急、担当者に連絡を取ってください。",
+    "memoryHook": "到了最急迫的一刻。",
+    "sourceHint": "引用自官方样题。"
+  },
+  {
+    "id": "ext-vocab-126",
+    "term": "相次ぐ",
+    "reading": "あいつぐ",
+    "coreMeaning": "相继，接连发生。",
+    "keyUsage": "用于 事故が相次ぐ、新製品が相次ぐ。",
+    "example": "不祥事が相次ぎ、会社の信頼が失墜した。",
+    "memoryHook": "一个接着一个。",
+    "sourceHint": "引用自官方真题。"
+  },
+  {
+    "id": "ext-vocab-127",
+    "term": "見合わせる",
+    "reading": "みあわせる",
+    "coreMeaning": "暂缓，推迟。",
+    "keyUsage": "常考 運転見合わせ。",
+    "example": "強風のため、列車の運行を見合わせている。",
+    "memoryHook": "再强化一次这个高频逻辑词。",
+    "sourceHint": "引用自官方真题。"
+  },
+  {
+    "id": "ext-vocab-128",
+    "term": "遡る",
+    "reading": "さかのぼる",
+    "coreMeaning": "追溯。",
+    "keyUsage": "时间上的追溯。",
+    "example": "その歴史は江戸時代にまで遡る。",
+    "memoryHook": "再次强调“溯流而上”。",
+    "sourceHint": "引用自官方样题。"
+  },
+  {
+    "id": "ext-vocab-129",
+    "term": "偏る",
+    "reading": "かたよる",
+    "coreMeaning": "偏颇，片面，营养不均。",
+    "keyUsage": "常用：栄養が偏る、考え方が偏る。",
+    "example": "栄養が偏らないように、野菜也食べなさい。",
+    "memoryHook": "单边（人）靠在一边。",
+    "sourceHint": "引用自官方真题。"
+  },
+  {
+    "id": "ext-vocab-130",
+    "term": "整う",
+    "reading": "ととのう",
+    "coreMeaning": "整齐，备齐，谈妥。",
+    "keyUsage": "状态变得井井有条。",
+    "example": "準備がようやく整いました。",
+    "memoryHook": "所有东西都正（整）了。",
+    "sourceHint": "引用自官方样题。"
+  },
+  {
+    "id": "ext-vocab-131",
+    "term": "慎む",
+    "reading": "つつしむ",
+    "coreMeaning": "谨慎，节制。",
+    "keyUsage": "常用：言葉を慎む、お酒を慎む。",
+    "example": "公の场では言叶を慎みましょう。",
+    "memoryHook": "心旁加真，内心真正要小心。",
+    "sourceHint": "引用自官方样题。"
+  },
+  {
+    "id": "ext-vocab-132",
+    "term": "和らぐ",
+    "reading": "やわらぐ",
+    "coreMeaning": "缓和，柔和。",
+    "keyUsage": "用于 痛みが和らぐ、寒さが和らぐ。",
+    "example": "薬を飲んだら、頭痛が少し和らいだ。",
+    "memoryHook": "禾苗入口般温和。",
+    "sourceHint": "引用自官方真题。"
+  },
+  {
+    "id": "ext-vocab-133",
+    "term": "緩む",
+    "reading": "ゆるむ",
+    "coreMeaning": "松弛，松懈。",
+    "keyUsage": "指绳子变松，或精神、规则松懈。",
+    "example": "靴のひもが緩んでいる。 / 気が緩む。",
+    "memoryHook": "系带子没拉紧，慢慢滑落。",
+    "sourceHint": "引用自官方真题。"
+  },
+  {
+    "id": "ext-vocab-134",
+    "term": "涼む",
+    "reading": "すずむ",
+    "coreMeaning": "乘凉。",
+    "keyUsage": "常用于 夕涼み、木陰で涼む。",
+    "example": "木陰で少し涼んでいこう。",
+    "memoryHook": "感到凉意。",
+    "sourceHint": "引用自官方样题。"
+  },
+  {
+    "id": "ext-vocab-135",
+    "term": "潤う",
+    "reading": "うるおう",
+    "coreMeaning": "湿润，丰裕。",
+    "keyUsage": "常用于 のどが潤う、家計が潤う。",
+    "example": "雨が降って、大地が潤った。",
+    "memoryHook": "王在水边，像被滋润了。",
+    "sourceHint": "引用自官方真题。"
+  },
+  {
+    "id": "ext-vocab-136",
+    "term": "賑わう",
+    "reading": "にぎわう",
+    "coreMeaning": "繁荣，热闹。",
+    "keyUsage": "常指街道 or 店铺。",
+    "example": "週末の商店街は多くの人で賑わっている。",
+    "memoryHook": "街上人头攒动，生意兴隆。",
+    "sourceHint": "引用自官方样题。"
+  },
+  {
+    "id": "ext-vocab-137",
+    "term": "狂う",
+    "reading": "くるう",
+    "coreMeaning": "发狂，失常，打乱。",
+    "keyUsage": "常用于 予定が狂う、気が狂う。",
+    "example": "突然の雨で、旅行の予定が狂ってしまった。",
+    "memoryHook": "狗（犭）在旁边乱叫，乱套了。",
+    "sourceHint": "引用自官方真题。"
+  },
+  {
+    "id": "ext-vocab-138",
+    "term": "誓う",
+    "reading": "ちかう",
+    "coreMeaning": "发誓。",
+    "keyUsage": "常用于 永遠の愛を誓う、心に誓う。",
+    "example": "彼は絶対に勝つと心に誓った。",
+    "memoryHook": "言字旁，用语言许下诺言。",
+    "sourceHint": "引用自官方真题。"
+  },
+  {
+    "id": "ext-vocab-139",
+    "term": "夺う",
+    "reading": "うばう",
+    "coreMeaning": "夺取，剥夺，吸引。",
+    "keyUsage": "常用：命を奪う、心を奪われる。",
+    "example": "その美しい景色に心を奪われた。",
+    "memoryHook": "大鸟从手中抢走东西。",
+    "sourceHint": "引用自官方样题。"
+  },
+  {
+    "id": "ext-vocab-140",
+    "term": "慕う",
+    "reading": "したう",
+    "coreMeaning": "仰慕，怀念。",
+    "keyUsage": "对长辈、故乡的怀念与敬仰。",
+    "example": "先生を慕って、多くの学生が集まった。",
+    "memoryHook": "心里总是记挂着（下面有个心）。",
+    "sourceHint": "引用自官方真题。"
+  },
+  {
+    "id": "ext-vocab-141",
+    "term": "繕う",
+    "reading": "つくろう",
+    "coreMeaning": "修缮，缝补，掩饰。",
+    "keyUsage": "用于 ほころびを繕う、体裁を繕う。",
+    "example": "失败を繕おうとして、かえって事態を悪化させた。",
+    "memoryHook": "用线（绞丝旁）把破绽补起来。",
+    "sourceHint": "引用自官方真题。"
+  },
+  {
+    "id": "ext-vocab-142",
+    "term": "偿う",
+    "reading": "つぐなう",
+    "coreMeaning": "赔偿，补偿，赎罪。",
+    "keyUsage": "用于 损害を偿う、罪を偿う。",
+    "example": "どんなにお金を払っても、彼の犯した罪は償えない。",
+    "memoryHook": "用钱去弥补造成的损失。",
+    "sourceHint": "引用自官方真题。"
+  },
+  {
+    "id": "ext-vocab-143",
+    "term": "缝う",
+    "reading": "ぬう",
+    "coreMeaning": "缝纫，穿行。",
+    "keyUsage": "常用：服を縫う、人混みを縫って歩く。",
+    "example": "人混みを縫って、急いで駅に向かった。",
+    "memoryHook": "用线逢衣服，像人穿梭在人群里。",
+    "sourceHint": "引用自官方样题。"
+  },
+  {
+    "id": "ext-vocab-144",
+    "term": "賄う",
+    "reading": "まかなう",
+    "coreMeaning": "提供，维持，凑齐。",
+    "keyUsage": "常用：费用を贿う、食事を贿う。",
+    "example": "アルバイトの収入だけで学費を賄うのは難しい。",
+    "memoryHook": "用钱（贝）把事情搞定。",
+    "sourceHint": "引用自官方真题。"
+  },
+  {
+    "id": "ext-vocab-145",
+    "term": "養う",
+    "reading": "やしなう",
+    "coreMeaning": "养育，培养。",
+    "keyUsage": "常用：家族を養う、実力を養う。",
+    "example": "彼は一人で家族５人を养っている。",
+    "memoryHook": "把羊养大，需要供给营养。",
+    "sourceHint": "引用自官方样题。"
+  },
+  {
+    "id": "ext-vocab-146",
+    "term": "損なう",
+    "reading": "そこなう",
+    "coreMeaning": "损害，损坏。",
+    "keyUsage": "常用于 健康を損なう、機嫌を損ねる。",
+    "example": "働きすぎて健康を損なってしまった。",
+    "memoryHook": "手里的东西坏掉了。",
+    "sourceHint": "引用自官方真题。"
+  },
+  {
+    "id": "ext-vocab-147",
+    "term": "伴う",
+    "reading": "ともなう",
+    "coreMeaning": "伴随，随着。",
+    "keyUsage": "常用于 危険を伴う、発展に伴って。",
+    "example": "この手術には大きな危険が伴う。",
+    "memoryHook": "一个人跟着另一个半个人。",
+    "sourceHint": "引用自官方样题 N2G 文法。"
+  },
+  {
+    "id": "ext-vocab-148",
+    "term": "疑う",
+    "reading": "うたがう",
+    "coreMeaning": "怀疑，猜忌。",
+    "keyUsage": "常用：目を疑う、本当かどうか疑う。",
+    "example": "信じられない光景に自分の目を疑った。",
+    "memoryHook": "矛头指向心中未解的疑问。",
+    "sourceHint": "引用自官方真题。"
+  },
+  {
+    "id": "ext-vocab-149",
+    "term": "敬う",
+    "reading": "うやまう",
+    "coreMeaning": "尊敬，敬重。",
+    "keyUsage": "常用于 年長者を敬う、神を敬う。",
+    "example": "お年寄りを敬う心を忘れてはいけない。",
+    "memoryHook": "心中充满敬意。",
+    "sourceHint": "引用自官方真题。"
+  },
+  {
+    "id": "ext-vocab-150",
+    "term": "担う",
+    "reading": "になう",
+    "coreMeaning": "承担，肩负。",
+    "keyUsage": "常用于 責任を担う、次代を担う。",
+    "example": "彼は会社の将来を担う重要な人物だ。",
+    "memoryHook": "用手把责任挑在肩上。",
+    "sourceHint": "引用自官方样题。"
+  },
+  {
+    "id": "ext-vocab-151",
+    "term": "いっそう",
+    "reading": "いっそう",
+    "coreMeaning": "更加，越发。",
+    "keyUsage": "表示程度在原有基础上进一步加深。",
+    "example": "夜になって、風雨がいっそう激しくなった。",
+    "memoryHook": "一（いっ）层（そう）叠一层，程度更深。",
+    "sourceHint": "引用自官方真题。"
+  },
+  {
+    "id": "ext-vocab-152",
+    "term": "いかに",
+    "reading": "いかに",
+    "coreMeaning": "如何，多么。",
+    "keyUsage": "常与 〜か 呼应，表示程度或方式。",
+    "example": "彼がいかに努力したかは、結果を見ればわかる。",
+    "memoryHook": "询问“如何”或感叹“多么”。",
+    "sourceHint": "引用自官方读解 N2R。"
+  },
+  {
+    "id": "ext-vocab-153",
+    "term": "ろくに",
+    "reading": "ろくに",
+    "coreMeaning": "不好好地，没怎么（后接否定）。",
+    "keyUsage": "表示没达到令人满意的标准。",
+    "example": "忙しくて、最近はろくに寝ていない。",
+    "memoryHook": "数字“六”都没到，不及格的程度。",
+    "sourceHint": "引用自官方真题。"
+  },
+  {
+    "id": "ext-vocab-154",
+    "term": "幸い",
+    "reading": "さいわい",
+    "coreMeaning": "幸好，幸运的是。",
+    "keyUsage": "常用于句首，引出令人欣慰的结果。",
+    "example": "事故があったが、幸い怪我人はなかった。",
+    "memoryHook": "汉字就是“幸”，带来好消息。",
+    "sourceHint": "引用自官方样题。"
+  },
+  {
+    "id": "ext-vocab-155",
+    "term": "万一",
+    "reading": "まんいち",
+    "coreMeaning": "万一，倘若。",
+    "keyUsage": "表示可能性极低但需要预防的情况。",
+    "example": "万一、遅れる場合は必ず連絡してください。",
+    "memoryHook": "一万分之一的可能性。",
+    "sourceHint": "引用自官方样题 N2L。"
+  },
+  {
+    "id": "ext-vocab-156",
+    "term": "せっせと",
+    "reading": "せっせと",
+    "coreMeaning": "拼命地，不停地，勤奋地。",
+    "keyUsage": "形容不间断地努力做事。",
+    "example": "彼は将来のために、せっせと貯金している。",
+    "memoryHook": "谐音“谢谢”，勤快的人总被感谢。",
+    "sourceHint": "引用自官方真题。"
+  },
+  {
+    "id": "ext-vocab-157",
+    "term": "わざわざ",
+    "reading": "わざわざ",
+    "coreMeaning": "特意，专门。",
+    "keyUsage": "强调为了某事特地花费心思或力气。",
+    "example": "遠いところをわざわざお越しいただき、ありがとうございます。",
+    "memoryHook": "两个“技（わざ）”，展示了特意的诚意。",
+    "sourceHint": "引用自官方真题。"
+  },
+  {
+    "id": "ext-vocab-158",
+    "term": "まさか",
+    "reading": "まさか",
+    "coreMeaning": "该不会，万万没想到。",
+    "keyUsage": "表示强烈的否定或惊讶。",
+    "example": "まさか、彼が犯人だったとは信じられない。",
+    "memoryHook": "“真（まさ）”的“吗（か）”？太不可思议了。",
+    "sourceHint": "引用自官方真题。"
+  },
+  {
+    "id": "ext-vocab-159",
+    "term": "かえって",
+    "reading": "かえって",
+    "coreMeaning": "反而。",
+    "keyUsage": "表示结果与预期相反。",
+    "example": "親切で言ったつもりが、かえって怒らせてしまった。",
+    "memoryHook": "结果“回来（かえる）”反弹了。",
+    "sourceHint": "引用自官方样题 N2V。"
+  },
+  {
+    "id": "ext-vocab-160",
+    "term": "一応",
+    "reading": "いちおう",
+    "coreMeaning": "大致，暂且，基本上。",
+    "keyUsage": "表示虽不完美但已做到一定程度。",
+    "example": "修理は一応終わりましたが、また様子を見てください。",
+    "memoryHook": "“一”次“应”对，先这样吧。",
+    "sourceHint": "引用自官方真题。"
+  },
+  {
+    "id": "ext-vocab-161",
+    "term": "案の定",
+    "reading": "あんのじょう",
+    "coreMeaning": "果然（多用于不好的结果）。",
+    "keyUsage": "表示不出所料，通常接负面情况。",
+    "example": "案の定、今日の試合は雨で中止になった。",
+    "memoryHook": "“提案”中预定的“定”数。",
+    "sourceHint": "引用自官方样题 N2V。"
+  },
+  {
+    "id": "ext-vocab-162",
+    "term": "結局",
+    "reading": "けっきょく",
+    "coreMeaning": "结局，结果，终究。",
+    "keyUsage": "表示经过一系列过程后的最终状态。",
+    "example": "いろいろ迷ったが、結局買わないことにした。",
+    "memoryHook": "围棋下到最后“结”了“局”。",
+    "sourceHint": "引用自官方真题。"
+  },
+  {
+    "id": "ext-vocab-163",
+    "term": "常に",
+    "reading": "つねに",
+    "coreMeaning": "总是，经常。",
+    "keyUsage": "比 いつも 更正式的书面表达。",
+    "example": "健康のために、常に運動を心がけている。",
+    "memoryHook": "汉字“常”，代表恒定的状态。",
+    "sourceHint": "引用自官方样题。"
+  },
+  {
+    "id": "ext-vocab-164",
+    "term": "ついに",
+    "reading": "ついに",
+    "coreMeaning": "终于，总算。",
+    "keyUsage": "强调经过长时间努力或等待后的结果。",
+    "example": "長年の研究が、ついに実を結んだ。",
+    "memoryHook": "到了“终（つい）”点。",
+    "sourceHint": "引用自官方真题。"
+  },
+  {
+    "id": "ext-vocab-165",
+    "term": "次第に",
+    "reading": "しだいに",
+    "coreMeaning": "逐渐。",
+    "keyUsage": "形容随着时间或过程平稳变化。",
+    "example": "雨は次第に弱まっていった。",
+    "memoryHook": "按“次（し）第（だい）”慢慢来。",
+    "sourceHint": "引用自官方样题。"
+  },
+  {
+    "id": "ext-vocab-166",
+    "term": "多少",
+    "reading": "たしょう",
+    "coreMeaning": "多少，稍微。",
+    "keyUsage": "表示程度不高，约等于 少し。",
+    "example": "この仕事には、多少の経験が必要です。",
+    "memoryHook": "多多少少有一点。",
+    "sourceHint": "引用自官方样题 N2L。"
+  },
+  {
+    "id": "ext-vocab-167",
+    "term": "相当",
+    "reading": "そうとう",
+    "coreMeaning": "相当，颇。",
+    "keyUsage": "表示程度相当高。",
+    "example": "昨日の試験は、相当難しかったようだ。",
+    "memoryHook": "到了能跟高级别“相”抵“当”的程度。",
+    "sourceHint": "引用自官方真题。"
+  },
+  {
+    "id": "ext-vocab-168",
+    "term": "一見",
+    "reading": "いっけん",
+    "coreMeaning": "乍一看，初看。",
+    "keyUsage": "常用于表里不一的对比句。",
+    "example": "この問題は一見簡単そうだが、実はかなり難しい。",
+    "memoryHook": "“一”次看“见”，第一眼印象。",
+    "sourceHint": "引用自官方真题。"
+  },
+  {
+    "id": "ext-vocab-169",
+    "term": "本来",
+    "reading": "ほんらい",
+    "coreMeaning": "本来，原来，按理说。",
+    "keyUsage": "表示事物原有的属性或应有的状态。",
+    "example": "この部屋は本来、会議室として使う予定だった。",
+    "memoryHook": "事物的“本”源自“来”。",
+    "sourceHint": "引用自官方样题。"
+  },
+  {
+    "id": "ext-vocab-170",
+    "term": "依然",
+    "reading": "いぜん",
+    "coreMeaning": "依然，照旧。",
+    "keyUsage": "表示状态没有发生变化（多用于正式场合）。",
+    "example": "事件から1週間経ったが、依然として犯人は捕まっていない。",
+    "memoryHook": "依旧和以前一样。",
+    "sourceHint": "引用自官方真题。"
+  },
+  {
+    "id": "ext-vocab-171",
+    "term": "払い戻す",
+    "reading": "はらいもどす",
+    "coreMeaning": "退还，退款。",
+    "keyUsage": "常用于票务、商品退款场景。",
+    "example": "未使用のチケット代金を払い戻した。",
+    "memoryHook": "付出去（払い）的钱拿回来（戻す）。",
+    "sourceHint": "引用自官方样题 N2L。"
+  },
+  {
+    "id": "ext-vocab-172",
+    "term": "立て替える",
+    "reading": "たてかえる",
+    "coreMeaning": "垫付，代付。",
+    "keyUsage": "在职场或日常生活中，先代人付钱。",
+    "example": "昼食代を私が立て替えておきます。",
+    "memoryHook": "先把钱立（立て）在那里替换（替える）对方支付。",
+    "sourceHint": "引用自官方真题。"
+  },
+  {
+    "id": "ext-vocab-173",
+    "term": "問い合わせる",
+    "reading": "といあわせる",
+    "coreMeaning": "查询，询问。",
+    "keyUsage": "向有关部门核实信息。",
+    "example": "詳細は市役所に問い合わせてください。",
+    "memoryHook": "问（とい）了之后对（合わせる）一下信息。",
+    "sourceHint": "引用自官方样题。"
+  },
+  {
+    "id": "ext-vocab-174",
+    "term": "追いつく",
+    "reading": "おいつく",
+    "coreMeaning": "赶上，追上。",
+    "keyUsage": "表示距离或水平上的追平。",
+    "example": "前のランナーにようやく追いついた。",
+    "memoryHook": "追（追い）到了粘着（つく）对方的程度。",
+    "sourceHint": "引用自官方真题。"
+  },
+  {
+    "id": "ext-vocab-175",
+    "term": "追い越す",
+    "reading": "おいこす",
+    "coreMeaning": "超过，超越。",
+    "keyUsage": "不仅指物理距离，也指成绩或能力。",
+    "example": "努力の末、ついにライバルを追い越した。",
+    "memoryHook": "追（追い）上去并跨越（越す）了对方。",
+    "sourceHint": "引用自官方样题 N2V。"
+  },
+  {
+    "id": "ext-vocab-176",
+    "term": "追い出す",
+    "reading": "おいだす",
+    "coreMeaning": "赶走，逐出。",
+    "keyUsage": "将某人强制移出某个地方。",
+    "example": "騒がしい客を店から追い出した。",
+    "memoryHook": "追（追い）着对方出（出す）去。",
+    "sourceHint": "引用自官方真题。"
+  },
+  {
+    "id": "ext-vocab-177",
+    "term": "落ち着く",
+    "reading": "おちつく",
+    "coreMeaning": "镇定，平静，定居。",
+    "keyUsage": "指心情平复或局面稳定。",
+    "example": "深呼吸をして、気持ちを落ち着かせる。",
+    "memoryHook": "掉（落ち）下来粘住（つく）了，不再漂浮。",
+    "sourceHint": "引用自官方样题。"
+  },
+  {
+    "id": "ext-vocab-178",
+    "term": "書き留める",
+    "reading": "かきとめる",
+    "coreMeaning": "记录下来，记下。",
+    "keyUsage": "为了不忘而写在纸上。",
+    "example": "大事なポイントをノートに書き留めた。",
+    "memoryHook": "写（書き）下来留（留める）在纸上。",
+    "sourceHint": "引用自官方样题。"
+  },
+  {
+    "id": "ext-vocab-179",
+    "term": "切り替える",
+    "reading": "きりかえる",
+    "coreMeaning": "切换，转换。",
+    "keyUsage": "常用于心情转换、模式切换。",
+    "example": "仕事が終わったら、気持ちを切り替えよう。",
+    "memoryHook": "剪切（切り）掉旧的，换（替える）上新的。",
+    "sourceHint": "引用自官方真题。"
+  },
+  {
+    "id": "ext-vocab-180",
+    "term": "差し引く",
+    "reading": "さしひく",
+    "coreMeaning": "扣除，减去。",
+    "keyUsage": "多用于工资、税金的结算。",
+    "example": "給料から税金を差し引いた額を受け取る。",
+    "memoryHook": "插（差し）进来拉（引く）走了一部分。",
+    "sourceHint": "引用自官方样题 N2V。"
+  },
+  {
+    "id": "ext-vocab-181",
+    "term": "受け持つ",
+    "reading": "うけもつ",
+    "coreMeaning": "担任，负责。",
+    "keyUsage": "指负责特定的班级、区域或任务。",
+    "example": "彼女は上級クラスを受け持っている。",
+    "memoryHook": "接（受け）过来并拿（持つ）在手里。",
+    "sourceHint": "引用自官方真题。"
+  },
+  {
+    "id": "ext-vocab-182",
+    "term": "受け入れる",
+    "reading": "うけいれる",
+    "coreMeaning": "接受，接纳。",
+    "keyUsage": "指接纳难民、意见或现实。",
+    "example": "現実を素直に受け入れることが大切だ。",
+    "memoryHook": "接（受け）过来放入（入れる）心中。",
+    "sourceHint": "引用自官方样题 N2R。"
+  },
+  {
+    "id": "ext-vocab-183",
+    "term": "持ち寄る",
+    "reading": "もちよる",
+    "coreMeaning": "各自带一点集合。",
+    "keyUsage": "多用于聚会或讨论，大家各带东西或想法。",
+    "example": "みんなで料理を持ち寄ってパーティーをしよう。",
+    "memoryHook": "拿（持ち）着东西凑（寄る）在一起。",
+    "sourceHint": "引用自官方样题。"
+  },
+  {
+    "id": "ext-vocab-184",
+    "term": "呼び止める",
+    "reading": "よびとめる",
+    "coreMeaning": "叫住。",
+    "keyUsage": "在路上或走廊里喊住某人。",
+    "example": "警察官に呼び止められて、質問を受けた。",
+    "memoryHook": "呼（呼び）唤对方并让其停（止める）下。",
+    "sourceHint": "引用自官方样题 N2L。"
+  },
+  {
+    "id": "ext-vocab-185",
+    "term": "引っ返す",
+    "reading": "ひきかえす",
+    "coreMeaning": "返回，折回。",
+    "keyUsage": "半路发现忘带东西而原路返回。",
+    "example": "忘れ物に気づいて、家へ引っ返した。",
+    "memoryHook": "强力拉（引）转方向回（返す）去。",
+    "sourceHint": "引用自官方真题。"
+  },
+  {
+    "id": "ext-vocab-186",
+    "term": "突き当たる",
+    "reading": "つきあたる",
+    "coreMeaning": "撞上，到头，遇到（困难）。",
+    "keyUsage": "指道路尽头或遇到难以逾越的障碍。",
+    "example": "この道を突き当たると、大きな公園がある。",
+    "memoryHook": "突（突き）然撞（当たる）到了尽头。",
+    "sourceHint": "引用自官方样题。"
+  },
+  {
+    "id": "ext-vocab-187",
+    "term": "立ち上がる",
+    "reading": "たちあがる",
+    "coreMeaning": "起立，振作。",
+    "keyUsage": "指物理起立或在失败后重新振作。",
+    "example": "失敗しても、何度でも立ち上がればいい。",
+    "memoryHook": "站（立ち）起（上がる）来。",
+    "sourceHint": "引用自官方真题。"
+  },
+  {
+    "id": "ext-vocab-188",
+    "term": "見直す",
+    "reading": "みなおす",
+    "coreMeaning": "重新看，重审，改观。",
+    "keyUsage": "指重新检查计划，或对某人重新评估。",
+    "example": "一度立てた計画を見直す必要がある。",
+    "memoryHook": "看（見）了之后重新修（直す）正。",
+    "sourceHint": "引用自官方样题 N2V。"
+  },
+  {
+    "id": "ext-vocab-189",
+    "term": "盛り上がる",
+    "reading": "もりあがる",
+    "coreMeaning": "高涨，气氛热烈。",
+    "keyUsage": "形容活动、派对或比赛现场气氛。",
+    "example": "試合の終盤、会場は一気に盛り上がった。",
+    "memoryHook": "像山丘（盛り）一样隆起（上がる）的气氛。",
+    "sourceHint": "引用自官方真题。"
+  },
+  {
+    "id": "ext-vocab-190",
+    "term": "出来上がる",
+    "reading": "できあがる",
+    "coreMeaning": "完成，做好。",
+    "keyUsage": "指建筑物、料理或艺术品制作完成。",
+    "example": "注文した料理がようやく出来上がった。",
+    "memoryHook": "做（出来）好了升（上がる）上餐桌。",
+    "sourceHint": "引用自官方样题。"
+  },
+  {
+    "id": "ext-vocab-191",
+    "term": "アピール",
+    "reading": "アピール",
+    "coreMeaning": "吸引力，展示，自我推销。",
+    "keyUsage": "常用于面试或宣传，强调把优点展示给别人看。",
+    "example": "自分の長所を積極的にアピールした。",
+    "memoryHook": "Appeal，不仅是呼吁，更是“展现魅力”。",
+    "sourceHint": "引用自官方样题 N2V。"
+  },
+  {
+    "id": "ext-vocab-192",
+    "term": "メリット",
+    "reading": "メリット",
+    "coreMeaning": "优点，长处，好处。",
+    "keyUsage": "常用于方案对比或产品分析。",
+    "example": "この計画には多くのメリットがある。",
+    "memoryHook": "Merit，有利（メリ）的点。",
+    "sourceHint": "引用自官方真题。"
+  },
+  {
+    "id": "ext-vocab-193",
+    "term": "デメリット",
+    "reading": "デメリット",
+    "coreMeaning": "缺点，坏处。",
+    "keyUsage": "与メリット成对使用。",
+    "example": "メリットだけでなく、デメリットも考えるべきだ。",
+    "memoryHook": "De-merit，损（デ）失的点。",
+    "sourceHint": "引用自官方真题。"
+  },
+  {
+    "id": "ext-vocab-194",
+    "term": "トラブル",
+    "reading": "トラブル",
+    "coreMeaning": "纠纷，故障，麻烦。",
+    "keyUsage": "指人际关系纠纷或机械故障。",
+    "example": "金銭的なトラブルに巻き込まれた。",
+    "memoryHook": "Trouble，出事了。",
+    "sourceHint": "引用自官方样题 N2L。"
+  },
+  {
+    "id": "ext-vocab-195",
+    "term": "スムーズ",
+    "reading": "スムーズ",
+    "coreMeaning": "顺利，流畅，平滑。",
+    "keyUsage": "形容会议或计划没有阻碍地进行。",
+    "example": "交渉はスムーズに進んだ。",
+    "memoryHook": "Smooth，像丝绸一样滑（スムーズ）过。",
+    "sourceHint": "引用自官方真题。"
+  },
+  {
+    "id": "ext-vocab-196",
+    "term": "コミュニケーション",
+    "reading": "コミュニケーション",
+    "coreMeaning": "沟通，交流。",
+    "keyUsage": "强调双向的情感或信息交换。",
+    "example": "同僚とコミュニケーションを取ることが大切だ。",
+    "memoryHook": "Communication，长单词通常是重点。",
+    "sourceHint": "引用自官方样题。"
+  },
+  {
+    "id": "ext-vocab-197",
+    "term": "アドバイス",
+    "reading": "アドバイス",
+    "coreMeaning": "建议，忠告。",
+    "keyUsage": "常搭配 アドバイスを求める/与える。",
+    "example": "先生から適切なアドバイスをいただいた。",
+    "memoryHook": "Advice，给点意见。",
+    "sourceHint": "引用自官方真题。"
+  },
+  {
+    "id": "ext-vocab-198",
+    "term": "イメージ",
+    "reading": "イメージ",
+    "coreMeaning": "形象，印象，想象。",
+    "keyUsage": "指对人、事、物的直观感觉。",
+    "example": "その会社はクリーンなイメージがある。",
+    "memoryHook": "Image，心里的图像。",
+    "sourceHint": "引用自官方读解 N2R。"
+  },
+  {
+    "id": "ext-vocab-199",
+    "term": "キャンセル",
+    "reading": "キャンセル",
+    "coreMeaning": "取消。",
+    "keyUsage": "常用于预约、订单的作废。",
+    "example": "急用ができて、予約をキャンセルした。",
+    "memoryHook": "Cancel，不去（看/キャン）了。",
+    "sourceHint": "引用自官方样题 N2L。"
+  },
+  {
+    "id": "ext-vocab-200",
+    "term": "コスト",
+    "reading": "コスト",
+    "coreMeaning": "成本，代价。",
+    "keyUsage": "常搭配 コストを削減する。",
+    "example": "この方法なら、コストを低く抑えられる。",
+    "memoryHook": "Cost，花的钱（こ）。",
+    "sourceHint": "引用自官方样题。"
+  },
+  {
+    "id": "ext-vocab-201",
+    "term": "ターゲット",
+    "reading": "ターゲット",
+    "coreMeaning": "目标，对象。",
+    "keyUsage": "指营销目标或射击目标。",
+    "example": "若者をターゲットにした新商品を開発する。",
+    "memoryHook": "Target，准心（タ）对准。",
+    "sourceHint": "引用自官方真题。"
+  },
+  {
+    "id": "ext-vocab-202",
+    "term": "プレッシャー",
+    "reading": "プレッシャー",
+    "coreMeaning": "压力（心理上）。",
+    "keyUsage": "由于期待或责任感产生的精神负担。",
+    "example": "周囲の期待が大きなプレッシャーになった。",
+    "memoryHook": "Pressure，心里的重压（プレ）。",
+    "sourceHint": "引用自官方听解 N2L。"
+  },
+  {
+    "id": "ext-vocab-203",
+    "term": "ボランティア",
+    "reading": "ボランティア",
+    "coreMeaning": "志愿者，义工。",
+    "keyUsage": "常用于社会公益场景。",
+    "example": "週末はゴミ拾いのボランティアに参加している。",
+    "memoryHook": "Volunteer，自愿（ボ）去做。",
+    "sourceHint": "引用自官方样题。"
+  },
+  {
+    "id": "ext-vocab-204",
+    "term": "マスター",
+    "reading": "マスター",
+    "coreMeaning": "精通，掌握；老板（咖啡店）。",
+    "keyUsage": "指完全掌握某门语言或技术。",
+    "example": "半年で日本語をマスターするのは難しい。",
+    "memoryHook": "Master，成为大师。",
+    "sourceHint": "引用自官方真题。"
+  },
+  {
+    "id": "ext-vocab-205",
+    "term": "リラックス",
+    "reading": "リラックス",
+    "coreMeaning": "放松。",
+    "keyUsage": "指身体或精神上的松弛。",
+    "example": "音楽を聴いてリラックスする。",
+    "memoryHook": "Relax，休息（リ）一下。",
+    "sourceHint": "引用自官方样题。"
+  },
+  {
+    "id": "ext-vocab-206",
+    "term": "ユーモア",
+    "reading": "ユーモア",
+    "coreMeaning": "幽默。",
+    "keyUsage": "指人的性格风趣、俏皮。",
+    "example": "彼はユーモアのある人で、みんなを笑わせる。",
+    "memoryHook": "Humor，有趣（ユー）。",
+    "sourceHint": "引用自官方样题。"
+  },
+  {
+    "id": "ext-vocab-207",
+    "term": "タイミング",
+    "reading": "タイミング",
+    "coreMeaning": "时机。",
+    "keyUsage": "指动作或事件发生的时刻是否恰当。",
+    "example": "声をかけるタイミングを逃してしまった。",
+    "memoryHook": "Timing，那个点（タイ）。",
+    "sourceHint": "引用自官方听解 N2L。"
+  },
+  {
+    "id": "ext-vocab-208",
+    "term": "マイペース",
+    "reading": "マイペース",
+    "coreMeaning": "按自己的节奏。",
+    "keyUsage": "褒贬皆可，指不被周围人左右。",
+    "example": "彼は周りが急いでいても、常にマイペースだ。",
+    "memoryHook": "My pace，我的节奏。",
+    "sourceHint": "引用自官方真题。"
+  },
+  {
+    "id": "ext-vocab-209",
+    "term": "ベテラン",
+    "reading": "ベテラン",
+    "coreMeaning": "老手，专家，经验丰富者。",
+    "keyUsage": "指在某个领域工作多年、技术娴熟的人。",
+    "example": "この道３０年のベテラン職人に教わる。",
+    "memoryHook": "Veteran，老兵/老手。",
+    "sourceHint": "引用自官方真题。"
+  },
+  {
+    "id": "ext-vocab-210",
+    "term": "プロフィール",
+    "reading": "プロフィール",
+    "coreMeaning": "简介，个人资料。",
+    "keyUsage": "指社交账号、书籍作者或求职时的简介。",
+    "example": "ホームページに作者のプロフィールを載せる。",
+    "memoryHook": "Profile，侧面（プロ）描写。",
+    "sourceHint": "引用自官方样题。"
+  }
+]
