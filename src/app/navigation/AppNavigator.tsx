@@ -5,6 +5,7 @@ import { DrillSessionScreen } from '../../features/drill-session/screens/DrillSe
 import { DashboardScreen } from '../../features/dashboard/screens/DashboardScreen';
 import { ListeningSessionScreen } from '../../features/listening-session/screens/ListeningSessionScreen';
 import { ModeDetailScreen } from '../../features/mode-detail/screens/ModeDetailScreen';
+import { OfficialVocabMemoryScreen } from '../../features/official-vocab-memory/screens/OfficialVocabMemoryScreen';
 import { ReadingSessionScreen } from '../../features/reading-session/screens/ReadingSessionScreen';
 import { StudyPackScreen } from '../../features/study-pack/screens/StudyPackScreen';
 import { TrainingSessionScreen } from '../../features/training-session/screens/TrainingSessionScreen';
@@ -12,6 +13,7 @@ import { WrongReviewScreen } from '../../features/wrong-review/screens/WrongRevi
 import {
   isDrillModeId,
   isListeningModeId,
+  isOfficialVocabMemoryModeId,
   isReadingModeId,
   isReviewModeId,
   isStudyModeId,
@@ -113,6 +115,17 @@ export function AppNavigator() {
     if (isListeningModeId(route.modeId)) {
       return (
         <ListeningSessionScreen
+          modeId={route.modeId}
+          onExit={() => leaveSession(route.modeId, route.returnTo)}
+          onBackToDetail={() => openModeDetail(route.modeId)}
+          onBackToDashboard={goBack}
+        />
+      );
+    }
+
+    if (isOfficialVocabMemoryModeId(route.modeId)) {
+      return (
+        <OfficialVocabMemoryScreen
           modeId={route.modeId}
           onExit={() => leaveSession(route.modeId, route.returnTo)}
           onBackToDetail={() => openModeDetail(route.modeId)}

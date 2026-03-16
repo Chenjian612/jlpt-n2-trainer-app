@@ -1,6 +1,7 @@
 ﻿import type {
   DrillModeId,
   ListeningModeId,
+  OfficialVocabMemoryModeId,
   ReadingModeId,
   StudyModeId,
 } from './training';
@@ -116,6 +117,35 @@ export type StudyPack = {
   theme: string;
   source: string;
   items: StudyPackItem[];
+};
+
+export type OfficialVocabDeckType = 'language_knowledge' | 'listening' | 'reading';
+
+export type OfficialVocabDeckStatus = 'ready' | 'pending';
+
+export type OfficialVocabMemoryItem = {
+  id: string;
+  term: string;
+  reading: string;
+  coreMeaning: string;
+  keyUsage: string;
+  example: string;
+  memoryHook: string;
+  sourceHint: string;
+};
+
+export type OfficialVocabDeck = {
+  id: string;
+  modeId: OfficialVocabMemoryModeId;
+  type: OfficialVocabDeckType;
+  title: string;
+  shortLabel: string;
+  description: string;
+  source: string;
+  downloadLabel: string;
+  note: string;
+  status: OfficialVocabDeckStatus;
+  items: OfficialVocabMemoryItem[];
 };
 
 export type ReadingQuestion = {

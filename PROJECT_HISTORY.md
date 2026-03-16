@@ -4,6 +4,57 @@
 
 ## Unreleased
 
+### 2026-03-16 `新增官方词卡记忆模式，并按题型拆分官方资源词包`
+
+本轮新增的是一个独立功能，不是继续在原有词汇记忆包上补文案。
+
+已完成：
+
+- 新增 `official_vocab_memory` 训练模式，使用独立页面和独立数据源。
+- 新模式改成“资源库 -> 开卡记忆 -> 完成页”三段式，不和原有学习包混在一起。
+- 词卡库按题型拆分为：
+  - 文字・语彙
+  - 听力
+  - 读解
+- 当前已接入两包可直接使用的官方来源词卡：
+  - 听力公开样题词卡 A
+  - 听力公开样题词卡 B
+- 这两包词卡都整理自仓库里已有的官方公开音频资源：
+  - `assets/audio/official/N2M1Q2.mp3`
+  - `assets/audio/official/N2M2Q2.mp3`
+  - `assets/audio/official/N2M3Q1.mp3`
+  - `assets/audio/official/N2M4Q1.mp3`
+- `文字・语彙` 与 `读解` 词卡入口先保留为 `待导入`，因为仓库当前没有对应的官方下载文件，不伪造来源。
+- 首页模式总览、模式详情页、推荐顺序和训练文案已同步支持新模式。
+
+本轮资源边界：
+
+- 官方 FAQ 明确说明 2010 年改版以后不再公布完整词汇表。
+- 因此这次没有伪造所谓“官方 N2 词表”，而是把功能限制在“官方公开可下载资源整理出的词卡”。
+
+本轮实际验证通过的内容：
+
+- `npx.cmd tsc --noEmit`
+- 浏览器回归：
+  - 首页进入“官方词卡记忆”
+  - 进入词卡库
+  - 打开“听力公开样题词卡 A”
+  - 连续翻完 8 张词卡
+  - 进入“本轮官方词卡完成”结果页
+
+涉及的核心文件：
+
+- `src/domain/models/training.ts`
+- `src/domain/models/trainingContent.ts`
+- `src/domain/services/progressService.ts`
+- `src/domain/services/dashboardService.ts`
+- `src/data/seed/trainingModes.ts`
+- `src/data/seed/officialVocabDecks.ts`
+- `src/features/official-vocab-memory/*`
+- `src/app/navigation/AppNavigator.tsx`
+- `src/features/dashboard/*`
+- `src/features/mode-detail/*`
+
 ### 2026-03-13 `跨模式薄弱点追踪扩展到读解与听力，并补充首页教练聚合`
 
 本轮重点不是继续堆 UI，而是把“薄弱点系统”从文法/词汇刷题错题扩展成真正跨模式可用的本地教练层。

@@ -12,7 +12,6 @@ import {
 import { AppBackground } from '../../../components/common/AppBackground';
 import {
   isReviewModeId,
-  isStudyModeId,
   type TrainingMode,
 } from '../../../domain/models/training';
 import { colors, fonts } from '../../../theme/tokens';
@@ -79,14 +78,14 @@ export function DashboardScreen({
         title: '快速提分',
         body: '先做反馈最快的模式，把今天的状态拉起来。',
         modes: trainingModes.filter(
-          (mode) => !isStudyModeId(mode.id) && !isReviewModeId(mode.id),
+          (mode) => mode.sessionKind !== 'study' && !isReviewModeId(mode.id),
         ),
       },
       {
         key: 'steady',
         title: '稳态积累',
-        body: '用记忆包压缩文法和词汇，适合稳定补总量。',
-        modes: trainingModes.filter((mode) => isStudyModeId(mode.id)),
+        body: '用记忆包和官方词卡压缩文法、词汇与题型高频词，适合稳定补总量。',
+        modes: trainingModes.filter((mode) => mode.sessionKind === 'study'),
       },
       {
         key: 'recovery',
@@ -182,7 +181,7 @@ export function DashboardScreen({
               <View style={styles.sectionIntro}>
                 <Text style={styles.sectionTitle}>训练模式总览</Text>
                 <Text style={styles.sectionBody}>
-                  不再把 8 个模式平铺在一层。先把冲分、积累、回收拆开，用户会更容易判断下一步该点哪里。
+                  不再把全部模式平铺在一层。先把冲分、积累、回收拆开，用户会更容易判断下一步该点哪里。
                 </Text>
               </View>
 

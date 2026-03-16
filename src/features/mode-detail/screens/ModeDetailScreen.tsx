@@ -5,7 +5,6 @@ import { AppBackground } from '../../../components/common/AppBackground';
 import { getTrainingModeById } from '../../../data/seed/trainingModes';
 import {
   isReviewModeId,
-  isStudyModeId,
   type TrainingModeId,
 } from '../../../domain/models/training';
 import {
@@ -43,7 +42,8 @@ export function ModeDetailScreen({
 
   const sessionCount = getModeSessionCountForDay(state, todayKey, mode.id);
   const completed = sessionCount > 0;
-  const studyMode = isStudyModeId(mode.id);
+  const studyMode = mode.sessionKind === 'study';
+  const officialVocabMode = mode.id === 'official_vocab_memory';
   const reviewBacklog = isReviewModeId(mode.id)
     ? getWrongReviewBacklogCount(state, mode.id)
     : 0;
@@ -146,6 +146,10 @@ export function ModeDetailScreen({
                 ? reviewBacklog > 0
                   ? '开始这一轮错题回收'
                   : '暂无待回收错题'
+                : officialVocabMode
+                  ? completed
+                    ? '再开一轮官方词卡'
+                    : '进入官方词卡库'
                 : studyMode
                   ? completed
                     ? '再过一轮记忆包'

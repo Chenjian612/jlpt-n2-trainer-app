@@ -21,6 +21,7 @@ const REVIEW_MODE_LABEL: Record<TrainingModeId, string> = {
   grammar_study: '文法记忆包',
   vocab_drill: '词汇刷题',
   vocab_study: '词汇记忆包',
+  official_vocab_memory: '官方词卡记忆',
   reading_drill: '读解实战',
   listening_analyze: '听力要点拆解',
   review_wrong: '文法错题回收',

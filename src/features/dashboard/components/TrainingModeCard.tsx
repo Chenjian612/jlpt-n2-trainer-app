@@ -2,7 +2,6 @@
 
 import {
   isReviewModeId,
-  isStudyModeId,
   type TrainingMode,
 } from '../../../domain/models/training';
 import { colors, fonts, radii, shadows } from '../../../theme/tokens';
@@ -25,7 +24,8 @@ export function TrainingModeCard({
   onStartMode,
 }: TrainingModeCardProps) {
   const reviewMode = isReviewModeId(mode.id);
-  const studyMode = isStudyModeId(mode.id);
+  const studyMode = mode.sessionKind === 'study' && !reviewMode;
+  const officialVocabMode = mode.id === 'official_vocab_memory';
   const categoryLabel = reviewMode
     ? '回收模式'
     : studyMode
@@ -38,9 +38,13 @@ export function TrainingModeCard({
         ? `当前没有待回收错题 · 今日 ${sessionCount} 轮`
         : '当前没有待回收错题'
     : studyMode
-      ? completed
-        ? `今日已学习 ${sessionCount} 轮`
-        : '适合做一轮稳态记忆'
+      ? officialVocabMode
+        ? completed
+          ? `今日已背 ${sessionCount} 轮`
+          : '按题型切换官方词卡包'
+        : completed
+          ? `今日已学习 ${sessionCount} 轮`
+          : '适合做一轮稳态记忆'
       : completed
         ? `今日已完成 ${sessionCount} 轮`
         : '今天还没开始这一模式';
@@ -49,9 +53,13 @@ export function TrainingModeCard({
       ? '开始回收'
       : '查看模式'
     : studyMode
-      ? completed
-        ? '再来一轮'
-        : '开始学习'
+      ? officialVocabMode
+        ? completed
+          ? '再开一包'
+          : '进入词卡库'
+        : completed
+          ? '再来一轮'
+          : '开始学习'
       : completed
         ? '再做一轮'
         : '开始训练';

@@ -27,6 +27,7 @@ const RECOMMENDED_MODE_ORDER: TrainingModeId[] = [
   'listening_analyze',
   'grammar_study',
   'vocab_study',
+  'official_vocab_memory',
 ];
 
 const parseDayKey = (dayKey: string): Date => {
