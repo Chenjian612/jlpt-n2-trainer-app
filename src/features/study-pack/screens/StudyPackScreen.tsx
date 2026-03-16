@@ -1,4 +1,4 @@
-﻿import { useMemo, useRef, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import {
   Pressable,
   ScrollView,
@@ -38,8 +38,16 @@ export function StudyPackScreen({
   const { state, todayKey, recordSession } = useProgressStore();
   const { width } = useWindowDimensions();
   const isWideLayout = width >= 1040;
+  
   const mode = getTrainingModeById(modeId);
-  const pack = getStudyPackByMode(modeId);
+  const initialSessionCount = getModeSessionCountForDay(state, todayKey, modeId);
+  const pack = getStudyPackByMode(modeId, initialSessionCount);
+
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [revealed, setRevealed] = useState(false);
+  const [confidenceMap, setConfidenceMap] = useState<Record<string, boolean>>({});
+  const [result, setResult] = useState<StudyResult | null>(null);
+  const recordedRef = useRef(false);
 
   if (!mode || !pack || pack.items.length === 0) {
     return (
@@ -53,13 +61,6 @@ export function StudyPackScreen({
       </AppBackground>
     );
   }
-
-  const initialSessionCount = getModeSessionCountForDay(state, todayKey, mode.id);
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [revealed, setRevealed] = useState(false);
-  const [confidenceMap, setConfidenceMap] = useState<Record<string, boolean>>({});
-  const [result, setResult] = useState<StudyResult | null>(null);
-  const recordedRef = useRef(false);
 
   const item = pack.items[currentIndex];
   const progressValue = (currentIndex + 1) / pack.items.length;
@@ -644,10 +645,3 @@ const styles = StyleSheet.create({
     fontFamily: fonts.body,
   },
 });
-
-
-
-
-
-
-
