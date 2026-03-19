@@ -15,6 +15,7 @@ import { getTrainingModeById } from '../../../data/seed/trainingModes';
 import type { DrillModeId } from '../../../domain/models/training';
 import type { WrongAnswerDraft } from '../../../domain/models/trainingContent';
 import { getModeSessionCountForDay } from '../../../domain/services/progressService';
+import { inferWrongAnswerErrorTypes, WRONG_ANSWER_ERROR_META } from '../../../domain/services/wrongAnswerClassifier';
 import { colors, fonts, radii, shadows } from '../../../theme/tokens';
 import { withKana } from '../../../utils/withKana';
 
@@ -61,6 +62,8 @@ export function DrillSessionScreen({
     correctCount: number;
     wrongCount: number;
     recordedSessionCount: number;
+    majorErrorTypeLabel?: string;
+    majorErrorTypeSummary?: string;
   } | null>(null);
   const finishedRef = useRef(false);
   const question = questions[currentIndex];
@@ -132,11 +135,35 @@ export function DrillSessionScreen({
     }
 
     finishedRef.current = true;
+
+    const wrongErrorTypes = wrongAnswerDrafts.flatMap((draft) =>
+      inferWrongAnswerErrorTypes(modeId, draft.question.tags),
+    );
+
+    let majorErrorTypeLabel: string | undefined;
+    let majorErrorTypeSummary: string | undefined;
+
+    if (wrongErrorTypes.length > 0) {
+      const typeCounts = wrongErrorTypes.reduce((acc, type) => {
+        acc[type] = (acc[type] || 0) + 1;
+        return acc;
+      }, {} as Record<string, number>);
+
+      const majorType = Object.keys(typeCounts).reduce((a, b) =>
+        typeCounts[a] > typeCounts[b] ? a : b,
+      ) as keyof typeof WRONG_ANSWER_ERROR_META;
+
+      majorErrorTypeLabel = WRONG_ANSWER_ERROR_META[majorType].label;
+      majorErrorTypeSummary = WRONG_ANSWER_ERROR_META[majorType].summary;
+    }
+
     recordDrillSession(modeId, wrongAnswerDrafts);
     setResult({
       correctCount: questions.length - wrongAnswerDrafts.length,
       wrongCount: wrongAnswerDrafts.length,
       recordedSessionCount: initialSessionCount + 1,
+      majorErrorTypeLabel,
+      majorErrorTypeSummary,
     });
   };
 
@@ -212,11 +239,15 @@ export function DrillSessionScreen({
             </View>
 
             <View style={styles.summaryHighlight}>
-              <Text style={styles.summaryHighlightTitle}>下一步建议</Text>
+              <Text style={styles.summaryHighlightTitle}>
+                {result.majorErrorTypeLabel ? `主要错误：${result.majorErrorTypeLabel}` : '下一步建议'}
+              </Text>
               <Text style={styles.summaryHighlightBody}>
-                {result.wrongCount > 0
-                  ? '今天的错题已经进入回收队列，接下来先去对应的错题回收模式做一轮，把判断点重新压实。'
-                  : '本轮没有新增错题，可以直接回到首页继续今天的安排，或者再刷一轮保持题感。'}
+                {result.majorErrorTypeSummary
+                  ? `${result.majorErrorTypeSummary}\n今天的错题已经进入回收队列，接下来先去对应的错题回收模式做一轮，把判断点重新压实。`
+                  : result.wrongCount > 0
+                    ? '今天的错题已经进入回收队列，接下来先去对应的错题回收模式做一轮，把判断点重新压实。'
+                    : '本轮没有新增错题，可以直接回到首页继续今天的安排，或者再刷一轮保持题感。'}
               </Text>
             </View>
 

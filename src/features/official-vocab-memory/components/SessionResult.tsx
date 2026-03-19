@@ -56,6 +56,7 @@ export function SessionResult({
 
       {!isReview && hardTerms.length > 0 && (
         <Pressable
+          testID="official-start-review"
           onPress={onStartReview}
           style={[styles.primaryButton, { backgroundColor: colors.copper }]}
         >
@@ -64,6 +65,7 @@ export function SessionResult({
       )}
 
       <Pressable
+        testID="official-back-to-library"
         onPress={onBackToLibrary}
         style={[styles.primaryButton, { backgroundColor: mode.accent }]}
       >

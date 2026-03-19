@@ -14,7 +14,7 @@ import { getReadingPassageByMode } from '../../../data/seed/readingPassages';
 import { getTrainingModeById } from '../../../data/seed/trainingModes';
 import type { ReadingModeId } from '../../../domain/models/training';
 import { getModeSessionCountForDay } from '../../../domain/services/progressService';
-import { inferReadingWeaknessErrorTypes } from '../../../domain/services/wrongAnswerClassifier';
+import { inferReadingWeaknessErrorTypes, WEAKNESS_ERROR_META } from '../../../domain/services/wrongAnswerClassifier';
 import { colors, fonts, radii, shadows } from '../../../theme/tokens';
 import { withKana } from '../../../utils/withKana';
 
@@ -59,6 +59,8 @@ export function ReadingSessionScreen({
     correctCount: number;
     wrongCount: number;
     recordedSessionCount: number;
+    majorErrorTypeLabel?: string;
+    majorErrorTypeSummary?: string;
   } | null>(null);
   const finishedRef = useRef(false);
 
@@ -131,12 +133,33 @@ export function ReadingSessionScreen({
 
     finishedRef.current = true;
     const wrongCount = wrongQuestionLabels.length;
+    
+    const wrongSignals = readingWeaknessSignals.filter((s) => !s.wasCorrect);
+    let majorErrorTypeLabel: string | undefined;
+    let majorErrorTypeSummary: string | undefined;
+
+    if (wrongSignals.length > 0) {
+      const wrongErrorTypes = wrongSignals.flatMap((s) => s.errorTypes);
+      const typeCounts = wrongErrorTypes.reduce((acc, type) => {
+        acc[type] = (acc[type] || 0) + 1;
+        return acc;
+      }, {} as Record<string, number>);
+
+      const majorType = Object.keys(typeCounts).reduce((a, b) =>
+        typeCounts[a] > typeCounts[b] ? a : b,
+      ) as keyof typeof WEAKNESS_ERROR_META;
+
+      majorErrorTypeLabel = WEAKNESS_ERROR_META[majorType].label;
+      majorErrorTypeSummary = WEAKNESS_ERROR_META[majorType].summary;
+    }
 
     recordSession(modeId, 'drill', readingWeaknessSignals);
     setResult({
       correctCount: passage.questions.length - wrongCount,
       wrongCount,
       recordedSessionCount: initialSessionCount + 1,
+      majorErrorTypeLabel,
+      majorErrorTypeSummary,
     });
   };
 
@@ -202,11 +225,15 @@ export function ReadingSessionScreen({
             </View>
 
             <View style={styles.summaryCard}>
-              <Text style={styles.summaryTitle}>下一步建议</Text>
+              <Text style={styles.summaryTitle}>
+                {result.majorErrorTypeLabel ? `主要薄弱点：${result.majorErrorTypeLabel}` : '下一步建议'}
+              </Text>
               <Text style={styles.summaryBody}>
-                {result.wrongCount > 0
-                  ? `优先回看 ${wrongQuestionLabels.join(' / ')} 的证据句，再复述一次为什么其他选项不成立。`
-                  : '这轮没有答错题，接下来重点回忆每题的证据位置，别只记住答案本身。'}
+                {result.majorErrorTypeSummary
+                  ? `${result.majorErrorTypeSummary}\n优先回看 ${wrongQuestionLabels.join(' / ')} 的证据句，再复述一次为什么其他选项不成立。`
+                  : result.wrongCount > 0
+                    ? `优先回看 ${wrongQuestionLabels.join(' / ')} 的证据句，再复述一次为什么其他选项不成立。`
+                    : '这轮没有答错题，接下来重点回忆每题的证据位置，别只记住答案本身。'}
               </Text>
               <Text style={styles.summaryFootnote}>复盘提示：{mode.reviewTip}</Text>
             </View>

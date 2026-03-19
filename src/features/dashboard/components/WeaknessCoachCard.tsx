@@ -8,12 +8,14 @@ type WeaknessCoachCardProps = {
   snapshot: DashboardWeaknessSnapshot;
   recommendedMode: TrainingMode | null;
   onOpenMode: (mode: TrainingMode) => void;
+  onStartMode: (mode: TrainingMode) => void;
 };
 
 export function WeaknessCoachCard({
   snapshot,
   recommendedMode,
   onOpenMode,
+  onStartMode,
 }: WeaknessCoachCardProps) {
   return (
     <View style={styles.section}>
@@ -43,7 +45,7 @@ export function WeaknessCoachCard({
                     <View style={styles.focusBadge}>
                       <Text style={styles.focusBadgeText}>{item.statusLabel}</Text>
                     </View>
-                    <Text style={styles.focusCount}>{item.questionCount} 题未稳</Text>
+                    <Text style={styles.focusCount}>{item.questionCount} 项未稳</Text>
                   </View>
                 </View>
                 <Text style={styles.focusBody}>{item.body}</Text>
@@ -75,12 +77,20 @@ export function WeaknessCoachCard({
         </View>
 
         {recommendedMode ? (
-          <Pressable
-            onPress={() => onOpenMode(recommendedMode)}
-            style={styles.primaryButton}
-          >
-            <Text style={styles.primaryButtonText}>先去 {recommendedMode.title}</Text>
-          </Pressable>
+          <View style={styles.actionRow}>
+            <Pressable
+              onPress={() => onOpenMode(recommendedMode)}
+              style={styles.secondaryButton}
+            >
+              <Text style={styles.secondaryButtonText}>查看详情</Text>
+            </Pressable>
+            <Pressable
+              onPress={() => onStartMode(recommendedMode)}
+              style={styles.primaryButton}
+            >
+              <Text style={styles.primaryButtonText}>快速启动 {recommendedMode.title}</Text>
+            </Pressable>
+          </View>
         ) : null}
       </View>
     </View>
@@ -265,7 +275,12 @@ const styles = StyleSheet.create({
     lineHeight: 21,
     fontFamily: fonts.body,
   },
+  actionRow: {
+    flexDirection: 'row',
+    gap: 12,
+  },
   primaryButton: {
+    flex: 1.4,
     borderRadius: radii.md,
     backgroundColor: colors.teal,
     paddingVertical: 14,
@@ -276,6 +291,20 @@ const styles = StyleSheet.create({
     color: colors.backgroundCard,
     fontSize: 15,
     fontWeight: '800',
+    fontFamily: fonts.body,
+  },
+  secondaryButton: {
+    flex: 1,
+    borderRadius: radii.md,
+    backgroundColor: colors.slateSoft,
+    paddingVertical: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  secondaryButtonText: {
+    color: colors.inkBody,
+    fontSize: 15,
+    fontWeight: '700',
     fontFamily: fonts.body,
   },
 });

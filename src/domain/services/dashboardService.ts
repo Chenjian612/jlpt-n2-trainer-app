@@ -1,22 +1,22 @@
 ﻿import type {
+  CapabilityDistribution,
   DashboardInsight,
   DashboardMetrics,
   ProgressState,
   RecentDay,
 } from '../models/progress';
-import type { ReviewModeId, TrainingMode, TrainingModeId } from '../models/training';
+import type { ReviewModeId, StudyModeId, TrainingMode, TrainingModeId } from '../models/training';
 import {
-  DEFAULT_WEEKLY_GOAL,
   getCompletedModeIdsForDay,
-  getDayKey,
   getSessionsForDay,
+  getStudyWeaknessBacklogCount,
   getWrongReviewBacklogCount,
 } from './progressService';
+import { APP_CONFIG } from '../../config/constants';
+import { addDays, diffInDays, getDayKey, parseDayKey } from '../../utils/dateUtils';
 
-export const DAILY_TARGET = 3;
-export const WEEKLY_GOAL_OPTIONS = [10, DEFAULT_WEEKLY_GOAL, 18] as const;
+export const WEEKLY_GOAL_OPTIONS = [10, APP_CONFIG.DEFAULT_WEEKLY_GOAL, 18] as const;
 
-const MS_PER_DAY = 24 * 60 * 60 * 1000;
 const REVIEW_MODE_IDS: ReviewModeId[] = ['review_wrong', 'vocab_review_wrong'];
 const RECOMMENDED_MODE_ORDER: TrainingModeId[] = [
   'review_wrong',
@@ -30,24 +30,17 @@ const RECOMMENDED_MODE_ORDER: TrainingModeId[] = [
   'official_vocab_memory',
 ];
 
-const parseDayKey = (dayKey: string): Date => {
-  const [year, month, day] = dayKey.split('-').map(Number);
-  return new Date(year, month - 1, day);
+const MODE_CAPABILITY: Record<TrainingModeId, keyof CapabilityDistribution> = {
+  grammar_drill: 'grammar',
+  grammar_study: 'grammar',
+  vocab_drill: 'vocab',
+  vocab_study: 'vocab',
+  official_vocab_memory: 'vocab',
+  reading_drill: 'reading',
+  listening_analyze: 'listening',
+  review_wrong: 'grammar',
+  vocab_review_wrong: 'vocab',
 };
-
-const startOfDay = (date: Date): Date =>
-  new Date(date.getFullYear(), date.getMonth(), date.getDate());
-
-const addDays = (date: Date, amount: number): Date => {
-  const next = new Date(date);
-  next.setDate(next.getDate() + amount);
-  return next;
-};
-
-const diffInDays = (left: Date, right: Date): number =>
-  Math.round(
-    (startOfDay(left).getTime() - startOfDay(right).getTime()) / MS_PER_DAY,
-  );
 
 const getModeOrderIndex = (modeId: TrainingModeId): number => {
   const index = RECOMMENDED_MODE_ORDER.indexOf(modeId);
@@ -57,6 +50,11 @@ const getModeOrderIndex = (modeId: TrainingModeId): number => {
 const getReviewBacklogCounts = (state: ProgressState): Record<ReviewModeId, number> => ({
   review_wrong: getWrongReviewBacklogCount(state, 'review_wrong'),
   vocab_review_wrong: getWrongReviewBacklogCount(state, 'vocab_review_wrong'),
+});
+
+const getStudyBacklogCounts = (state: ProgressState): Record<StudyModeId, number> => ({
+  grammar_study: getStudyWeaknessBacklogCount(state, 'grammar_study'),
+  vocab_study: getStudyWeaknessBacklogCount(state, 'vocab_study'),
 });
 
 export const getProgressRatio = (value: number, total: number): number =>
@@ -69,12 +67,18 @@ export const getRecommendedModes = (
 ): TrainingMode[] => {
   const completedModeIds = new Set(getCompletedModeIdsForDay(state, todayKey));
   const reviewBacklogCounts = getReviewBacklogCounts(state);
+  const studyBacklogCounts = getStudyBacklogCounts(state);
+
   const getRecommendationBucket = (modeId: TrainingModeId): number => {
-    if (!REVIEW_MODE_IDS.includes(modeId as ReviewModeId)) {
-      return 1;
+    if (REVIEW_MODE_IDS.includes(modeId as ReviewModeId)) {
+      return reviewBacklogCounts[modeId as ReviewModeId] > 0 ? 0 : 2;
     }
 
-    return reviewBacklogCounts[modeId as ReviewModeId] > 0 ? 0 : 2;
+    if (modeId === 'grammar_study' || modeId === 'vocab_study') {
+      return studyBacklogCounts[modeId as StudyModeId] > 0 ? 0 : 1;
+    }
+
+    return 1;
   };
 
   return [...trainingModes]
@@ -87,10 +91,14 @@ export const getRecommendedModes = (
 
       const leftBacklog = REVIEW_MODE_IDS.includes(left.id as ReviewModeId)
         ? reviewBacklogCounts[left.id as ReviewModeId]
-        : 0;
+        : (left.id === 'grammar_study' || left.id === 'vocab_study')
+          ? studyBacklogCounts[left.id as StudyModeId]
+          : 0;
       const rightBacklog = REVIEW_MODE_IDS.includes(right.id as ReviewModeId)
         ? reviewBacklogCounts[right.id as ReviewModeId]
-        : 0;
+        : (right.id === 'grammar_study' || right.id === 'vocab_study')
+          ? studyBacklogCounts[right.id as StudyModeId]
+          : 0;
 
       if (leftBacklog !== rightBacklog) {
         return rightBacklog - leftBacklog;
@@ -104,7 +112,7 @@ export const getTodayPlan = (
   trainingModes: TrainingMode[],
   state: ProgressState,
   todayKey: string,
-): TrainingMode[] => getRecommendedModes(trainingModes, state, todayKey).slice(0, DAILY_TARGET);
+): TrainingMode[] => getRecommendedModes(trainingModes, state, todayKey).slice(0, APP_CONFIG.DAILY_RECOMMENDATION_LIMIT);
 
 const getActiveDayKeys = (state: ProgressState): string[] =>
   Object.keys(state.sessionsByDay)
@@ -174,6 +182,33 @@ const getTotalSessions = (state: ProgressState): number =>
     0,
   );
 
+const getCapabilityDistribution = (
+  state: ProgressState,
+  todayKey: string,
+): CapabilityDistribution => {
+  const today = parseDayKey(todayKey);
+  const distribution: CapabilityDistribution = {
+    grammar: 0,
+    vocab: 0,
+    reading: 0,
+    listening: 0,
+  };
+
+  for (let offset = 0; offset < 7; offset += 1) {
+    const dayKey = getDayKey(addDays(today, -offset));
+    const sessions = getSessionsForDay(state, dayKey);
+
+    for (const session of sessions) {
+      const capability = MODE_CAPABILITY[session.modeId];
+      if (capability) {
+        distribution[capability] += 1;
+      }
+    }
+  }
+
+  return distribution;
+};
+
 export const getDashboardMetrics = (
   state: ProgressState,
   todayKey: string,
@@ -183,6 +218,7 @@ export const getDashboardMetrics = (
   totalSessions: getTotalSessions(state),
   currentStreak: getCurrentStreak(state, todayKey),
   bestStreak: getBestStreak(state),
+  capabilityDistribution: getCapabilityDistribution(state, todayKey),
 });
 
 export const getDashboardInsight = (
@@ -193,15 +229,28 @@ export const getDashboardInsight = (
 ): DashboardInsight => {
   const metrics = getDashboardMetrics(state, todayKey);
   const reviewBacklogCounts = getReviewBacklogCounts(state);
-  const totalBacklog = reviewBacklogCounts.review_wrong + reviewBacklogCounts.vocab_review_wrong;
+  const studyBacklogCounts = getStudyBacklogCounts(state);
+  const totalReviewBacklog = reviewBacklogCounts.review_wrong + reviewBacklogCounts.vocab_review_wrong;
+  const totalStudyBacklog = studyBacklogCounts.grammar_study + studyBacklogCounts.vocab_study;
   const recommendedMode = todayPlan[0] ?? null;
 
-  if (totalBacklog > 0 && recommendedMode) {
+  if (totalReviewBacklog > 0 && recommendedMode) {
     return {
       headline: '先回收错题，再推新内容',
-      body: `当前还有 ${totalBacklog} 题待回收，优先清掉重复错误，再继续做新的训练更划算。`,
+      body: `当前还有 ${totalReviewBacklog} 题待回收，优先清掉重复错误，再继续做新的训练更划算。`,
       recommendedModeId: recommendedMode.id,
       tone: 'review',
+      battleState: 'recovering',
+    };
+  }
+
+  if (totalStudyBacklog > 0 && recommendedMode && (recommendedMode.id === 'grammar_study' || recommendedMode.id === 'vocab_study')) {
+    return {
+      headline: '重点攻克不稳的记忆项',
+      body: `学习包里还有 ${totalStudyBacklog} 个标记为“不稳”的项，建议先回看这些项，再开启新阶段。`,
+      recommendedModeId: recommendedMode.id,
+      tone: 'review',
+      battleState: 'recovering',
     };
   }
 
@@ -211,11 +260,12 @@ export const getDashboardInsight = (
       body: '先把第一轮做起来，节奏一旦启动，后面的推进成本会明显下降。',
       recommendedModeId: recommendedMode.id,
       tone: 'focus',
+      battleState: 'first_battle',
     };
   }
 
-  if (metrics.todayCompletedCount < DAILY_TARGET) {
-    const remaining = DAILY_TARGET - metrics.todayCompletedCount;
+  if (metrics.todayCompletedCount < APP_CONFIG.DAILY_TARGET_SESSIONS) {
+    const remaining = APP_CONFIG.DAILY_TARGET_SESSIONS - metrics.todayCompletedCount;
     return {
       headline: `今天再完成 ${remaining} 轮就达标`,
       body: recommendedMode
@@ -223,6 +273,7 @@ export const getDashboardInsight = (
         : '今天的推荐已经接近完成，顺手把最后一轮补齐即可。',
       recommendedModeId: recommendedMode?.id,
       tone: 'focus',
+      battleState: 'sprint',
     };
   }
 
@@ -232,6 +283,7 @@ export const getDashboardInsight = (
       body: `本周还差 ${Math.max(weeklyGoal - metrics.weeklySessions, 0)} 轮达到周目标，现在继续练一轮最容易把节奏拉稳。`,
       recommendedModeId: recommendedMode?.id,
       tone: 'push',
+      battleState: 'goal_reached',
     };
   }
 
@@ -240,6 +292,7 @@ export const getDashboardInsight = (
     body: '今日目标和本周节奏都在线，接下来可以自由补薄弱项，也可以直接收尾。',
     recommendedModeId: recommendedMode?.id,
     tone: 'steady',
+    battleState: 'goal_reached',
   };
 };
 

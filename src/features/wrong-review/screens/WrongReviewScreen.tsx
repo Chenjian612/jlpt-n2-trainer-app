@@ -2,11 +2,11 @@
 import {
   Pressable,
   ScrollView,
-  StyleSheet,
   Text,
   View,
 } from 'react-native';
 
+import { APP_CONFIG } from '../../../config/constants';
 import { useProgressStore } from '../../../app/providers/ProgressProvider';
 import { AppBackground } from '../../../components/common/AppBackground';
 import { getTrainingModeById } from '../../../data/seed/trainingModes';
@@ -17,7 +17,7 @@ import {
   getPrioritizedWrongAnswersForMode,
   getWrongAnswerPriorityLabel,
 } from '../../../domain/services/progressService';
-import { colors, fonts, radii } from '../../../theme/tokens';
+import { styles } from './wrongReviewStyles';
 
 type WrongReviewScreenProps = {
   modeId: ReviewModeId;
@@ -50,9 +50,11 @@ export function WrongReviewScreen({
 
   const sourceModeId = REVIEW_SOURCE_MODE[modeId];
   const allBacklog = getPrioritizedWrongAnswersForMode(state, sourceModeId);
-  const [reviewItems] = useState(() => allBacklog.slice(0, 5));
+  const [reviewItems] = useState(() => allBacklog.slice(0, APP_CONFIG.REVIEW_BATCH_SIZE));
   const initialSessionCount = getModeSessionCountForDay(state, todayKey, mode.id);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [selectedChoice, setSelectedChoice] = useState<number | null>(null);
+  const [hasCheckedAnswer, setHasCheckedAnswer] = useState(false);
   const [decisions, setDecisions] = useState<WrongReviewDecision[]>([]);
   const [result, setResult] = useState<{
     reviewedCount: number;
@@ -103,20 +105,29 @@ export function WrongReviewScreen({
       ? item.choiceInsights[item.lastUserChoice] ?? null
       : null;
   const correctInsight = item.choiceInsights[item.answer] ?? item.explanation;
+  const answeredCorrectly = selectedChoice === item.answer;
 
-  const handleDecision = (mastered: boolean) => {
-    if (finishRef.current) {
+  const handleCheckAnswer = () => {
+    if (selectedChoice === null || hasCheckedAnswer) {
       return;
     }
+    setHasCheckedAnswer(true);
+  };
 
+  const handleDecision = (mastered: boolean) => {
+    if (finishRef.current || selectedChoice === null || !hasCheckedAnswer) {
+      return;
+    }
     const nextDecisions = [
       ...decisions,
-      { questionId: item.questionId, mastered },
+      { questionId: item.questionId, selectedChoice, mastered },
     ];
 
     if (currentIndex < reviewItems.length - 1) {
       setDecisions(nextDecisions);
       setCurrentIndex((current) => current + 1);
+      setSelectedChoice(null);
+      setHasCheckedAnswer(false);
       return;
     }
 
@@ -158,19 +169,20 @@ export function WrongReviewScreen({
 
         {result ? (
           <View style={styles.sectionCard}>
-            <Text style={styles.sectionTitle}>本轮回收完成</Text>
+            <Text testID="wrong-review-result-title" style={styles.sectionTitle}>本轮回收完成</Text>
             <Text style={styles.sectionBody}>
-              本轮结果已经写入今日进度。你共处理 {result.reviewedCount} 题，其中标记已掌握 {result.masteredCount} 题；今天这个模式累计完成 {result.recordedSessionCount} 轮。
+              本轮结果已经写入今日进度。你共处理 {result.reviewedCount} 题，其中重新作答正确并移出队列 {result.masteredCount} 题；今天这个模式累计完成 {result.recordedSessionCount} 轮。
             </Text>
             <View style={styles.summaryCard}>
               <Text style={styles.summaryTitle}>下一步建议</Text>
               <Text style={styles.summaryBody}>
                 {result.masteredCount < result.reviewedCount
                   ? '还没掌握的题会继续留在队列里，下一次优先回收同类错误。'
-                  : '这一轮处理的题都已标记掌握，接下来适合回到真实刷题继续验证。'}
+                  : '这一轮处理的题都通过了重新作答验证，接下来适合回到真实刷题继续验证。'}
               </Text>
             </View>
             <Pressable
+              testID="wrong-review-back-dashboard"
               onPress={onBackToDashboard}
               style={[styles.primaryButton, { backgroundColor: mode.accent }]}
             >
@@ -215,19 +227,27 @@ export function WrongReviewScreen({
 
               <Text style={styles.sectionTitle}>{item.prompt}</Text>
               <Text style={styles.sectionBody}>
-                这是你最近反复出错的一题。先看清自己上次为什么误选，再判断这题现在是否已经真正掌握。
+                这是你最近反复出错的一题。先重新作答，再根据本次结果决定是否移出回收队列。
               </Text>
 
               <View style={styles.choiceList}>
                 {item.choices.map((choice, index) => {
                   const isCorrect = index === item.answer;
                   const isLastWrong = index === item.lastUserChoice;
+                  const isSelected = index === selectedChoice;
 
                   return (
-                    <View
+                    <Pressable
+                      testID={`wrong-review-choice-${index}`}
                       key={choice}
+                      onPress={() => {
+                        if (hasCheckedAnswer) return;
+                        setSelectedChoice(index);
+                      }}
+                      disabled={hasCheckedAnswer}
                       style={[
                         styles.choiceButton,
+                        isSelected && styles.choiceButtonSelected,
                         isCorrect && styles.choiceButtonCorrect,
                         isLastWrong && !isCorrect && styles.choiceButtonWrong,
                       ]}
@@ -235,16 +255,60 @@ export function WrongReviewScreen({
                       <Text
                         style={[
                           styles.choiceLabel,
+                          isSelected && styles.choiceLabelSelected,
                           isCorrect && styles.choiceLabelCorrect,
                           isLastWrong && !isCorrect && styles.choiceLabelWrong,
                         ]}
                       >
                         {index + 1}. {choice}
                       </Text>
-                    </View>
+                    </Pressable>
                   );
                 })}
               </View>
+
+              <Pressable
+                testID="wrong-review-submit-answer"
+                onPress={handleCheckAnswer}
+                disabled={selectedChoice === null || hasCheckedAnswer}
+                style={[
+                  styles.primaryButton,
+                  { backgroundColor: mode.accent },
+                  (selectedChoice === null || hasCheckedAnswer) && styles.disabledButton,
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.primaryButtonText,
+                    (selectedChoice === null || hasCheckedAnswer) && styles.disabledButtonText,
+                  ]}
+                >
+                  {hasCheckedAnswer ? '已完成重新作答' : '提交本次答案'}
+                </Text>
+              </Pressable>
+
+              {hasCheckedAnswer ? (
+                <View
+                  style={[
+                    styles.checkResultCard,
+                    answeredCorrectly ? styles.checkResultCardSuccess : styles.checkResultCardWarning,
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.checkResultTitle,
+                      answeredCorrectly ? styles.checkResultTitleSuccess : styles.checkResultTitleWarning,
+                    ]}
+                  >
+                    {answeredCorrectly ? '这次答对了，可以考虑移出队列。' : '这次仍然答错，建议继续保留在队列里。'}
+                  </Text>
+                  <Text style={styles.checkResultBody}>
+                    {answeredCorrectly
+                      ? '下面会展示解析和误选原因。确认逻辑真正吃透后，再决定是否把这题移出。'
+                      : `本次选择了第 ${(selectedChoice ?? 0) + 1} 项，正确答案是第 ${item.answer + 1} 项。先看解析，再继续保留这题。`}
+                  </Text>
+                </View>
+              ) : null}
 
               <View style={styles.summaryCard}>
                 <Text style={styles.summaryTitle}>为什么先回收这题</Text>
@@ -262,379 +326,93 @@ export function WrongReviewScreen({
                 </Text>
               </View>
 
-              <View style={styles.analysisBlock}>
-                <Text style={styles.analysisTitle}>核心判断</Text>
-                <Text style={styles.analysisBody}>{item.explanation}</Text>
-              </View>
+              {hasCheckedAnswer ? (
+                <>
+                  <View style={styles.analysisBlock}>
+                    <Text style={styles.analysisTitle}>核心判断</Text>
+                    <Text style={styles.analysisBody}>{item.explanation}</Text>
+                  </View>
 
-              {lastWrongInsight ? (
-                <View style={styles.analysisBlock}>
-                  <Text style={styles.analysisTitle}>上次误选为什么不对</Text>
-                  <Text style={styles.analysisBody}>{lastWrongInsight}</Text>
-                </View>
+                  {lastWrongInsight ? (
+                    <View style={styles.analysisBlock}>
+                      <Text style={styles.analysisTitle}>上次误选为什么不对</Text>
+                      <Text style={styles.analysisBody}>{lastWrongInsight}</Text>
+                    </View>
+                  ) : null}
+
+                  <View style={styles.analysisBlock}>
+                    <Text style={styles.analysisTitle}>正确项为什么对</Text>
+                    <Text style={styles.analysisBody}>{correctInsight}</Text>
+                  </View>
+
+                  <View style={styles.analysisBlock}>
+                    <Text style={styles.analysisTitle}>选项拆解</Text>
+                    <View style={styles.analysisList}>
+                      {item.choices.map((choice, index) => {
+                        const isCorrect = index === item.answer;
+                        const isLastWrong = index === item.lastUserChoice && !isCorrect;
+                        const isCurrentWrong = index === selectedChoice && !isCorrect;
+
+                        return (
+                          <View key={choice} style={styles.analysisItem}>
+                            <Text
+                              style={[
+                                styles.analysisItemLabel,
+                                isCorrect && styles.analysisItemLabelCorrect,
+                                (isLastWrong || isCurrentWrong) && styles.analysisItemLabelWrong,
+                              ]}
+                            >
+                              {isCorrect
+                                ? `正确项 ${index + 1}. ${choice}`
+                                : isCurrentWrong
+                                  ? `本次误选 ${index + 1}. ${choice}`
+                                  : isLastWrong
+                                    ? `上次误选 ${index + 1}. ${choice}`
+                                    : `${index + 1}. ${choice}`}
+                            </Text>
+                            <Text style={styles.analysisItemBody}>
+                              {item.choiceInsights[index] ?? '这项暂时没有补充说明。'}
+                            </Text>
+                          </View>
+                        );
+                      })}
+                    </View>
+                  </View>
+
+                  <View style={styles.analysisBlock}>
+                    <Text style={styles.analysisTitle}>复盘提醒</Text>
+                    <Text style={styles.analysisBody}>{item.reviewNote}</Text>
+                  </View>
+                </>
               ) : null}
-
-              <View style={styles.analysisBlock}>
-                <Text style={styles.analysisTitle}>正确项为什么对</Text>
-                <Text style={styles.analysisBody}>{correctInsight}</Text>
-              </View>
-
-              <View style={styles.analysisBlock}>
-                <Text style={styles.analysisTitle}>选项拆解</Text>
-                <View style={styles.analysisList}>
-                  {item.choices.map((choice, index) => {
-                    const isCorrect = index === item.answer;
-                    const isLastWrong = index === item.lastUserChoice && !isCorrect;
-
-                    return (
-                      <View key={choice} style={styles.analysisItem}>
-                        <Text
-                          style={[
-                            styles.analysisItemLabel,
-                            isCorrect && styles.analysisItemLabelCorrect,
-                            isLastWrong && styles.analysisItemLabelWrong,
-                          ]}
-                        >
-                          {isCorrect
-                            ? `正确项 ${index + 1}. ${choice}`
-                            : isLastWrong
-                              ? `上次误选 ${index + 1}. ${choice}`
-                              : `${index + 1}. ${choice}`}
-                        </Text>
-                        <Text style={styles.analysisItemBody}>
-                          {item.choiceInsights[index] ?? '这项暂时没有补充说明。'}
-                        </Text>
-                      </View>
-                    );
-                  })}
-                </View>
-              </View>
-
-              <View style={styles.analysisBlock}>
-                <Text style={styles.analysisTitle}>复盘提醒</Text>
-                <Text style={styles.analysisBody}>{item.reviewNote}</Text>
-              </View>
             </View>
 
-            <View style={styles.footerActions}>
-              <Pressable
-                onPress={() => handleDecision(false)}
-                style={styles.secondaryButton}
-              >
-                <Text style={styles.secondaryButtonText}>暂时还不稳</Text>
-              </Pressable>
-              <Pressable
-                onPress={() => handleDecision(true)}
-                style={[styles.primaryButton, { backgroundColor: mode.accent }]}
-              >
-                <Text style={styles.primaryButtonText}>这题我已掌握</Text>
-              </Pressable>
-            </View>
+            {hasCheckedAnswer ? (
+              <View style={styles.footerActions}>
+                <Pressable
+                  testID="wrong-review-keep-in-queue"
+                  onPress={() => handleDecision(false)}
+                  style={styles.secondaryButton}
+                >
+                  <Text style={styles.secondaryButtonText}>
+                    {answeredCorrectly ? '这次答对了，但先保留队列' : '继续保留在回收队列'}
+                  </Text>
+                </Pressable>
+                {answeredCorrectly ? (
+                  <Pressable
+                    testID="wrong-review-resolve"
+                    onPress={() => handleDecision(true)}
+                    style={[styles.primaryButton, { backgroundColor: mode.accent }]}
+                  >
+                    <Text style={styles.primaryButtonText}>重新答对，移出队列</Text>
+                  </Pressable>
+                ) : null}
+              </View>
+            ) : null}
           </>
         )}
       </ScrollView>
     </AppBackground>
   );
 }
-
-const styles = StyleSheet.create({
-  content: {
-    paddingHorizontal: 18,
-    paddingTop: 12,
-    paddingBottom: 36,
-    gap: 18,
-  },
-  missingState: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 12,
-    paddingHorizontal: 24,
-  },
-  missingTitle: {
-    color: colors.inkStrong,
-    fontSize: 24,
-    fontWeight: '800',
-    fontFamily: fonts.title,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  headerTag: {
-    color: colors.inkMuted,
-    fontSize: 13,
-    fontWeight: '700',
-    fontFamily: fonts.body,
-  },
-  ghostButton: {
-    borderRadius: radii.pill,
-    backgroundColor: colors.slateSoft,
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-  },
-  ghostButtonText: {
-    color: colors.inkBody,
-    fontSize: 13,
-    fontWeight: '700',
-    fontFamily: fonts.body,
-  },
-  heroCard: {
-    borderRadius: radii.xl,
-    padding: 22,
-    gap: 16,
-  },
-  heroTitle: {
-    color: '#FFFFFF',
-    fontSize: 30,
-    fontWeight: '800',
-    fontFamily: fonts.title,
-  },
-  heroBody: {
-    color: '#F8FAFC',
-    fontSize: 15,
-    lineHeight: 23,
-    fontFamily: fonts.body,
-  },
-  heroMetaRow: {
-    flexDirection: 'row',
-    gap: 12,
-  },
-  heroMetaCard: {
-    flex: 1,
-    borderRadius: radii.md,
-    backgroundColor: 'rgba(255,255,255,0.14)',
-    paddingVertical: 14,
-    paddingHorizontal: 14,
-    gap: 4,
-  },
-  heroMetaValue: {
-    color: '#FFFFFF',
-    fontSize: 18,
-    fontWeight: '800',
-    fontFamily: fonts.title,
-  },
-  heroMetaLabel: {
-    color: '#E2E8F0',
-    fontSize: 12,
-    fontWeight: '700',
-    fontFamily: fonts.body,
-  },
-  progressCard: {
-    backgroundColor: colors.backgroundCard,
-    borderRadius: radii.lg,
-    padding: 18,
-    gap: 12,
-  },
-  progressRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  progressLabel: {
-    color: colors.inkStrong,
-    fontSize: 15,
-    fontWeight: '800',
-    fontFamily: fonts.title,
-  },
-  progressValue: {
-    color: colors.inkBody,
-    fontSize: 14,
-    fontWeight: '700',
-    fontFamily: fonts.body,
-  },
-  progressTrack: {
-    height: 12,
-    borderRadius: radii.pill,
-    backgroundColor: colors.slateSoft,
-    overflow: 'hidden',
-  },
-  progressFill: {
-    height: '100%',
-    borderRadius: radii.pill,
-  },
-  progressHint: {
-    color: colors.inkMuted,
-    fontSize: 13,
-    lineHeight: 20,
-    fontFamily: fonts.body,
-  },
-  sectionCard: {
-    backgroundColor: colors.backgroundCard,
-    borderRadius: radii.lg,
-    padding: 18,
-    gap: 14,
-  },
-  priorityRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    gap: 12,
-  },
-  priorityPill: {
-    alignSelf: 'flex-start',
-    borderRadius: radii.pill,
-    backgroundColor: colors.warmCard,
-    borderWidth: 1,
-    borderColor: colors.lineSoft,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-  },
-  priorityPillText: {
-    color: colors.inkStrong,
-    fontSize: 12,
-    fontWeight: '800',
-    fontFamily: fonts.body,
-  },
-  priorityMeta: {
-    color: colors.inkMuted,
-    fontSize: 13,
-    fontWeight: '700',
-    fontFamily: fonts.body,
-  },
-  sectionTitle: {
-    color: colors.inkStrong,
-    fontSize: 22,
-    fontWeight: '800',
-    fontFamily: fonts.title,
-  },
-  sectionBody: {
-    color: colors.inkBody,
-    fontSize: 15,
-    lineHeight: 23,
-    fontFamily: fonts.body,
-  },
-  choiceList: {
-    gap: 10,
-  },
-  choiceButton: {
-    borderRadius: radii.md,
-    borderWidth: 1,
-    borderColor: colors.lineSoft,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    backgroundColor: colors.warmCard,
-  },
-  choiceButtonCorrect: {
-    borderColor: '#16A34A',
-    backgroundColor: '#DCFCE7',
-  },
-  choiceButtonWrong: {
-    borderColor: '#DC2626',
-    backgroundColor: '#FEE2E2',
-  },
-  choiceLabel: {
-    color: colors.inkBody,
-    fontSize: 15,
-    lineHeight: 22,
-    fontFamily: fonts.body,
-  },
-  choiceLabelCorrect: {
-    color: '#166534',
-  },
-  choiceLabelWrong: {
-    color: '#991B1B',
-  },
-  summaryCard: {
-    borderRadius: radii.md,
-    backgroundColor: colors.warmCard,
-    padding: 16,
-    gap: 8,
-    borderWidth: 1,
-    borderColor: colors.lineSoft,
-  },
-  summaryTitle: {
-    color: colors.inkStrong,
-    fontSize: 16,
-    fontWeight: '800',
-    fontFamily: fonts.title,
-  },
-  summaryBody: {
-    color: colors.inkBody,
-    fontSize: 14,
-    lineHeight: 21,
-    fontFamily: fonts.body,
-  },
-  summaryFootnote: {
-    color: colors.inkMuted,
-    fontSize: 13,
-    lineHeight: 20,
-    fontFamily: fonts.body,
-  },
-  analysisBlock: {
-    borderRadius: radii.md,
-    backgroundColor: colors.warmCard,
-    padding: 16,
-    gap: 10,
-    borderWidth: 1,
-    borderColor: colors.lineSoft,
-  },
-  analysisTitle: {
-    color: colors.inkStrong,
-    fontSize: 16,
-    fontWeight: '800',
-    fontFamily: fonts.title,
-  },
-  analysisBody: {
-    color: colors.inkBody,
-    fontSize: 14,
-    lineHeight: 22,
-    fontFamily: fonts.body,
-  },
-  analysisList: {
-    gap: 10,
-  },
-  analysisItem: {
-    gap: 4,
-  },
-  analysisItemLabel: {
-    color: colors.inkStrong,
-    fontSize: 14,
-    fontWeight: '800',
-    fontFamily: fonts.body,
-  },
-  analysisItemLabelCorrect: {
-    color: '#166534',
-  },
-  analysisItemLabelWrong: {
-    color: '#991B1B',
-  },
-  analysisItemBody: {
-    color: colors.inkBody,
-    fontSize: 14,
-    lineHeight: 21,
-    fontFamily: fonts.body,
-  },
-  footerActions: {
-    flexDirection: 'row',
-    gap: 12,
-  },
-  primaryButton: {
-    flex: 1,
-    borderRadius: radii.sm,
-    paddingVertical: 16,
-    alignItems: 'center',
-  },
-  primaryButtonText: {
-    color: '#FFFFFF',
-    fontSize: 14,
-    fontWeight: '800',
-    fontFamily: fonts.body,
-  },
-  secondaryButton: {
-    flex: 1,
-    borderRadius: radii.sm,
-    backgroundColor: colors.slateSoft,
-    paddingVertical: 16,
-    alignItems: 'center',
-  },
-  secondaryButtonText: {
-    color: colors.inkBody,
-    fontSize: 14,
-    fontWeight: '700',
-    fontFamily: fonts.body,
-  },
-});
-
 

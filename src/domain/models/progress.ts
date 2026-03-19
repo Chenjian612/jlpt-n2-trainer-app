@@ -1,5 +1,6 @@
 ﻿import type { TrainingModeId, TrainingSessionKind } from './training';
 import type {
+  StudyWeaknessItem,
   WeaknessErrorType,
   WeaknessSignalItem,
   WrongAnswerItem,
@@ -19,6 +20,14 @@ export type ProgressState = {
   sessionsByDay: SessionsByDay;
   wrongAnswers: WrongAnswerItem[];
   weaknessSignals: WeaknessSignalItem[];
+  studyWeaknesses: StudyWeaknessItem[];
+};
+
+export type CapabilityDistribution = {
+  grammar: number;
+  vocab: number;
+  reading: number;
+  listening: number;
 };
 
 export type DashboardMetrics = {
@@ -27,15 +36,23 @@ export type DashboardMetrics = {
   totalSessions: number;
   currentStreak: number;
   bestStreak: number;
+  capabilityDistribution: CapabilityDistribution;
 };
 
 export type DashboardInsightTone = 'review' | 'focus' | 'push' | 'steady';
+
+export type HeroBattleState =
+  | 'first_battle'
+  | 'recovering'
+  | 'sprint'
+  | 'goal_reached';
 
 export type DashboardInsight = {
   headline: string;
   body: string;
   recommendedModeId?: TrainingModeId;
   tone: DashboardInsightTone;
+  battleState: HeroBattleState;
 };
 
 export type RecentDay = {

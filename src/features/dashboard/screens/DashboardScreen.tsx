@@ -160,6 +160,7 @@ export function DashboardScreen({
                 snapshot={weaknessSnapshot}
                 recommendedMode={weaknessRecommendedMode}
                 onOpenMode={onOpenMode}
+                onStartMode={onStartMode}
               />
             </Animated.View>
           </View>
@@ -198,7 +199,11 @@ export function DashboardScreen({
                       mode={mode}
                       completed={todayCompletedModeIds.includes(mode.id)}
                       sessionCount={todaySessionCounts[mode.id] ?? 0}
-                      backlogCount={reviewBacklogCounts[mode.id]}
+                      backlogCount={
+                        mode.id === 'review_wrong' || mode.id === 'vocab_review_wrong'
+                          ? reviewBacklogCounts[mode.id]
+                          : 0
+                      }
                       onOpenMode={onOpenMode}
                       onStartMode={onStartMode}
                     />

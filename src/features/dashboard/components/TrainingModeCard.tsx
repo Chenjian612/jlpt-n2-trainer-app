@@ -110,6 +110,7 @@ export function TrainingModeCard({
 
         <View style={styles.actions}>
           <Pressable
+            testID={`mode-card-open-${mode.id}`}
             onPress={() => onOpenMode(mode)}
             style={[styles.secondaryButton, { borderColor: mode.accent }]}
           >
@@ -117,6 +118,7 @@ export function TrainingModeCard({
           </Pressable>
 
           <Pressable
+            testID={`mode-card-start-${mode.id}`}
             onPress={() =>
               reviewMode && backlogCount === 0 ? onOpenMode(mode) : onStartMode(mode)
             }

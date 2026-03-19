@@ -11,6 +11,7 @@ import {
 import { progressRepository } from '../../data/repositories/progressRepository';
 import type { ProgressState } from '../../domain/models/progress';
 import type {
+  StudyWeaknessDraft,
   WeaknessSignalDraft,
   WrongAnswerDraft,
   WrongReviewDecision,
@@ -18,6 +19,7 @@ import type {
 import type {
   DrillModeId,
   ReviewModeId,
+  StudyModeId,
   TrainingModeId,
   TrainingSessionKind,
 } from '../../domain/models/training';
@@ -26,13 +28,14 @@ import {
   clearDay,
   createTrainingSession,
   createDefaultProgressState,
-  getDayKey,
   recordDrillSessionResult,
+  recordStudySessionResult,
   recordTrainingSession,
   recordWeaknessSignals,
   recordWrongReviewSession,
   removeLatestSessionForMode,
 } from '../../domain/services/progressService';
+import { getDayKey } from '../../utils/dateUtils';
 
 type ProgressContextValue = {
   isHydrated: boolean;
@@ -46,6 +49,10 @@ type ProgressContextValue = {
   recordDrillSession: (
     modeId: DrillModeId,
     wrongAnswers: WrongAnswerDraft[],
+  ) => void;
+  recordStudySession: (
+    modeId: StudyModeId,
+    studyWeaknesses: StudyWeaknessDraft[],
   ) => void;
   completeWrongReviewSession: (
     modeId: ReviewModeId,
@@ -127,6 +134,17 @@ export function ProgressProvider({ children }: ProgressProviderProps) {
             modeId,
             'drill',
             wrongAnswers,
+          ),
+        );
+      },
+      recordStudySession: (modeId, studyWeaknesses) => {
+        setState((current) =>
+          recordStudySessionResult(
+            current,
+            todayKey,
+            modeId,
+            'study',
+            studyWeaknesses,
           ),
         );
       },

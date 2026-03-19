@@ -230,6 +230,22 @@ export const WEAKNESS_ERROR_META: Record<WeaknessErrorType, WeaknessErrorMeta> =
     coachPoint: '先把题干翻成中文目标句，再区分“主任务”和“顺手提到的后续动作”。',
     followUp: '补 1 轮听力要点拆解，专听目的说明和长段独白的主题句。',
   },
+  grammar_study_unstable: {
+    label: '文法记忆不稳',
+    sourceModeId: 'grammar_study',
+    recommendedModeId: 'grammar_study',
+    summary: '文法记忆包里有些项在自查时标记为“不稳”，通常是核心意思还没锁死。',
+    coachPoint: '不要试图背下整段讲解，先用一句话把它的“中文核心意思”说准，再说出它的易混项。',
+    followUp: '回到对应的文法记忆包，只看标记为不稳的项，直到能脱口而出意思。',
+  },
+  vocab_study_unstable: {
+    label: '词汇记忆不稳',
+    sourceModeId: 'vocab_study',
+    recommendedModeId: 'vocab_study',
+    summary: '词汇记忆包里标记为“不稳”的词，通常是例句感和场景感还不够强。',
+    coachPoint: '别死背词义，试着把这个词放进它的短例句里读三遍，建立场景记忆。',
+    followUp: '回到词汇记忆包，快速过一遍不稳项，确保看到词就能联想到它的搭配对象。',
+  },
 };
 
 export const isWrongAnswerErrorType = (

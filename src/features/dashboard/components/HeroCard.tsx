@@ -1,4 +1,5 @@
-﻿import { StyleSheet, Text, View } from 'react-native';
+﻿import { useMemo } from 'react';
+import { StyleSheet, Text, View } from 'react-native';
 
 import type { DashboardInsight, DashboardMetrics } from '../../../domain/models/progress';
 import { colors, fonts, radii, shadows } from '../../../theme/tokens';
@@ -19,12 +20,46 @@ export function HeroCard({
   recommendedModeTitle,
 }: HeroCardProps) {
   const remainingCount = Math.max(dailyTarget - metrics.todayCompletedCount, 0);
-  const focusTitle =
-    recommendedModeTitle ?? (remainingCount > 0 ? '今天的推荐即将完成' : '今天的推荐已经完成');
-  const focusBody =
-    remainingCount > 0
-      ? `再完成 ${remainingCount} 轮就能达标，优先拿下反馈最快的一轮，让今天的节奏先稳住。`
-      : '今日目标已经完成，现在适合自由补弱项，或者直接收尾。';
+  
+  const battleMeta = useMemo(() => {
+    switch (insight.battleState) {
+      case 'first_battle':
+        return {
+          tag: '今日首战',
+          title: recommendedModeTitle ?? '开启首轮训练',
+          body: '先把第一轮做起来，节奏一旦启动，后面的推进成本会明显下降。',
+          accent: colors.heroHighlight,
+        };
+      case 'recovering':
+        return {
+          tag: '回收战',
+          title: recommendedModeTitle ?? '清空积压弱项',
+          body: '优先处理标记为不稳或错误的项，比直接推新题对考分更有保障。',
+          accent: colors.yellow,
+        };
+      case 'sprint':
+        return {
+          tag: '达标冲刺',
+          title: recommendedModeTitle ?? '冲刺今日目标',
+          body: `再完成 ${remainingCount} 轮就能达标，顺着手感继续拿下今天的推荐。`,
+          accent: colors.teal,
+        };
+      case 'goal_reached':
+        return {
+          tag: '超额加成',
+          title: '今日目标已达成',
+          body: '今日份的节奏已经拿捏，现在适合针对性补强，或者直接收尾休息。',
+          accent: colors.teal,
+        };
+      default:
+        return {
+          tag: '今日任务',
+          title: recommendedModeTitle ?? '继续训练',
+          body: insight.body,
+          accent: colors.heroHighlight,
+        };
+    }
+  }, [insight.battleState, insight.body, recommendedModeTitle, remainingCount]);
 
   return (
     <View style={styles.heroCard}>
@@ -34,7 +69,7 @@ export function HeroCard({
       <View style={styles.heroHeader}>
         <View style={styles.heroCopy}>
           <Text style={styles.eyebrow}>JLPT N2 TRAINER</Text>
-          <Text style={styles.heroTitle}>{insight.headline}</Text>
+          <Text testID="dashboard-hero-headline" style={styles.heroTitle}>{insight.headline}</Text>
         </View>
         <View style={styles.streakBadge}>
           <Text style={styles.streakValue}>{metrics.currentStreak}</Text>
@@ -42,12 +77,17 @@ export function HeroCard({
         </View>
       </View>
 
-      <Text style={styles.heroBody}>{insight.body}</Text>
+      <Text testID="dashboard-hero-body" style={styles.heroBody}>{insight.body}</Text>
 
       <View style={styles.focusCard}>
-        <Text style={styles.focusEyebrow}>今日主线</Text>
-        <Text style={styles.focusTitle}>{focusTitle}</Text>
-        <Text style={styles.focusBody}>{focusBody}</Text>
+        <View style={styles.focusTop}>
+          <View style={[styles.battleTag, { backgroundColor: battleMeta.accent }]}>
+            <Text style={styles.battleTagText}>{battleMeta.tag}</Text>
+          </View>
+          <Text style={styles.focusEyebrow}>今日主线</Text>
+        </View>
+        <Text style={styles.focusTitle}>{battleMeta.title}</Text>
+        <Text style={styles.focusBody}>{battleMeta.body}</Text>
       </View>
 
       <View style={styles.progressBlock}>
@@ -58,7 +98,15 @@ export function HeroCard({
           </Text>
         </View>
         <View style={styles.progressTrack}>
-          <View style={[styles.progressFill, { width: `${dailyProgress * 100}%` }]} />
+          <View
+            style={[
+              styles.progressFill,
+              {
+                width: `${dailyProgress * 100}%`,
+                backgroundColor: battleMeta.accent,
+              },
+            ]}
+          />
         </View>
       </View>
 
@@ -166,6 +214,23 @@ const styles = StyleSheet.create({
     padding: 16,
     gap: 6,
   },
+  focusTop: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    marginBottom: 2,
+  },
+  battleTag: {
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: radii.sm,
+  },
+  battleTagText: {
+    color: colors.inkStrong,
+    fontSize: 11,
+    fontWeight: '800',
+    fontFamily: fonts.body,
+  },
   focusEyebrow: {
     color: colors.heroLine,
     fontSize: 12,
@@ -214,7 +279,6 @@ const styles = StyleSheet.create({
   progressFill: {
     height: '100%',
     borderRadius: radii.pill,
-    backgroundColor: colors.yellow,
   },
   metricGrid: {
     flexDirection: 'row',

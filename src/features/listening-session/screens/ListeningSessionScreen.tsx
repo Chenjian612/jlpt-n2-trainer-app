@@ -15,7 +15,7 @@ import { getListeningCasesByMode } from '../../../data/seed/listeningCases';
 import { getTrainingModeById } from '../../../data/seed/trainingModes';
 import type { ListeningModeId } from '../../../domain/models/training';
 import { getModeSessionCountForDay } from '../../../domain/services/progressService';
-import { inferListeningWeaknessErrorTypes } from '../../../domain/services/wrongAnswerClassifier';
+import { inferListeningWeaknessErrorTypes, WEAKNESS_ERROR_META } from '../../../domain/services/wrongAnswerClassifier';
 import { colors, fonts, radii, shadows } from '../../../theme/tokens';
 import { withKana } from '../../../utils/withKana';
 
@@ -77,6 +77,8 @@ export function ListeningSessionScreen({
     correctCount: number;
     wrongCount: number;
     recordedSessionCount: number;
+    majorErrorTypeLabel?: string;
+    majorErrorTypeSummary?: string;
   } | null>(null);
   const finishedRef = useRef(false);
 
@@ -248,11 +250,32 @@ export function ListeningSessionScreen({
     finishedRef.current = true;
     const wrongCount = wrongQuestionLabels.length;
 
+    const wrongSignals = listeningWeaknessSignals.filter((s) => !s.wasCorrect);
+    let majorErrorTypeLabel: string | undefined;
+    let majorErrorTypeSummary: string | undefined;
+
+    if (wrongSignals.length > 0) {
+      const wrongErrorTypes = wrongSignals.flatMap((s) => s.errorTypes);
+      const typeCounts = wrongErrorTypes.reduce((acc, type) => {
+        acc[type] = (acc[type] || 0) + 1;
+        return acc;
+      }, {} as Record<string, number>);
+
+      const majorType = Object.keys(typeCounts).reduce((a, b) =>
+        typeCounts[a] > typeCounts[b] ? a : b,
+      ) as keyof typeof WEAKNESS_ERROR_META;
+
+      majorErrorTypeLabel = WEAKNESS_ERROR_META[majorType].label;
+      majorErrorTypeSummary = WEAKNESS_ERROR_META[majorType].summary;
+    }
+
     recordSession(modeId, 'drill', listeningWeaknessSignals);
     setResult({
       correctCount: listeningItems.length - wrongCount,
       wrongCount,
       recordedSessionCount: initialSessionCount + 1,
+      majorErrorTypeLabel,
+      majorErrorTypeSummary,
     });
   };
 
@@ -322,11 +345,15 @@ export function ListeningSessionScreen({
             </View>
 
             <View style={styles.summaryCard}>
-              <Text style={styles.summaryTitle}>下一步建议</Text>
+              <Text style={styles.summaryTitle}>
+                {result.majorErrorTypeLabel ? `主要漏听类型：${result.majorErrorTypeLabel}` : '下一步建议'}
+              </Text>
               <Text style={styles.summaryBody}>
-                {result.wrongCount > 0
-                  ? `优先回看 ${wrongQuestionLabels.join(' / ')} 的依据句，重点区分题干问的是“最终决定”“主要动作”还是“最重视的点”。`
-                  : '这轮没有答错题，接下来重点复述每题的依据句和陷阱点，不要只记答案。'}
+                {result.majorErrorTypeSummary
+                  ? `${result.majorErrorTypeSummary}\n优先回看 ${wrongQuestionLabels.join(' / ')} 的依据句，重点区分题干问的是“最终决定”“主要动作”还是“最重视的点”。`
+                  : result.wrongCount > 0
+                    ? `优先回看 ${wrongQuestionLabels.join(' / ')} 的依据句，重点区分题干问的是“最终决定”“主要动作”还是“最重视的点”。`
+                    : '这轮没有答错题，接下来重点复述每题的依据句和陷阱点，不要只记答案。'}
               </Text>
               <Text style={styles.summaryFootnote}>复盘提示：{mode.reviewTip}</Text>
             </View>

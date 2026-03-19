@@ -106,7 +106,66 @@ export function WeeklyRhythmCard({
             );
           })}
         </View>
+
+        <View style={styles.distSection}>
+          <Text style={styles.distTitle}>本周能力板块分布</Text>
+          <View style={styles.distGrid}>
+            <DistRow
+              label="文法"
+              count={metrics.capabilityDistribution.grammar}
+              total={metrics.weeklySessions}
+              color={colors.hero}
+            />
+            <DistRow
+              label="词汇"
+              count={metrics.capabilityDistribution.vocab}
+              total={metrics.weeklySessions}
+              color={colors.yellow}
+            />
+            <DistRow
+              label="读解"
+              count={metrics.capabilityDistribution.reading}
+              total={metrics.weeklySessions}
+              color={colors.teal}
+            />
+            <DistRow
+              label="听力"
+              count={metrics.capabilityDistribution.listening}
+              total={metrics.weeklySessions}
+              color={colors.copper}
+            />
+          </View>
+        </View>
       </View>
+    </View>
+  );
+}
+
+function DistRow({
+  label,
+  count,
+  total,
+  color,
+}: {
+  label: string;
+  count: number;
+  total: number;
+  color: string;
+}) {
+  const ratio = total > 0 ? count / total : 0;
+
+  return (
+    <View style={styles.distRow}>
+      <Text style={styles.distLabel}>{label}</Text>
+      <View style={styles.distTrack}>
+        <View
+          style={[
+            styles.distFill,
+            { width: `${ratio * 100}%`, backgroundColor: color },
+          ]}
+        />
+      </View>
+      <Text style={styles.distCount}>{count}</Text>
     </View>
   );
 }
@@ -265,5 +324,51 @@ const styles = StyleSheet.create({
   weekBarLabelToday: {
     color: colors.inkStrong,
     fontWeight: '800',
+  },
+  distSection: {
+    gap: 12,
+    borderTopWidth: 1,
+    borderTopColor: colors.lineSoft,
+    paddingTop: 16,
+  },
+  distTitle: {
+    color: colors.inkStrong,
+    fontSize: 15,
+    fontWeight: '800',
+    fontFamily: fonts.title,
+  },
+  distGrid: {
+    gap: 10,
+  },
+  distRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  distLabel: {
+    width: 32,
+    fontSize: 13,
+    color: colors.inkMuted,
+    fontWeight: '700',
+    fontFamily: fonts.body,
+  },
+  distTrack: {
+    flex: 1,
+    height: 8,
+    backgroundColor: colors.slateSoft,
+    borderRadius: radii.pill,
+    overflow: 'hidden',
+  },
+  distFill: {
+    height: '100%',
+    borderRadius: radii.pill,
+  },
+  distCount: {
+    width: 24,
+    textAlign: 'right',
+    fontSize: 13,
+    color: colors.inkStrong,
+    fontWeight: '800',
+    fontFamily: fonts.title,
   },
 });

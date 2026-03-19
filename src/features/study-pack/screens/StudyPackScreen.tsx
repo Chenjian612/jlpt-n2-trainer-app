@@ -13,7 +13,10 @@ import { AppBackground } from '../../../components/common/AppBackground';
 import { getStudyPackByMode } from '../../../data/seed/studyPacks';
 import { getTrainingModeById } from '../../../data/seed/trainingModes';
 import type { StudyModeId } from '../../../domain/models/training';
-import { getModeSessionCountForDay } from '../../../domain/services/progressService';
+import {
+  getActiveStudyWeaknesses,
+  getModeSessionCountForDay,
+} from '../../../domain/services/progressService';
 import { colors, fonts, radii, shadows } from '../../../theme/tokens';
 
 type StudyPackScreenProps = {
@@ -35,13 +38,44 @@ export function StudyPackScreen({
   onBackToDetail,
   onBackToDashboard,
 }: StudyPackScreenProps) {
-  const { state, todayKey, recordSession } = useProgressStore();
+  const { state, todayKey, recordStudySession } = useProgressStore();
   const { width } = useWindowDimensions();
   const isWideLayout = width >= 1040;
   
   const mode = getTrainingModeById(modeId);
   const initialSessionCount = getModeSessionCountForDay(state, todayKey, modeId);
-  const pack = getStudyPackByMode(modeId, initialSessionCount);
+  
+  const pack = useMemo(() => {
+    const basePack = getStudyPackByMode(modeId, initialSessionCount);
+    if (!basePack) return null;
+
+    const activeWeaknesses = getActiveStudyWeaknesses(state, modeId);
+    if (activeWeaknesses.length === 0) return basePack;
+
+    // Merge active weaknesses into the current session to ensure they are reviewed
+    const weaknessItems = activeWeaknesses.map((w) => ({
+      id: w.id,
+      modeId: w.modeId,
+      term: w.term,
+      reading: w.reading,
+      coreMeaning: w.coreMeaning,
+      keyUsage: w.keyUsage,
+      confusingPair: w.confusingPair,
+      example: w.example,
+      memoryHook: w.memoryHook,
+      reviewPrompt: w.reviewPrompt,
+    }));
+
+    // Avoid duplicates if the same item is in the current stage
+    const baseItems = basePack.items.filter(
+      (bi) => !weaknessItems.some((wi) => wi.id === bi.id)
+    );
+
+    return {
+      ...basePack,
+      items: [...weaknessItems, ...baseItems],
+    };
+  }, [modeId, initialSessionCount, state]);
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [revealed, setRevealed] = useState(false);
@@ -95,7 +129,14 @@ export function StudyPackScreen({
     }
 
     recordedRef.current = true;
-    recordSession(mode.id, 'study');
+    
+    const studyWeaknesses = pack.items.map((currentItem) => ({
+      item: currentItem,
+      wasConfident: nextConfidenceMap[currentItem.id] ?? false,
+    }));
+
+    recordStudySession(modeId, studyWeaknesses);
+
     const unstableTerms = pack.items
       .filter((currentItem) => nextConfidenceMap[currentItem.id] === false)
       .map((currentItem) => currentItem.term);

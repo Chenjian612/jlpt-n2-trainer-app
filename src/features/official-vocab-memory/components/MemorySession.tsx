@@ -133,6 +133,7 @@ export function MemorySession({
             </View>
 
             <Pressable
+              testID="official-reveal-card"
               onPress={onReveal}
               style={[styles.primaryButton, { backgroundColor: mode.accent }]}
             >
@@ -168,18 +169,21 @@ export function MemorySession({
 
             <View style={styles.markGrid}>
               <Pressable
+                testID="official-mark-hard"
                 onPress={() => onMark('hard')}
                 style={[styles.markButton, styles.markButtonHard]}
               >
                 <Text style={styles.markButtonText}>没记住</Text>
               </Pressable>
               <Pressable
+                testID="official-mark-fuzzy"
                 onPress={() => onMark('fuzzy')}
                 style={[styles.markButton, styles.markButtonFuzzy]}
               >
                 <Text style={styles.markButtonTextMuted}>模糊</Text>
               </Pressable>
               <Pressable
+                testID="official-mark-known"
                 onPress={() => onMark('known')}
                 style={[styles.markButton, { backgroundColor: mode.accent }]}
               >

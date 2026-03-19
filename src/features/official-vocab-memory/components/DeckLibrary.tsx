@@ -8,6 +8,7 @@ import { getRepoUrl } from '../../../data/seed/officialResourceAdapter';
 type DeckLibraryProps = {
   mode: TrainingMode;
   activeType: OfficialVocabDeckType | 'all';
+  availableTypes: Array<OfficialVocabDeckType | 'all'>;
   setActiveType: (type: OfficialVocabDeckType | 'all') => void;
   visibleDecks: OfficialVocabDeck[];
   readyDeckCount: number;
@@ -44,6 +45,7 @@ const DECK_STATUS_BODY: Record<OfficialVocabDeck['status'], string> = {
 export function DeckLibrary({
   mode,
   activeType,
+  availableTypes,
   setActiveType,
   visibleDecks,
   readyDeckCount,
@@ -108,10 +110,11 @@ export function DeckLibrary({
           系统已与 GitHub 资源仓库联动。你可以通过下方筛选进入对应词包，或直接访问资源库查看原始 PDF 和音频。
         </Text>
         <View style={styles.filterRow}>
-          {(Object.keys(TYPE_LABELS) as Array<OfficialVocabDeckType | 'all'>).map((type) => {
+          {availableTypes.map((type) => {
             const active = type === activeType;
             return (
               <Pressable
+                testID={`official-filter-${type}`}
                 key={type}
                 onPress={() => setActiveType(type)}
                 style={[
@@ -183,6 +186,7 @@ export function DeckLibrary({
             <Text style={styles.deckStatusHint}>{DECK_STATUS_BODY[deck.status]}</Text>
 
             <Pressable
+              testID={`official-open-deck-${deck.id}`}
               onPress={() => onOpenDeck(deck)}
               disabled={deck.status !== 'ready'}
               style={[

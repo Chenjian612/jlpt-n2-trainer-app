@@ -1,0 +1,348 @@
+import { StyleSheet } from 'react-native';
+
+import { colors, fonts, radii } from '../../../theme/tokens';
+
+export const styles = StyleSheet.create({
+  content: {
+    paddingHorizontal: 18,
+    paddingTop: 12,
+    paddingBottom: 36,
+    gap: 18,
+  },
+  missingState: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 12,
+    paddingHorizontal: 24,
+  },
+  missingTitle: {
+    color: colors.inkStrong,
+    fontSize: 24,
+    fontWeight: '800',
+    fontFamily: fonts.title,
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  headerTag: {
+    color: colors.inkMuted,
+    fontSize: 13,
+    fontWeight: '700',
+    fontFamily: fonts.body,
+  },
+  ghostButton: {
+    borderRadius: radii.pill,
+    backgroundColor: colors.slateSoft,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+  },
+  ghostButtonText: {
+    color: colors.inkBody,
+    fontSize: 13,
+    fontWeight: '700',
+    fontFamily: fonts.body,
+  },
+  heroCard: {
+    borderRadius: radii.xl,
+    padding: 22,
+    gap: 16,
+  },
+  heroTitle: {
+    color: '#FFFFFF',
+    fontSize: 30,
+    fontWeight: '800',
+    fontFamily: fonts.title,
+  },
+  heroBody: {
+    color: '#F8FAFC',
+    fontSize: 15,
+    lineHeight: 23,
+    fontFamily: fonts.body,
+  },
+  heroMetaRow: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  heroMetaCard: {
+    flex: 1,
+    borderRadius: radii.md,
+    backgroundColor: 'rgba(255,255,255,0.14)',
+    paddingVertical: 14,
+    paddingHorizontal: 14,
+    gap: 4,
+  },
+  heroMetaValue: {
+    color: '#FFFFFF',
+    fontSize: 18,
+    fontWeight: '800',
+    fontFamily: fonts.title,
+  },
+  heroMetaLabel: {
+    color: '#E2E8F0',
+    fontSize: 12,
+    fontWeight: '700',
+    fontFamily: fonts.body,
+  },
+  progressCard: {
+    backgroundColor: colors.backgroundCard,
+    borderRadius: radii.lg,
+    padding: 18,
+    gap: 12,
+  },
+  progressRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  progressLabel: {
+    color: colors.inkStrong,
+    fontSize: 15,
+    fontWeight: '800',
+    fontFamily: fonts.title,
+  },
+  progressValue: {
+    color: colors.inkBody,
+    fontSize: 14,
+    fontWeight: '700',
+    fontFamily: fonts.body,
+  },
+  progressTrack: {
+    height: 12,
+    borderRadius: radii.pill,
+    backgroundColor: colors.slateSoft,
+    overflow: 'hidden',
+  },
+  progressFill: {
+    height: '100%',
+    borderRadius: radii.pill,
+  },
+  progressHint: {
+    color: colors.inkMuted,
+    fontSize: 13,
+    lineHeight: 20,
+    fontFamily: fonts.body,
+  },
+  sectionCard: {
+    backgroundColor: colors.backgroundCard,
+    borderRadius: radii.lg,
+    padding: 18,
+    gap: 14,
+  },
+  priorityRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    gap: 12,
+  },
+  priorityPill: {
+    alignSelf: 'flex-start',
+    borderRadius: radii.pill,
+    backgroundColor: colors.warmCard,
+    borderWidth: 1,
+    borderColor: colors.lineSoft,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+  },
+  priorityPillText: {
+    color: colors.inkStrong,
+    fontSize: 12,
+    fontWeight: '800',
+    fontFamily: fonts.body,
+  },
+  priorityMeta: {
+    color: colors.inkMuted,
+    fontSize: 13,
+    fontWeight: '700',
+    fontFamily: fonts.body,
+  },
+  sectionTitle: {
+    color: colors.inkStrong,
+    fontSize: 22,
+    fontWeight: '800',
+    fontFamily: fonts.title,
+  },
+  sectionBody: {
+    color: colors.inkBody,
+    fontSize: 15,
+    lineHeight: 23,
+    fontFamily: fonts.body,
+  },
+  choiceList: {
+    gap: 10,
+  },
+  choiceButton: {
+    borderRadius: radii.md,
+    borderWidth: 1,
+    borderColor: colors.lineSoft,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    backgroundColor: colors.warmCard,
+  },
+  choiceButtonSelected: {
+    borderColor: colors.inkStrong,
+    backgroundColor: colors.slateSoft,
+  },
+  choiceButtonCorrect: {
+    borderColor: '#16A34A',
+    backgroundColor: '#DCFCE7',
+  },
+  choiceButtonWrong: {
+    borderColor: '#DC2626',
+    backgroundColor: '#FEE2E2',
+  },
+  choiceLabel: {
+    color: colors.inkBody,
+    fontSize: 15,
+    lineHeight: 22,
+    fontFamily: fonts.body,
+  },
+  choiceLabelSelected: {
+    color: colors.inkStrong,
+    fontWeight: '800',
+  },
+  choiceLabelCorrect: {
+    color: '#166534',
+  },
+  choiceLabelWrong: {
+    color: '#991B1B',
+  },
+  checkResultCard: {
+    borderRadius: radii.md,
+    padding: 16,
+    gap: 8,
+    borderWidth: 1,
+  },
+  checkResultCardSuccess: {
+    backgroundColor: '#ECFDF5',
+    borderColor: '#A7F3D0',
+  },
+  checkResultCardWarning: {
+    backgroundColor: '#FEF2F2',
+    borderColor: '#FECACA',
+  },
+  checkResultTitle: {
+    fontSize: 16,
+    fontWeight: '800',
+    fontFamily: fonts.title,
+  },
+  checkResultTitleSuccess: {
+    color: '#166534',
+  },
+  checkResultTitleWarning: {
+    color: '#991B1B',
+  },
+  checkResultBody: {
+    color: colors.inkBody,
+    fontSize: 14,
+    lineHeight: 21,
+    fontFamily: fonts.body,
+  },
+  summaryCard: {
+    borderRadius: radii.md,
+    backgroundColor: colors.warmCard,
+    padding: 16,
+    gap: 8,
+    borderWidth: 1,
+    borderColor: colors.lineSoft,
+  },
+  summaryTitle: {
+    color: colors.inkStrong,
+    fontSize: 16,
+    fontWeight: '800',
+    fontFamily: fonts.title,
+  },
+  summaryBody: {
+    color: colors.inkBody,
+    fontSize: 14,
+    lineHeight: 21,
+    fontFamily: fonts.body,
+  },
+  summaryFootnote: {
+    color: colors.inkMuted,
+    fontSize: 13,
+    lineHeight: 20,
+    fontFamily: fonts.body,
+  },
+  analysisBlock: {
+    borderRadius: radii.md,
+    backgroundColor: colors.warmCard,
+    padding: 16,
+    gap: 10,
+    borderWidth: 1,
+    borderColor: colors.lineSoft,
+  },
+  analysisTitle: {
+    color: colors.inkStrong,
+    fontSize: 16,
+    fontWeight: '800',
+    fontFamily: fonts.title,
+  },
+  analysisBody: {
+    color: colors.inkBody,
+    fontSize: 14,
+    lineHeight: 22,
+    fontFamily: fonts.body,
+  },
+  analysisList: {
+    gap: 10,
+  },
+  analysisItem: {
+    gap: 4,
+  },
+  analysisItemLabel: {
+    color: colors.inkStrong,
+    fontSize: 14,
+    fontWeight: '800',
+    fontFamily: fonts.body,
+  },
+  analysisItemLabelCorrect: {
+    color: '#166534',
+  },
+  analysisItemLabelWrong: {
+    color: '#991B1B',
+  },
+  analysisItemBody: {
+    color: colors.inkBody,
+    fontSize: 14,
+    lineHeight: 21,
+    fontFamily: fonts.body,
+  },
+  footerActions: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  primaryButton: {
+    flex: 1,
+    borderRadius: radii.sm,
+    paddingVertical: 16,
+    alignItems: 'center',
+  },
+  disabledButton: {
+    backgroundColor: colors.slateSoft,
+  },
+  primaryButtonText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '800',
+    fontFamily: fonts.body,
+  },
+  disabledButtonText: {
+    color: colors.inkMuted,
+  },
+  secondaryButton: {
+    flex: 1,
+    borderRadius: radii.sm,
+    backgroundColor: colors.slateSoft,
+    paddingVertical: 16,
+    alignItems: 'center',
+  },
+  secondaryButtonText: {
+    color: colors.inkBody,
+    fontSize: 14,
+    fontWeight: '700',
+    fontFamily: fonts.body,
+  },
+});

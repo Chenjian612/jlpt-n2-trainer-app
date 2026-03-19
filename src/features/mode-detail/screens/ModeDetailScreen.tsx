@@ -127,6 +127,7 @@ export function ModeDetailScreen({
 
         <View style={styles.footerActions}>
           <Pressable
+            testID={`mode-detail-start-${mode.id}`}
             onPress={() => onStartSession(mode.id)}
             disabled={!canStart}
             style={[
@@ -162,6 +163,7 @@ export function ModeDetailScreen({
 
           {completed ? (
             <Pressable
+              testID={`mode-detail-undo-${mode.id}`}
               onPress={() => removeLatestSession(mode.id)}
               style={styles.secondaryButton}
             >
@@ -169,7 +171,7 @@ export function ModeDetailScreen({
             </Pressable>
           ) : null}
 
-          <Pressable onPress={onBack} style={styles.secondaryButton}>
+          <Pressable testID={`mode-detail-back-${mode.id}`} onPress={onBack} style={styles.secondaryButton}>
             <Text style={styles.secondaryButtonText}>回到首页</Text>
           </Pressable>
         </View>

@@ -6,7 +6,10 @@
     "start": "expo start",
     "android": "expo run:android",
     "ios": "expo run:ios",
-    "web": "expo start --web"
+    "web": "expo start --web",
+    "test": "node tests/run-tests.js",
+    "test:web:components": "node tests/web/component-flows.js",
+    "test:web:e2e": "node tests/web/dashboard-e2e.js"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "2.2.0",

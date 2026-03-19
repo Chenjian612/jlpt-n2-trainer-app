@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 
 import { useProgressStore } from '../../../app/providers/ProgressProvider';
@@ -57,7 +57,21 @@ export function OfficialVocabMemoryScreen({
   const [result, setResult] = useState<MemoryResult | null>(null);
   const recordedRef = useRef(false);
 
-  const visibleDecks = useMemo(() => getOfficialVocabDecksByType(activeType), [activeType]);
+  const readyDecks = useMemo(
+    () => getOfficialVocabDecksByType('all').filter((deck) => deck.status === 'ready'),
+    [],
+  );
+  const availableTypes = useMemo(() => {
+    const types = new Set<OfficialVocabDeckType>();
+    readyDecks.forEach((deck) => types.add(deck.type));
+    return ['all', ...Array.from(types)] as Array<OfficialVocabDeckType | 'all'>;
+  }, [readyDecks]);
+  const visibleDecks = useMemo(
+    () => (activeType === 'all'
+      ? readyDecks
+      : readyDecks.filter((deck) => deck.type === activeType)),
+    [activeType, readyDecks],
+  );
   const activeDeck = useMemo(
     () => (activeDeckId ? getOfficialVocabDeckById(activeDeckId) ?? null : null),
     [activeDeckId],
@@ -66,11 +80,14 @@ export function OfficialVocabMemoryScreen({
     () => (reviewItems ? reviewItems : activeDeck?.items ?? []),
     [reviewItems, activeDeck],
   );
-  const readyDeckCount = useMemo(
-    () => visibleDecks.filter((deck) => deck.status === 'ready').length,
-    [visibleDecks],
-  );
+  const readyDeckCount = useMemo(() => readyDecks.length, [readyDecks]);
   const currentItem = currentDeckItems[currentIndex] ?? null;
+
+  useEffect(() => {
+    if (!availableTypes.includes(activeType)) {
+      setActiveType('all');
+    }
+  }, [activeType, availableTypes]);
 
   if (!mode) {
     return (
@@ -162,6 +179,7 @@ export function OfficialVocabMemoryScreen({
           <DeckLibrary
             mode={mode}
             activeType={activeType}
+            availableTypes={availableTypes}
             setActiveType={setActiveType}
             visibleDecks={visibleDecks}
             readyDeckCount={readyDeckCount}
@@ -232,3 +250,7 @@ const styles = StyleSheet.create({
     fontFamily: fonts.title,
   },
 });
+
+
+
+

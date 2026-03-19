@@ -45,10 +45,15 @@ export type ListeningWeaknessErrorType =
   | 'listening_final_decision'
   | 'listening_main_point';
 
+export type StudyWeaknessErrorType =
+  | 'grammar_study_unstable'
+  | 'vocab_study_unstable';
+
 export type WeaknessErrorType =
   | WrongAnswerErrorType
   | ReadingWeaknessErrorType
-  | ListeningWeaknessErrorType;
+  | ListeningWeaknessErrorType
+  | StudyWeaknessErrorType;
 
 export type WrongAnswerItem = {
   questionId: string;
@@ -96,6 +101,7 @@ export type WeaknessSignalItem = {
 
 export type WrongReviewDecision = {
   questionId: string;
+  selectedChoice: number | null;
   mastered: boolean;
 };
 
@@ -110,6 +116,29 @@ export type StudyPackItem = {
   example: string;
   memoryHook: string;
   reviewPrompt: string;
+};
+
+export type StudyWeaknessDraft = {
+  item: StudyPackItem;
+  wasConfident: boolean;
+};
+
+export type StudyWeaknessItem = {
+  id: string;
+  modeId: StudyModeId;
+  term: string;
+  reading?: string;
+  coreMeaning: string;
+  keyUsage: string;
+  confusingPair: string;
+  example: string;
+  memoryHook: string;
+  reviewPrompt: string;
+  unstableCount: number;
+  firstUnstableAt: string;
+  lastUnstableAt: string;
+  lastResolvedAt?: string;
+  active: boolean;
 };
 
 export type StudyPack = {

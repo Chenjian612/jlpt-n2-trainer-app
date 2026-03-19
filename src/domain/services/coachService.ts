@@ -6,6 +6,7 @@
 } from '../models/progress';
 import type { TrainingModeId } from '../models/training';
 import type {
+  StudyWeaknessItem,
   WeaknessErrorType,
   WeaknessSignalItem,
   WrongAnswerItem,
@@ -15,6 +16,7 @@ import {
   getWrongAnswerPriorityScore,
 } from './progressService';
 import { WEAKNESS_ERROR_META } from './wrongAnswerClassifier';
+import { APP_CONFIG } from '../../config/constants';
 
 const REVIEW_MODE_LABEL: Record<TrainingModeId, string> = {
   grammar_drill: '文法闯关',
@@ -40,85 +42,78 @@ const resolveStatusLabel = (questionCount: number, wrongCount: number): string =
   return '刚暴露';
 };
 
+type WeaknessEntry = {
+  errorTypes: WeaknessErrorType[];
+  wrongCount: number;
+  score: number;
+};
+
+const accumulateEntries = (
+  entries: WeaknessEntry[],
+  summaryMap: Map<WeaknessErrorType, WeaknessFocusItem & { weightedScore: number }>,
+): void => {
+  for (const { errorTypes, wrongCount, score } of entries) {
+    for (const errorType of errorTypes) {
+      const meta = WEAKNESS_ERROR_META[errorType];
+      if (!meta) continue;
+
+      const current = summaryMap.get(errorType);
+
+      if (!current) {
+        summaryMap.set(errorType, {
+          id: errorType,
+          label: meta.label,
+          questionCount: 1,
+          wrongCount,
+          statusLabel: resolveStatusLabel(1, wrongCount),
+          sourceModeId: meta.sourceModeId,
+          recommendedModeId: meta.recommendedModeId,
+          body: meta.summary,
+          coachPoint: meta.coachPoint,
+          weightedScore: score,
+        });
+        continue;
+      }
+
+      current.questionCount += 1;
+      current.wrongCount += wrongCount;
+      current.weightedScore += score;
+      current.statusLabel = resolveStatusLabel(current.questionCount, current.wrongCount);
+    }
+  }
+};
+
 const aggregateWeaknesses = (
   wrongAnswers: WrongAnswerItem[],
   weaknessSignals: WeaknessSignalItem[],
+  studyWeaknesses: StudyWeaknessItem[],
 ): WeaknessFocusItem[] => {
   const summaryMap = new Map<WeaknessErrorType, WeaknessFocusItem & { weightedScore: number }>();
 
-  for (const item of wrongAnswers) {
-    if (item.mastered) {
-      continue;
-    }
+  accumulateEntries(
+    wrongAnswers
+      .filter((item) => !item.mastered)
+      .map((item) => ({ errorTypes: item.errorTypes, wrongCount: item.wrongCount, score: getWrongAnswerPriorityScore(item) })),
+    summaryMap,
+  );
 
-    const score = getWrongAnswerPriorityScore(item);
+  accumulateEntries(
+    weaknessSignals
+      .filter((item) => item.active)
+      .map((item) => ({ errorTypes: item.errorTypes, wrongCount: item.wrongCount, score: getWeaknessSignalPriorityScore(item) })),
+    summaryMap,
+  );
 
-    for (const errorType of item.errorTypes) {
-      const meta = WEAKNESS_ERROR_META[errorType];
-      const current = summaryMap.get(errorType);
-
-      if (!current) {
-        summaryMap.set(errorType, {
-          id: errorType,
-          label: meta.label,
-          questionCount: 1,
-          wrongCount: item.wrongCount,
-          statusLabel: resolveStatusLabel(1, item.wrongCount),
-          sourceModeId: meta.sourceModeId,
-          recommendedModeId: meta.recommendedModeId,
-          body: meta.summary,
-          coachPoint: meta.coachPoint,
-          weightedScore: score,
-        });
-        continue;
-      }
-
-      current.questionCount += 1;
-      current.wrongCount += item.wrongCount;
-      current.weightedScore += score;
-      current.statusLabel = resolveStatusLabel(
-        current.questionCount,
-        current.wrongCount,
-      );
-    }
-  }
-
-  for (const item of weaknessSignals) {
-    if (!item.active) {
-      continue;
-    }
-
-    const score = getWeaknessSignalPriorityScore(item);
-
-    for (const errorType of item.errorTypes) {
-      const meta = WEAKNESS_ERROR_META[errorType];
-      const current = summaryMap.get(errorType);
-
-      if (!current) {
-        summaryMap.set(errorType, {
-          id: errorType,
-          label: meta.label,
-          questionCount: 1,
-          wrongCount: item.wrongCount,
-          statusLabel: resolveStatusLabel(1, item.wrongCount),
-          sourceModeId: meta.sourceModeId,
-          recommendedModeId: meta.recommendedModeId,
-          body: meta.summary,
-          coachPoint: meta.coachPoint,
-          weightedScore: score,
-        });
-        continue;
-      }
-
-      current.questionCount += 1;
-      current.wrongCount += item.wrongCount;
-      current.weightedScore += score;
-      current.statusLabel = resolveStatusLabel(
-        current.questionCount,
-        current.wrongCount,
-      );
-    }
-  }
+  accumulateEntries(
+    studyWeaknesses
+      .filter((item) => item.active)
+      .map((item) => ({
+        errorTypes: [item.modeId === 'grammar_study' ? 'grammar_study_unstable' : 'vocab_study_unstable'] as WeaknessErrorType[],
+        wrongCount: item.unstableCount,
+        score: item.unstableCount * APP_CONFIG.PRIORITY_WEIGHT_STUDY,
+      })),
+    summaryMap,
+  );
 
   return [...summaryMap.values()]
     .sort((left, right) => {
@@ -152,8 +147,14 @@ const buildNeutralPlan = (): CoachPlanStep[] => [
 ];
 
 const buildPlanSteps = (focusItems: WeaknessFocusItem[]): CoachPlanStep[] => {
+  if (focusItems.length === 0) {
+    return buildNeutralPlan();
+  }
+
   const [primary, secondary] = focusItems;
   const primaryMeta = WEAKNESS_ERROR_META[primary.id];
+  if (!primaryMeta) return buildNeutralPlan();
+
   const recommendedModeTitle = REVIEW_MODE_LABEL[primary.recommendedModeId];
   const sourceModeTitle = REVIEW_MODE_LABEL[primary.sourceModeId];
   const reusesSourceMode = primary.recommendedModeId === primary.sourceModeId;
@@ -164,8 +165,8 @@ const buildPlanSteps = (focusItems: WeaknessFocusItem[]): CoachPlanStep[] => {
         ? `先补 1 轮 ${recommendedModeTitle}`
         : `先做 ${recommendedModeTitle}`,
       body: reusesSourceMode
-        ? `先在 ${recommendedModeTitle} 里专盯 ${primary.label}，用一轮新题把最容易飘掉的判断点拉回来。`
-        : `先处理 ${primary.label} 相关的 ${primary.questionCount} 题，把最容易反复错的判断点压回去。`,
+        ? `先在 ${recommendedModeTitle} 里专盯 ${primary.label}，用一轮项把最容易飘掉的记忆点拉回来。`
+        : `先处理 ${primary.label} 相关的 ${primary.questionCount} 个弱项，把最容易反复错的判断点压回去。`,
       recommendedModeId: primary.recommendedModeId,
     },
     {
@@ -177,7 +178,7 @@ const buildPlanSteps = (focusItems: WeaknessFocusItem[]): CoachPlanStep[] => {
         ? `做完后回看 ${sourceModeTitle} 的结果页`
         : `回收后补 1 轮 ${sourceModeTitle}`,
       body: secondary
-        ? `如果还有余力，再顺手看 ${secondary.label}；没有的话就先用一轮新题确认 ${primary.label} 是否稳住。`
+        ? `如果还有余力，再顺手看 ${secondary.label}；没有的话就先用一轮新内容确认 ${primary.label} 是否稳住。`
         : primaryMeta.followUp,
       recommendedModeId: primary.sourceModeId,
     },
@@ -187,7 +188,11 @@ const buildPlanSteps = (focusItems: WeaknessFocusItem[]): CoachPlanStep[] => {
 export const getDashboardWeaknessSnapshot = (
   state: ProgressState,
 ): DashboardWeaknessSnapshot => {
-  const focusItems = aggregateWeaknesses(state.wrongAnswers, state.weaknessSignals);
+  const focusItems = aggregateWeaknesses(
+    state.wrongAnswers,
+    state.weaknessSignals,
+    state.studyWeaknesses,
+  );
 
   if (focusItems.length === 0) {
     return {
@@ -203,7 +208,7 @@ export const getDashboardWeaknessSnapshot = (
 
   return {
     headline: `当前最该先补：${primary.label}`,
-    body: `${primary.label} 相关的未稳题有 ${primary.questionCount} 题，主要集中在 ${sourceModeTitle}。先把这一类压回去，比继续推新题更划算。`,
+    body: `${primary.label} 相关的未稳项有 ${primary.questionCount} 项，主要集中在 ${sourceModeTitle}。先把这一类压回去，比继续推新内容更划算。`,
     focusItems,
     planSteps: buildPlanSteps(focusItems),
     recommendedModeId: primary.recommendedModeId,
