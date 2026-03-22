@@ -860,7 +860,7 @@ const styles = StyleSheet.create({
   },
   checklistCard: {
     borderRadius: radii.md,
-    backgroundColor: '#FFFDF8',
+    backgroundColor: colors.backgroundCard,
     borderWidth: 1,
     borderColor: colors.lineSoft,
     padding: 16,
@@ -1028,7 +1028,7 @@ const styles = StyleSheet.create({
     borderRadius: radii.pill,
     borderWidth: 1,
     borderColor: colors.lineSoft,
-    backgroundColor: '#FFFDF8',
+    backgroundColor: colors.backgroundCard,
     paddingVertical: 10,
     alignItems: 'center',
   },
@@ -1119,7 +1119,7 @@ const styles = StyleSheet.create({
   dialogueItem: {
     gap: 4,
     borderRadius: radii.sm,
-    backgroundColor: '#FFFDF8',
+    backgroundColor: colors.backgroundCard,
     paddingHorizontal: 12,
     paddingVertical: 12,
     borderWidth: 1,
@@ -1143,7 +1143,7 @@ const styles = StyleSheet.create({
   analysisItem: {
     gap: 4,
     borderRadius: radii.sm,
-    backgroundColor: '#FFFDF8',
+    backgroundColor: colors.backgroundCard,
     paddingHorizontal: 12,
     paddingVertical: 12,
     borderWidth: 1,

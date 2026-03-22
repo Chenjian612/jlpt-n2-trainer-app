@@ -1,0 +1,566 @@
+[
+  {
+    "id": "language-knowledge-official-pack",
+    "modeId": "official_vocab_memory",
+    "type": "language_knowledge",
+    "title": "文字・语彙公开样题词卡 (N2V)",
+    "shortLabel": "文字・語彙",
+    "description": "核心考点抽取：文字词汇题（单词选择、语义辨析、近义替换）。",
+    "sourceSection": "vocabulary",
+    "downloadLabel": "已同步 GitHub 仓库中的官方 N2V 样题清单",
+    "note": "本包重点在于 N2 级别特有的抽象名词及其逻辑关系。",
+    "status": "ready",
+    "items": [
+      {
+        "id": "official-vocab-lang-1",
+        "term": "把握",
+        "reading": "はあく",
+        "coreMeaning": "把握，充分理解。",
+        "keyUsage": "常用于 情况を把握する、要点を把握する。强调对抽象事物的掌握。",
+        "example": "現状を正確に把握することが重要です。准确把握现状很重要。",
+        "memoryHook": "不仅是\"抓\"，更是大脑里的\"透彻理解\"。",
+        "sourceHint": "引用自官方样题 N2V 文字・语彙，语义辨析常客。"
+      },
+      {
+        "id": "official-vocab-lang-2",
+        "term": "妥当",
+        "reading": "だとう",
+        "coreMeaning": "妥当，得当。",
+        "keyUsage": "常见于 妥当な判断、妥当な価格。强调符合道理或常识。",
+        "example": "この解決策は妥当だと言えます。可以说这个解决对策是妥当的。",
+        "memoryHook": "比 適切 更有\"符合大道理、无可反驳\"的味道。",
+        "sourceHint": "引用自官方样题 N2V，文字・语彙近义词考察。"
+      },
+      {
+        "id": "official-vocab-lang-3",
+        "term": "提示",
+        "reading": "ていじ",
+        "coreMeaning": "出示，展示。",
+        "keyUsage": "常用于 証拠を提示する、案を提示する。强调拿出来给别人看。",
+        "example": "窓口で身分証明書を提示してください。请在窗口出示身份证。",
+        "memoryHook": "它是\"提\"出来，\"示\"给别人看。",
+        "sourceHint": "引用自官方样题 N2V，职场场景常见词。"
+      },
+      {
+        "id": "official-vocab-lang-4",
+        "term": "慎重",
+        "reading": "しんちょう",
+        "coreMeaning": "慎重，谨慎。",
+        "keyUsage": "常搭配 慎重に検討する、慎重な態度。N2 语法里也常出现。",
+        "example": "新しい事業については慎重に進めるべきだ。关于新事业应该慎重推进。",
+        "memoryHook": "它的反义词是 軽率（けいそつ），常成对出现。",
+        "sourceHint": "引用自官方样题 N2V，文字・语彙用法判断。"
+      },
+      {
+        "id": "official-vocab-lang-5",
+        "term": "反映",
+        "reading": "はんえい",
+        "coreMeaning": "反映，映射。",
+        "keyUsage": "常用于 意見を反映させる、时代を反映する。",
+        "example": "国民の声が政治に反映されていない。国民的声音没有反映在政治中。",
+        "memoryHook": "不仅是物理反射，更多是\"把需求、状态体现到结果中\"。",
+        "sourceHint": "引用自官方样题 N2V，文字・语彙用法选择。"
+      },
+      {
+        "id": "official-vocab-lang-6",
+        "term": "分析",
+        "reading": "ぶんせき",
+        "coreMeaning": "分析。",
+        "keyUsage": "常用于 データを分析する、要因を分析する。",
+        "example": "失败の原因を客観的に分析してください。请客观地分析失败的原因。",
+        "memoryHook": "N2 逻辑表达词，不仅出现在词汇题，读解也常考。",
+        "sourceHint": "引用自官方样题 N2V，逻辑推导常用词。"
+      },
+      {
+        "id": "official-vocab-lang-7",
+        "term": "一致",
+        "reading": "いっち",
+        "coreMeaning": "一致，符合。",
+        "keyUsage": "常见于 意见が一致する、予想と一致する。",
+        "example": "二人の意见が一致しました。两人的意见达成了一致。",
+        "memoryHook": "它的反义词是 矛盾（むじょう），听力也常考。",
+        "sourceHint": "引用自官方样题 N2V，商务场景常用词。"
+      },
+      {
+        "id": "official-vocab-lang-8",
+        "term": "普及",
+        "reading": "ふきゅう",
+        "coreMeaning": "普及，推广。",
+        "keyUsage": "常用于 インターネットの普及、技术を普及させる。",
+        "example": "スマートフォンの普及で生活が便利になった。由于智能手机的普及，生活变得便利了。",
+        "memoryHook": "它强调\"面\"上的扩散，让更多人用到。",
+        "sourceHint": "引用自官方样题 N2V，社会现象常用词。"
+      }
+    ]
+  },
+  {
+    "id": "listening-official-pack-a",
+    "modeId": "official_vocab_memory",
+    "type": "listening",
+    "title": "听力样题词卡 (N2L)",
+    "shortLabel": "听力 A",
+    "description": "从官方公开音频里的资料整理、发送安排题抽出高频词。",
+    "sourceSection": "listening",
+    "downloadLabel": "已同步 GitHub 仓库中的官方 N2L 样题清单",
+    "note": "配合 GitHub 仓库里的 N2L.mp3 一起记忆。",
+    "status": "ready",
+    "items": [
+      {
+        "id": "official-vocab-a-1",
+        "term": "パンフレット",
+        "reading": "ぱんふれっと",
+        "coreMeaning": "宣传册，小册子。",
+        "keyUsage": "常和 入れる、配る、持っていく 搭配，常出现在资料整理题里。",
+        "example": "パンフレットをかばんに入れておいて。把宣传册放进包里。",
+        "memoryHook": "看到它先联想到\"对外发给别人看的纸本资料\"。",
+        "sourceHint": "引用自官方样题 N2L 听解，资料加减题。"
+      },
+      {
+        "id": "official-vocab-a-2",
+        "term": "名刺",
+        "reading": "めいし",
+        "coreMeaning": "名片。",
+        "keyUsage": "常和 忘れる、渡す、持っていく 搭配，是商务场景高频词。",
+        "example": "名刺を忘れないようにしてください。别忘了带名片。",
+        "memoryHook": "出差、拜访、会议现场，一提商务礼仪就优先想到它。",
+        "sourceHint": "引用自官方样题 N2L 听解，最后追加项。"
+      },
+      {
+        "id": "official-vocab-a-3",
+        "term": "郵送",
+        "reading": "ゆうそう",
+        "coreMeaning": "邮寄。",
+        "keyUsage": "常见于 資料を郵送する、先に郵送しておく，和会议资料发送题很常绑在一起。",
+        "example": "B社にも資料を郵送しておいてください。也请把资料邮寄给 B 公司。",
+        "memoryHook": "和 メール、手渡し 常形成对比，记住它是\"纸本走邮寄\"。",
+        "sourceHint": "引用自官方样题 N2L 听解，发送方式判断。"
+      },
+      {
+        "id": "official-vocab-a-4",
+        "term": "会議",
+        "reading": "かいぎ",
+        "coreMeaning": "会议。",
+        "keyUsage": "常与 今日の会議、会議で渡す、会議資料 搭配，是安排题里的核心场景词。",
+        "example": "C社へは今日の会議で直接渡します。C 公司那份今天在会议上直接交。",
+        "memoryHook": "听力里只要出现\"今天当面交\"，大概率就和 会議 绑在一起。",
+        "sourceHint": "引用自官方样题 N2L 听解，最终安排题。"
+      },
+      {
+        "id": "official-vocab-a-5",
+        "term": "資料",
+        "reading": "しりょう",
+        "coreMeaning": "资料，材料。",
+        "keyUsage": "常搭配 資料を送る、資料を共有する、資料を確認する，是职场题高频词。",
+        "example": "資料の送り方をもう一度确認しましょう。我们再确认一次资料的发送方式吧。",
+        "memoryHook": "商务听力里看到文件、纸本、附件，往往都绕不开 資料。",
+        "sourceHint": "引用自官方样题 N2L 听解，资料整理与发送。"
+      },
+      {
+        "id": "official-vocab-a-6",
+        "term": "確認",
+        "reading": "かくにん",
+        "coreMeaning": "确认。",
+        "keyUsage": "常见于 確認する、再確認する，常出现在最后一步的安排确认里。",
+        "example": "最後に持ち物を確認してください。最后请确认一下随身物品。",
+        "memoryHook": "它常是题目真正开始收束的信号词，后面经常接最终决定。",
+        "sourceHint": "引用自官方样题 N2L 听解，物品整理题。"
+      },
+      {
+        "id": "official-vocab-a-7",
+        "term": "渡す",
+        "reading": "わたす",
+        "coreMeaning": "递交，交给。",
+        "keyUsage": "会议、面谈、窗口业务里常见，和 手渡し、直接渡す 搭配很高频。",
+        "example": "その资料は会议の前に担当者へ渡してください。那份资料请在会议前交给负责人。",
+        "memoryHook": "把它记成\"面对面把东西交出去\"，和 郵送、送信 区分开。",
+        "sourceHint": "引用自官方样题 N2L 听解，会议现场交付。"
+      },
+      {
+        "id": "official-vocab-a-8",
+        "term": "追加",
+        "reading": "ついか",
+        "coreMeaning": "追加，补上。",
+        "keyUsage": "常用于 項目を追加する、説明を追加する；听力里常对应最后补充信息。",
+        "example": "あとで必要な資料を追加します。之后再补上需要的资料。",
+        "memoryHook": "听力里一出现\"对了，别忘了...\"就是追加信号。",
+        "sourceHint": "引用自官方样题 N2L 听解，最后补充信息。"
+      }
+    ]
+  },
+  {
+    "id": "reading-official-pack",
+    "modeId": "official_vocab_memory",
+    "type": "reading",
+    "title": "读解逻辑关键词卡 (N2R)",
+    "shortLabel": "读解关键词",
+    "description": "精选读解真题与样题段落中的逻辑连接词。",
+    "sourceSection": "reading",
+    "downloadLabel": "已同步 GitHub 仓库中的官方 N2R 样题清单",
+    "note": "背完后建议回头读 GitHub 仓库里的 N2R.pdf 相应文章。",
+    "status": "ready",
+    "items": [
+      {
+        "id": "official-vocab-read-1",
+        "term": "要するに",
+        "reading": "ようするに",
+        "coreMeaning": "总而言之，简而言之。",
+        "keyUsage": "最重要的主旨信号词。后面接的一定是作者的核心观点。",
+        "example": "要するに、彼は協力したくないのだ。总而言之，他就是不想帮忙。",
+        "memoryHook": "它是读解里的\"结论灯\"，看到它就要打起精神看后面。",
+        "sourceHint": "引用自官方样题 N2R 读解中短篇，结论推导词。"
+      },
+      {
+        "id": "official-vocab-read-2",
+        "term": "したがって",
+        "reading": "したがって",
+        "coreMeaning": "因此，所以。",
+        "keyUsage": "表示顺接因果。常用于长篇读解的段落收尾或逻辑推导。",
+        "example": "彼は努力した。したがって、成功した。他努力了，所以成功了。",
+        "memoryHook": "它比 だから 更正式，常出现在论说文中。",
+        "sourceHint": "引用自官方样题 N2R 长篇论文式读解。"
+      },
+      {
+        "id": "official-vocab-read-3",
+        "term": "あるいは",
+        "reading": "あるいは",
+        "coreMeaning": "或者，或者是。",
+        "keyUsage": "表示并列选择或可能性。在信息检索题中常作为干扰项线索。",
+        "example": "メール、あるいは电话でご連絡ください。请通过邮件或者电话联系。",
+        "memoryHook": "看到它说明有两个选项，要仔细对比题目要求的条件。",
+        "sourceHint": "引用自官方样题 N2R 读解，信息检索题。"
+      },
+      {
+        "id": "official-vocab-read-4",
+        "term": "むしろ",
+        "reading": "むしろ",
+        "coreMeaning": "反而，倒不如说。",
+        "keyUsage": "表示对比和重点转移。通常强调 むしろ 后面的内容。",
+        "example": "损得より、むしろ名誉が问题だ。与其说利益，倒不如说名誉才是问题。",
+        "memoryHook": "它是一个\"转弯\"词，作者在通过对比突出他的真实想法。",
+        "sourceHint": "引用自官方样题 N2R，中篇论说文核心对比。"
+      },
+      {
+        "id": "official-vocab-read-5",
+        "term": "いわゆる",
+        "reading": "いわゆる",
+        "coreMeaning": "所谓的，常说的。",
+        "keyUsage": "用于引入某个特定定义或社会普遍认可的概念。",
+        "example": "これはいわゆる「デジタルデバイド」の問題だ。这就是所谓的\"数字鸿沟\"问题。",
+        "memoryHook": "它后面常接加引号的概念，是理解文章背景的关键。",
+        "sourceHint": "引用自官方样题 N2R，现代社会类文章。"
+      },
+      {
+        "id": "official-vocab-read-6",
+        "term": "背景",
+        "reading": "はいけい",
+        "coreMeaning": "背景。",
+        "keyUsage": "常用于考察对文章深层逻辑或原因的理解。",
+        "example": "この现象の背景には経済的な要因がある。这个现象的背景中存在经济因素。",
+        "memoryHook": "它是读解题目里\"为什么会这样\"的常见答案来源词。",
+        "sourceHint": "引用自官方样题 N2R，原因理由判断题。"
+      },
+      {
+        "id": "official-vocab-read-7",
+        "term": "視点",
+        "reading": "してん",
+        "coreMeaning": "视点，角度，观点。",
+        "keyUsage": "常用于考察作者或不同角色的立场切换。",
+        "example": "新しい视点から问题を考える。从新的角度考虑问题。",
+        "memoryHook": "N2 读解经常考\"谁是怎么想的\"，視点 是核心信号。",
+        "sourceHint": "引用自官方样题 N2R，观点对比类读解。"
+      },
+      {
+        "id": "official-vocab-read-8",
+        "term": "主張",
+        "reading": "しゅちょう",
+        "coreMeaning": "主张，主旨，声明。",
+        "keyUsage": "直接指向文章灵魂。题目常问：筆者の最も主張したいことは何か。",
+        "example": "彼は自分の主張を曲げなかった。他没有改变自己的主张。",
+        "memoryHook": "读解的终极目的就是为了找到作者的 主張。",
+        "sourceHint": "引用自官方样题 N2R，主旨大意题。"
+      }
+    ]
+  },
+  {
+    "id": "language-knowledge-official-pack-b",
+    "modeId": "official_vocab_memory",
+    "type": "language_knowledge",
+    "title": "文字・语彙辨析强化词卡 (N2V-B)",
+    "shortLabel": "文字・語彙 B",
+    "description": "补充职场与说明文里高频出现的抽象词、判断词和流程词。",
+    "sourceSection": "vocabulary",
+    "downloadLabel": "已同步 GitHub 仓库中的官方 N2V 样题清单（扩展辨析组）",
+    "note": "本包更强调\"会做题\"之外的搭配感和正式文体判断。",
+    "status": "ready",
+    "items": [
+      {
+        "id": "official-vocab-lang-b-1",
+        "term": "見通し",
+        "reading": "みとおし",
+        "coreMeaning": "预期，前景，预计。",
+        "keyUsage": "常用于 完成の見通し、今後の見通し。表达对未来的判断。",
+        "example": "工事は来月中に終わる見通しです。工程预计将在下月内结束。",
+        "memoryHook": "不是\"看见\"，而是\"往前看后的判断\"。",
+        "sourceHint": "引用自官方样题 N2V，进度与预测类词汇。"
+      },
+      {
+        "id": "official-vocab-lang-b-2",
+        "term": "配慮",
+        "reading": "はいりょ",
+        "coreMeaning": "照顾，顾及，考虑周到。",
+        "keyUsage": "常搭配 環境に配慮する、相手に配慮する，正式文常见。",
+        "example": "子どもの安全に配慮した設計が求められる。需要兼顾儿童安全的设计。",
+        "memoryHook": "它不是客气寒暄，而是把他者条件认真放进判断里。",
+        "sourceHint": "引用自官方样题 N2V，社会与公共说明文高频词。"
+      },
+      {
+        "id": "official-vocab-lang-b-3",
+        "term": "手順",
+        "reading": "てじゅん",
+        "coreMeaning": "步骤，流程顺序。",
+        "keyUsage": "常见于 手順を確認する、手順に従う，和操作说明题绑定很紧。",
+        "example": "申請の手順を事前に確認してください。请事先确认申请流程。",
+        "memoryHook": "\"手\"做事，\"順\"有序，一步都别乱。",
+        "sourceHint": "引用自官方样题 N2V，流程说明题。"
+      },
+      {
+        "id": "official-vocab-lang-b-4",
+        "term": "余地",
+        "reading": "よち",
+        "coreMeaning": "余地，空间，可能余量。",
+        "keyUsage": "高频搭配有 改善の余地、検討の余地。表示还有可操作空间。",
+        "example": "この案にはまだ見直しの余地がある。这个方案还有重新审视的空间。",
+        "memoryHook": "看到它就想到\"还没定死，还有空间\"。",
+        "sourceHint": "引用自官方样题 N2V，判断与评价类词汇。"
+      },
+      {
+        "id": "official-vocab-lang-b-5",
+        "term": "円滑",
+        "reading": "えんかつ",
+        "coreMeaning": "顺利，圆滑，流畅。",
+        "keyUsage": "常用于 円滑に進む、円滑な運営。多见于组织协调语境。",
+        "example": "会議を円滑に進めるには準備が欠かせない。要让会议顺利推进，准备不可少。",
+        "memoryHook": "像圆轮子一样滚过去，没有卡顿。",
+        "sourceHint": "引用自官方样题 N2V，组织运转语境。"
+      },
+      {
+        "id": "official-vocab-lang-b-6",
+        "term": "柔軟",
+        "reading": "じゅうなん",
+        "coreMeaning": "灵活，柔软。",
+        "keyUsage": "常见于 柔軟に対応する、柔軟な発想。强调不僵硬。",
+        "example": "状況に応じて柔軟に対応してください。请根据情况灵活应对。",
+        "memoryHook": "不是没原则，而是能弯得过来。",
+        "sourceHint": "引用自官方样题 N2V，态度与能力判断题。"
+      },
+      {
+        "id": "official-vocab-lang-b-7",
+        "term": "見合わせる",
+        "reading": "みあわせる",
+        "coreMeaning": "暂缓，延期，不实行。",
+        "keyUsage": "常用于 実施を見合わせる、公開を見合わせる。官方通知里常见。",
+        "example": "悪天候のため、イベントの開催を見合わせます。因天气恶劣，活动将暂缓举行。",
+        "memoryHook": "先\"看一看再说\"，所以暂不推进。",
+        "sourceHint": "引用自官方样题 N2V，通知判断类题目。"
+      },
+      {
+        "id": "official-vocab-lang-b-8",
+        "term": "是正",
+        "reading": "ぜせい",
+        "coreMeaning": "纠正，改正。",
+        "keyUsage": "常搭配 問題点を是正する、不備を是正する。正式书面语里高频。",
+        "example": "報告書の不備を速やかに是正する必要がある。需要尽快纠正报告中的问题。",
+        "memoryHook": "把偏掉的东西拉回\"正\"轨。",
+        "sourceHint": "引用自官方样题 N2V，正式整改语汇。"
+      }
+    ]
+  },
+  {
+    "id": "listening-official-pack-b",
+    "modeId": "official_vocab_memory",
+    "type": "listening",
+    "title": "听力样题词卡 B (N2L-B)",
+    "shortLabel": "听力 B",
+    "description": "补充预约、改期、交通与柜台广播场景里反复出现的决定词。",
+    "sourceSection": "listening",
+    "downloadLabel": "已同步 GitHub 仓库中的官方 N2L 样题清单（变更与广播组）",
+    "note": "本包适合和改预约题、站内广播题一起回看，重点抓最终决定信号。",
+    "status": "ready",
+    "items": [
+      {
+        "id": "official-vocab-listen-b-1",
+        "term": "変更",
+        "reading": "へんこう",
+        "coreMeaning": "变更，更改。",
+        "keyUsage": "常和 予約を変更する、内容を変更する 搭配，是改期题核心词。",
+        "example": "予約時間を午後に変更したいのですが。想把预约时间改到下午。",
+        "memoryHook": "听到它就准备更新之前记住的安排。",
+        "sourceHint": "引用自官方样题 N2L，预约变更场景。"
+      },
+      {
+        "id": "official-vocab-listen-b-2",
+        "term": "延期",
+        "reading": "えんき",
+        "coreMeaning": "延期，推迟。",
+        "keyUsage": "常见于 開催を延期する、締め切りを延期する。和中止要区分。",
+        "example": "会議は来週に延期になりました。会议延期到下周了。",
+        "memoryHook": "不是取消，只是往后挪。",
+        "sourceHint": "引用自官方样题 N2L，日程调整题。"
+      },
+      {
+        "id": "official-vocab-listen-b-3",
+        "term": "欠航",
+        "reading": "けっこう",
+        "coreMeaning": "停航，航班取消。",
+        "keyUsage": "机场广播和旅行场景高频，常和 天候、機材 搭配。",
+        "example": "天候不良で一部の便が欠航しました。因天气恶劣，部分航班停飞。",
+        "memoryHook": "和 遅延 区分，欠航是整班没了。",
+        "sourceHint": "引用自官方样题 N2L，交通广播场景。"
+      },
+      {
+        "id": "official-vocab-listen-b-4",
+        "term": "乗り継ぎ",
+        "reading": "のりつぎ",
+        "coreMeaning": "换乘，转乘。",
+        "keyUsage": "常和 乗り継ぎ時間、乗り継ぎ案内 一起出现。",
+        "example": "大阪で新幹線に乗り継ぎます。在大阪换乘新干线。",
+        "memoryHook": "不是重新开始，是从这一段接到下一段。",
+        "sourceHint": "引用自官方样题 N2L，交通与移动场景。"
+      },
+      {
+        "id": "official-vocab-listen-b-5",
+        "term": "折り返す",
+        "reading": "おりかえす",
+        "coreMeaning": "返回，回头；回电。",
+        "keyUsage": "电话场景常用于 折り返し連絡する，交通场景也可指折返运行。",
+        "example": "担当者から折り返しご連絡します。负责人会稍后回电。",
+        "memoryHook": "先过去一段，再折回来。",
+        "sourceHint": "引用自官方样题 N2L，电话联系与广播题。"
+      },
+      {
+        "id": "official-vocab-listen-b-6",
+        "term": "受け付ける",
+        "reading": "うけつける",
+        "coreMeaning": "受理，受理申请；接待。",
+        "keyUsage": "窗口、活动报名、电话咨询里高频，常见于 受け付けております。",
+        "example": "こちらの窓口で申請を受け付けています。在这个窗口受理申请。",
+        "memoryHook": "\"接过来\"并正式登记进去。",
+        "sourceHint": "引用自官方样题 N2L，窗口说明题。"
+      },
+      {
+        "id": "official-vocab-listen-b-7",
+        "term": "混雑",
+        "reading": "こんざつ",
+        "coreMeaning": "拥挤，混杂。",
+        "keyUsage": "车站广播常见，如 混雑が予想される、混雑を避ける。",
+        "example": "会場周辺の混雑が予想されます。预计会场周边会很拥挤。",
+        "memoryHook": "只要听力里出现人流和等待，往往就离它不远。",
+        "sourceHint": "引用自官方样题 N2L，公共广播场景。"
+      },
+      {
+        "id": "official-vocab-listen-b-8",
+        "term": "振り替える",
+        "reading": "ふりかえる",
+        "coreMeaning": "改签，转为其他安排；调拨。",
+        "keyUsage": "交通场景常用于 別便に振り替える，表示把原安排换到其他选项。",
+        "example": "次の便に振り替えてご案内します。我们将为您改签到下一班。",
+        "memoryHook": "不是简单推后，而是换到另一条线。",
+        "sourceHint": "引用自官方样题 N2L，交通变更题。"
+      }
+    ]
+  },
+  {
+    "id": "reading-official-pack-b",
+    "modeId": "official_vocab_memory",
+    "type": "reading",
+    "title": "读解逻辑信号词卡 B (N2R-B)",
+    "shortLabel": "读解 B",
+    "description": "补充转折、换言、论点与依据等读解里最容易决定答案方向的信号词。",
+    "sourceSection": "reading",
+    "downloadLabel": "已同步 GitHub 仓库中的官方 N2R 样题清单（逻辑信号扩展组）",
+    "note": "本包适合配合中长篇读解复盘，重点是主张推进的轨迹。",
+    "status": "ready",
+    "items": [
+      {
+        "id": "official-vocab-read-b-1",
+        "term": "その一方で",
+        "reading": "そのいっぽうで",
+        "coreMeaning": "另一方面，与此同时。",
+        "keyUsage": "常用于引出对照信息，提示不要只盯前半面的结论。",
+        "example": "利便性は高まった。その一方で、負担も増えている。便利性提高了，但另一方面负担也增加了。",
+        "memoryHook": "看到它就把视角切到另一边。",
+        "sourceHint": "引用自官方样题 N2R，对比结构高频信号词。"
+      },
+      {
+        "id": "official-vocab-read-b-2",
+        "term": "換言すれば",
+        "reading": "かんげんすれば",
+        "coreMeaning": "换言之，换句话说。",
+        "keyUsage": "后面通常是前文观点的重述或更易懂的总结。",
+        "example": "換言すれば、準備不足が最大の原因だった。换句话说，准备不足才是最大原因。",
+        "memoryHook": "它在替作者把难句翻译成\"真正想说的话\"。",
+        "sourceHint": "引用自官方样题 N2R，结论重述句。"
+      },
+      {
+        "id": "official-vocab-read-b-3",
+        "term": "とりわけ",
+        "reading": "とりわけ",
+        "coreMeaning": "尤其，特别。",
+        "keyUsage": "用于从并列对象中突出重点，后文常是真正高频考点。",
+        "example": "とりわけ地方の小規模校では影響が大きい。尤其在地方的小规模学校里影响更大。",
+        "memoryHook": "这是作者在一堆信息里打聚光灯。",
+        "sourceHint": "引用自官方样题 N2R，重点强调句。"
+      },
+      {
+        "id": "official-vocab-read-b-4",
+        "term": "その反面",
+        "reading": "そのはんめん",
+        "coreMeaning": "另一方面，但与此同时。",
+        "keyUsage": "和利弊并陈、效果与代价并列时非常常见。",
+        "example": "手軽になった。その反面、誤解も広がりやすい。变得方便了，但另一方面误解也更容易扩大。",
+        "memoryHook": "像把硬币翻过来，看另一面。",
+        "sourceHint": "引用自官方样题 N2R，利弊对照题。"
+      },
+      {
+        "id": "official-vocab-read-b-5",
+        "term": "前提",
+        "reading": "ぜんてい",
+        "coreMeaning": "前提，预设条件。",
+        "keyUsage": "主旨题、推理题都常见，表示某结论成立所依赖的基础。",
+        "example": "議論の前提が共有されていないと結論はまとまらない。如果前提没有共享，结论就无法统一。",
+        "memoryHook": "房子能不能站住，先看地基。",
+        "sourceHint": "引用自官方样题 N2R，论证结构词。"
+      },
+      {
+        "id": "official-vocab-read-b-6",
+        "term": "根拠",
+        "reading": "こんきょ",
+        "coreMeaning": "依据，证据基础。",
+        "keyUsage": "常见于 根拠を示す、判断の根拠。读解证据定位的核心词。",
+        "example": "その判断の根拠を本文から探してください。请从正文中找到该判断的依据。",
+        "memoryHook": "做读解时，根拠 就是你回原文要找的那一句。",
+        "sourceHint": "引用自官方样题 N2R，证据判断题。"
+      },
+      {
+        "id": "official-vocab-read-b-7",
+        "term": "論点",
+        "reading": "ろんてん",
+        "coreMeaning": "论点，争议焦点。",
+        "keyUsage": "常用于 論点を整理する、論点がずれる。读解里常决定题目到底在问什么。",
+        "example": "論点を整理してから意見を述べましょう。先整理论点再发表意见吧。",
+        "memoryHook": "不是所有信息都重要，先抓\"题眼\"。",
+        "sourceHint": "引用自官方样题 N2R，主张整理题。"
+      },
+      {
+        "id": "official-vocab-read-b-8",
+        "term": "手がかり",
+        "reading": "てがかり",
+        "coreMeaning": "线索，抓手。",
+        "keyUsage": "常和 問題解決の手がかり、理解の手がかり 搭配。",
+        "example": "一つの言葉が文章理解の手がかりになる。有时一个词就是理解文章的线索。",
+        "memoryHook": "它是让你继续往下追的那根线。",
+        "sourceHint": "引用自官方样题 N2R，信息检索与推断题。"
+      }
+    ]
+  }
+]

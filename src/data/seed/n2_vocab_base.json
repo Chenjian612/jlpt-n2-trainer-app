@@ -4998,5 +4998,405 @@
     "example": "証拠が消滅する。 / 権利が消滅する。",
     "memoryHook": "消（消）失且灭（灭）迹。",
     "sourceHint": "引用自官方真题。"
+  },
+  {
+    "id": "ext-vocab-501",
+    "term": "見積もり",
+    "reading": "みつもり",
+    "coreMeaning": "估价，预算估算。",
+    "keyUsage": "常用于 費用の見積もり、工事の見積もり。强调正式估算结果。",
+    "example": "来週までに工事費の見積もりを出してください。",
+    "memoryHook": "先“看一遍”再“算一遍”，就是报价前的估算。",
+    "sourceHint": "引用自官方样题 N2V。"
+  },
+  {
+    "id": "ext-vocab-502",
+    "term": "引き継ぐ",
+    "reading": "ひきつぐ",
+    "coreMeaning": "交接，继承接手。",
+    "keyUsage": "常见于 業務を引き継ぐ、担当を引き継ぐ。",
+    "example": "担当業務を新しいメンバーに引き継いだ。",
+    "memoryHook": "把前面的人拉过来的工作，接到自己手里。",
+    "sourceHint": "引用自官方样题 N2L。"
+  },
+  {
+    "id": "ext-vocab-503",
+    "term": "取りまとめる",
+    "reading": "とりまとめる",
+    "coreMeaning": "汇总，归纳，统一整理。",
+    "keyUsage": "常搭配 意見を取りまとめる、資料を取りまとめる。",
+    "example": "各チームの意見を取りまとめて報告した。",
+    "memoryHook": "把散开的信息收拢成一份可交付的结果。",
+    "sourceHint": "引用自官方样题 N2R。"
+  },
+  {
+    "id": "ext-vocab-504",
+    "term": "手配",
+    "reading": "てはい",
+    "coreMeaning": "安排，张罗，筹备。",
+    "keyUsage": "常用于 宿を手配する、資料を手配する。",
+    "example": "会議室と昼食をまとめて手配した。",
+    "memoryHook": "把需要的资源一项项配齐。",
+    "sourceHint": "引用自官方样题 N2L。"
+  },
+  {
+    "id": "ext-vocab-505",
+    "term": "改定",
+    "reading": "かいてい",
+    "coreMeaning": "修订，改定。",
+    "keyUsage": "常用于 規則を改定する、料金を改定する。强调正式修改。",
+    "example": "来年度から利用料金を改定する予定だ。",
+    "memoryHook": "不是小修小补，而是制度层面的正式更新。",
+    "sourceHint": "引用自官方样题 N2V。"
+  },
+  {
+    "id": "ext-vocab-506",
+    "term": "差し替える",
+    "reading": "さしかえる",
+    "coreMeaning": "替换，换成新的。",
+    "keyUsage": "常见于 資料を差し替える、画像を差し替える。",
+    "example": "最新版に合わせて資料を差し替えた。",
+    "memoryHook": "旧的抽掉，新的立刻塞进去。",
+    "sourceHint": "引用自官方样题 N2V。"
+  },
+  {
+    "id": "ext-vocab-507",
+    "term": "取りそろえる",
+    "reading": "とりそろえる",
+    "coreMeaning": "备齐，准备齐全。",
+    "keyUsage": "常用于 書類を取りそろえる、商品を取りそろえる。",
+    "example": "申請に必要な書類を取りそろえた。",
+    "memoryHook": "东一件西一件的东西，被你全都凑齐了。",
+    "sourceHint": "引用自官方样题 N2V。"
+  },
+  {
+    "id": "ext-vocab-508",
+    "term": "補足",
+    "reading": "ほそく",
+    "coreMeaning": "补充说明。",
+    "keyUsage": "常见于 補足説明、一点補足する。",
+    "example": "一点だけ補足があります。",
+    "memoryHook": "主体已经有了，再把缺的那一角补上。",
+    "sourceHint": "引用自官方样题 N2R。"
+  },
+  {
+    "id": "ext-vocab-509",
+    "term": "調整",
+    "reading": "ちょうせい",
+    "coreMeaning": "调整，协调。",
+    "keyUsage": "常搭配 日程を調整する、温度を調整する。",
+    "example": "日程の調整に少し時間がかかる。",
+    "memoryHook": "把不合适的地方一点点调到合适。",
+    "sourceHint": "引用自官方样题 N2L。"
+  },
+  {
+    "id": "ext-vocab-510",
+    "term": "促進",
+    "reading": "そくしん",
+    "coreMeaning": "促进，推进。",
+    "keyUsage": "常用于 交流を促進する、利用を促進する。",
+    "example": "地域交流を促進するための制度が始まった。",
+    "memoryHook": "不是自己做完，而是让整体往前走得更快。",
+    "sourceHint": "引用自官方样题 N2R。"
+  },
+  {
+    "id": "ext-vocab-511",
+    "term": "抑制",
+    "reading": "よくせい",
+    "coreMeaning": "抑制，控制增长。",
+    "keyUsage": "常见于 出費を抑制する、感染拡大を抑制する。",
+    "example": "出費を抑制するために経費を見直した。",
+    "memoryHook": "把本来会往上冲的东西压住。",
+    "sourceHint": "引用自官方样题 N2R。"
+  },
+  {
+    "id": "ext-vocab-512",
+    "term": "遂げる",
+    "reading": "とげる",
+    "coreMeaning": "完成，实现，取得。",
+    "keyUsage": "常搭配 成果を遂げる、役目を遂げる。",
+    "example": "研究チームは大きな成果を遂げた。",
+    "memoryHook": "一路撑到最后，终于做成。",
+    "sourceHint": "引用自官方真题。"
+  },
+  {
+    "id": "ext-vocab-513",
+    "term": "見込む",
+    "reading": "みこむ",
+    "coreMeaning": "预估，预计，指望。",
+    "keyUsage": "常用于 利用者増を見込む、利益を見込む。",
+    "example": "今年は利用者が一割増えると見込んでいる。",
+    "memoryHook": "往前看进去，先把未来估出来。",
+    "sourceHint": "引用自官方样题 N2V。"
+  },
+  {
+    "id": "ext-vocab-514",
+    "term": "請け負う",
+    "reading": "うけおう",
+    "coreMeaning": "承包，承担下来。",
+    "keyUsage": "常用于 工事を請け負う、業務を請け負う。",
+    "example": "その会社が保守業務を請け負っている。",
+    "memoryHook": "把责任正式接单接下来，不只是帮忙做一下。",
+    "sourceHint": "引用自官方样题 N2R。"
+  },
+  {
+    "id": "ext-vocab-515",
+    "term": "代替",
+    "reading": "だいたい",
+    "coreMeaning": "代替，替代方案。",
+    "keyUsage": "常见于 代替案、代替手段、代替バス。",
+    "example": "電車が止まったため、代替バスが運行された。",
+    "memoryHook": "原来的不行，就让替补顶上来。",
+    "sourceHint": "引用自官方样题 N2L。"
+  },
+  {
+    "id": "ext-vocab-516",
+    "term": "補強",
+    "reading": "ほきょう",
+    "coreMeaning": "加固，强化。",
+    "keyUsage": "常搭配 橋を補強する、根拠を補強する。",
+    "example": "古い橋を補強する工事が始まった。",
+    "memoryHook": "原来能用，但还不够稳，所以再加一层。",
+    "sourceHint": "引用自官方样题 N2R。"
+  },
+  {
+    "id": "ext-vocab-517",
+    "term": "設ける",
+    "reading": "もうける",
+    "coreMeaning": "设置，设立，规定。",
+    "keyUsage": "常见于 ルールを設ける、機会を設ける。",
+    "example": "応募には年齢制限を設けていない。",
+    "memoryHook": "本来没有的框架，被你正式放上去。",
+    "sourceHint": "引用自官方样题 N2V。"
+  },
+  {
+    "id": "ext-vocab-518",
+    "term": "保留",
+    "reading": "ほりゅう",
+    "coreMeaning": "保留，暂缓决定。",
+    "keyUsage": "常用于 判断を保留する、結論を保留する。",
+    "example": "その件は結論を出さず保留にした。",
+    "memoryHook": "先不往前推，放在手边等下一次判断。",
+    "sourceHint": "引用自官方样题 N2V。"
+  },
+  {
+    "id": "ext-vocab-519",
+    "term": "差額",
+    "reading": "さがく",
+    "coreMeaning": "差额，差价。",
+    "keyUsage": "常见于 差額を支払う、交通費の差額。",
+    "example": "交通費の差額は後日精算します。",
+    "memoryHook": "两边一减，剩下的就是差额。",
+    "sourceHint": "引用自官方样题 N2L。"
+  },
+  {
+    "id": "ext-vocab-520",
+    "term": "経費",
+    "reading": "けいひ",
+    "coreMeaning": "经费，开支费用。",
+    "keyUsage": "常用于 経費を申請する、経費を削減する。",
+    "example": "出張にかかった経費を申請した。",
+    "memoryHook": "公司场景里，花的钱都得算进它。",
+    "sourceHint": "引用自官方样题 N2V。"
+  },
+  {
+    "id": "ext-vocab-521",
+    "term": "余地",
+    "reading": "よち",
+    "coreMeaning": "余地，空间。",
+    "keyUsage": "常搭配 改善の余地、検討の余地。",
+    "example": "この案にはまだ改善の余地がある。",
+    "memoryHook": "事情还没锁死，还留着能动的空间。",
+    "sourceHint": "引用自官方样题 N2R。"
+  },
+  {
+    "id": "ext-vocab-522",
+    "term": "着手",
+    "reading": "ちゃくしゅ",
+    "coreMeaning": "着手，开始做。",
+    "keyUsage": "常见于 開発に着手する、工事に着手する。",
+    "example": "来月から新システムの開発に着手する。",
+    "memoryHook": "手真的碰上去了，说明正式开工。",
+    "sourceHint": "引用自官方样题 N2V。"
+  },
+  {
+    "id": "ext-vocab-523",
+    "term": "緩和",
+    "reading": "かんわ",
+    "coreMeaning": "缓和，减轻。",
+    "keyUsage": "常用于 緊張を緩和する、混雑を緩和する。",
+    "example": "混雑緩和のために入口を増やした。",
+    "memoryHook": "把绷着的状态放松一点。",
+    "sourceHint": "引用自官方样题 N2R。"
+  },
+  {
+    "id": "ext-vocab-524",
+    "term": "想定",
+    "reading": "そうてい",
+    "coreMeaning": "设想，预想范围。",
+    "keyUsage": "常见于 災害を想定する、想定外。",
+    "example": "災害を想定した訓練を行った。",
+    "memoryHook": "先在脑里搭好一个可能发生的场景。",
+    "sourceHint": "引用自官方样题 N2R。"
+  },
+  {
+    "id": "ext-vocab-525",
+    "term": "裏づける",
+    "reading": "うらづける",
+    "coreMeaning": "提供依据，证实。",
+    "keyUsage": "常用于 データが仮説を裏づける。",
+    "example": "データがその仮説を裏づけている。",
+    "memoryHook": "把证据垫到后面，前面的说法就站稳了。",
+    "sourceHint": "引用自官方样题 N2R。"
+  },
+  {
+    "id": "ext-vocab-526",
+    "term": "配慮",
+    "reading": "はいりょ",
+    "coreMeaning": "顾及，周到考虑。",
+    "keyUsage": "常用于 環境に配慮する、相手に配慮する。",
+    "example": "子どもの安全に配慮した設計になっている。",
+    "memoryHook": "不仅想到自己，还把他人的条件一并放进去。",
+    "sourceHint": "引用自官方样题 N2V。"
+  },
+  {
+    "id": "ext-vocab-527",
+    "term": "円滑",
+    "reading": "えんかつ",
+    "coreMeaning": "顺利，顺畅。",
+    "keyUsage": "常见于 円滑に進む、円滑な運営。",
+    "example": "会議を円滑に進めるために進行表を作った。",
+    "memoryHook": "像圆轮转动，没有卡顿就是円滑。",
+    "sourceHint": "引用自官方样题 N2V。"
+  },
+  {
+    "id": "ext-vocab-528",
+    "term": "機敏",
+    "reading": "きびん",
+    "coreMeaning": "机敏，敏捷。",
+    "keyUsage": "常用于 機敏に対応する、機敏な判断。",
+    "example": "トラブルに機敏に対応できる人材が求められる。",
+    "memoryHook": "看到情况就马上动，不拖半拍。",
+    "sourceHint": "引用自官方样题 N2V。"
+  },
+  {
+    "id": "ext-vocab-529",
+    "term": "偏重",
+    "reading": "へんちょう",
+    "coreMeaning": "偏重，过度看重某一方面。",
+    "keyUsage": "常用于 結果を偏重する、効率を偏重する。",
+    "example": "数字だけを偏重した評価は危険だ。",
+    "memoryHook": "不是普通倾斜，而是明显把重量压到一边。",
+    "sourceHint": "引用自官方样题 N2R。"
+  },
+  {
+    "id": "ext-vocab-530",
+    "term": "蓄積",
+    "reading": "ちくせき",
+    "coreMeaning": "积累，蓄积。",
+    "keyUsage": "常用于 経験の蓄積、データの蓄積。",
+    "example": "経験の蓄積が判断力を支えている。",
+    "memoryHook": "一点点堆起来，最后形成厚度。",
+    "sourceHint": "引用自官方样题 N2R。"
+  },
+  {
+    "id": "ext-vocab-531",
+    "term": "復旧",
+    "reading": "ふっきゅう",
+    "coreMeaning": "恢复，修复到原状。",
+    "keyUsage": "常见于 復旧作業、システムが復旧する。",
+    "example": "停電からの復旧には数時間かかった。",
+    "memoryHook": "不是新建，是把原来能用的状态找回来。",
+    "sourceHint": "引用自官方样题 N2L。"
+  },
+  {
+    "id": "ext-vocab-532",
+    "term": "見通し",
+    "reading": "みとおし",
+    "coreMeaning": "展望，预期，前景。",
+    "keyUsage": "常用于 完成の見通し、今後の見通し。",
+    "example": "完成の見通しは来月中とのことだ。",
+    "memoryHook": "把眼光往前放，看后面的路通不通。",
+    "sourceHint": "引用自官方样题 N2V。"
+  },
+  {
+    "id": "ext-vocab-533",
+    "term": "定着",
+    "reading": "ていちゃく",
+    "coreMeaning": "扎根，固定下来，普及定型。",
+    "keyUsage": "常用于 習慣が定着する、制度が定着する。",
+    "example": "新しい制度が現場に定着するまで時間がかかる。",
+    "memoryHook": "从试试看，变成稳定留住。",
+    "sourceHint": "引用自官方样题 N2R。"
+  },
+  {
+    "id": "ext-vocab-534",
+    "term": "抽出",
+    "reading": "ちゅうしゅつ",
+    "coreMeaning": "抽取，提取。",
+    "keyUsage": "常见于 データを抽出する、課題を抽出する。",
+    "example": "アンケート結果から共通点を抽出した。",
+    "memoryHook": "从一大堆里，拎出真正有用的部分。",
+    "sourceHint": "引用自官方样题 N2R。"
+  },
+  {
+    "id": "ext-vocab-535",
+    "term": "割り当て",
+    "reading": "わりあて",
+    "coreMeaning": "分配，指派。",
+    "keyUsage": "常用于 作業を割り当てる、予算の割り当て。",
+    "example": "各班に作業を割り当てた。",
+    "memoryHook": "先切块，再分给不同的人。",
+    "sourceHint": "引用自官方样题 N2V。"
+  },
+  {
+    "id": "ext-vocab-536",
+    "term": "先送り",
+    "reading": "さきおくり",
+    "coreMeaning": "往后拖，暂时搁置。",
+    "keyUsage": "常见于 課題を先送りにする、判断を先送りする。",
+    "example": "難しい課題を先送りにしてはいけない。",
+    "memoryHook": "不是解决掉，而是把包袱往后推。",
+    "sourceHint": "引用自官方样题 N2L。"
+  },
+  {
+    "id": "ext-vocab-537",
+    "term": "補償",
+    "reading": "ほしょう",
+    "coreMeaning": "补偿，赔偿。",
+    "keyUsage": "常用于 損害を補償する、費用を補償する。",
+    "example": "遅延による追加費用を会社が補償する。",
+    "memoryHook": "损失已经发生，只能后面补回来。",
+    "sourceHint": "引用自官方样题 N2V。"
+  },
+  {
+    "id": "ext-vocab-538",
+    "term": "保守",
+    "reading": "ほしゅ",
+    "coreMeaning": "维护，保养；保守。",
+    "keyUsage": "技术语境常见于 設備の保守点検。",
+    "example": "設備の保守点検を毎月行っている。",
+    "memoryHook": "不是修坏了才管，而是平时守住它能用。",
+    "sourceHint": "引用自官方样题 N2L。"
+  },
+  {
+    "id": "ext-vocab-539",
+    "term": "是正",
+    "reading": "ぜせい",
+    "coreMeaning": "纠正，改正。",
+    "keyUsage": "常用于 不備を是正する、偏りを是正する。",
+    "example": "手続きの不備を早急に是正する必要がある。",
+    "memoryHook": "把偏掉的东西拉回正轨。",
+    "sourceHint": "引用自官方样题 N2V。"
+  },
+  {
+    "id": "ext-vocab-540",
+    "term": "先行",
+    "reading": "せんこう",
+    "coreMeaning": "先行，领先；先开始。",
+    "keyUsage": "常见于 費用が先行する、先行事例。",
+    "example": "費用だけが先行し、効果が追いついていない。",
+    "memoryHook": "有的东西先跑出去了，后面的还没跟上。",
+    "sourceHint": "引用自官方样题 N2R。"
   }
 ]

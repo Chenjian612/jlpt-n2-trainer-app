@@ -271,7 +271,7 @@ const styles = StyleSheet.create({
     fontFamily: fonts.body,
   },
   progressTrack: {
-    height: 12,
+    height: 14,
     backgroundColor: 'rgba(246, 241, 231, 0.15)',
     borderRadius: radii.pill,
     overflow: 'hidden',

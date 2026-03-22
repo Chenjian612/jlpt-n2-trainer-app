@@ -65,7 +65,7 @@ export function TrainingModeCard({
         : '开始训练';
 
   return (
-    <View style={styles.card}>
+    <View style={[styles.card, { borderLeftWidth: 4, borderLeftColor: mode.accent }]}>
       <View style={[styles.glow, { backgroundColor: mode.surface }]} />
 
       <View style={styles.body}>
@@ -247,11 +247,11 @@ const styles = StyleSheet.create({
   },
   secondaryButton: {
     flex: 1,
-    borderWidth: 1,
-    borderRadius: radii.sm,
+    borderWidth: 2,
+    borderRadius: radii.pill,
     paddingVertical: 14,
     alignItems: 'center',
-    backgroundColor: colors.backgroundCard,
+    backgroundColor: 'transparent',
   },
   secondaryText: {
     fontSize: 14,
@@ -260,8 +260,8 @@ const styles = StyleSheet.create({
   },
   primaryButton: {
     flex: 1.35,
-    borderRadius: radii.sm,
-    paddingVertical: 14,
+    borderRadius: radii.pill,
+    paddingVertical: 15,
     alignItems: 'center',
   },
   repeatButton: {

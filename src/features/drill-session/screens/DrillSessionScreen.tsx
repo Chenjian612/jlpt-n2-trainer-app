@@ -286,7 +286,7 @@ export function DrillSessionScreen({
           </View>
         ) : (
           <View style={[styles.sessionGrid, isWideLayout && styles.sessionGridWide]}>
-            <View style={styles.primaryColumn}>
+            <View style={[styles.primaryColumn, isWideLayout && styles.primaryColumnWide]}>
               <View style={[styles.progressCard, shadows.card]}>
                 <View style={styles.progressRow}>
                   <Text style={styles.progressLabel}>题目进度</Text>
@@ -432,7 +432,7 @@ export function DrillSessionScreen({
               </View>
             </View>
 
-            <View style={styles.sideColumn}>
+            <View style={[styles.sideColumn, isWideLayout && styles.sideColumnWide]}>
               <View style={[styles.timelineCard, shadows.card]}>
                 <Text style={styles.timelineTitle}>这一轮的节奏</Text>
                 <View style={styles.timelineList}>
@@ -653,12 +653,16 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
   },
   primaryColumn: {
-    flex: 1.55,
     gap: 18,
   },
+  primaryColumnWide: {
+    flex: 1.55,
+  },
   sideColumn: {
-    flex: 1,
     gap: 18,
+  },
+  sideColumnWide: {
+    flex: 1,
   },
   progressCard: {
     backgroundColor: colors.backgroundCard,
@@ -813,7 +817,7 @@ const styles = StyleSheet.create({
   analysisItem: {
     gap: 4,
     borderRadius: radii.md,
-    backgroundColor: '#FFFDF8',
+    backgroundColor: colors.backgroundCard,
     paddingHorizontal: 12,
     paddingVertical: 12,
     borderWidth: 1,

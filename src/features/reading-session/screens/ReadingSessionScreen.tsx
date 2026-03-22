@@ -10,7 +10,10 @@ import {
 
 import { useProgressStore } from '../../../app/providers/ProgressProvider';
 import { AppBackground } from '../../../components/common/AppBackground';
-import { getReadingPassageByMode } from '../../../data/seed/readingPassages';
+import {
+  getReadingPassageForSession,
+  getReadingPassagesByMode,
+} from '../../../data/seed/readingPassages';
 import { getTrainingModeById } from '../../../data/seed/trainingModes';
 import type { ReadingModeId } from '../../../domain/models/training';
 import { getModeSessionCountForDay } from '../../../domain/services/progressService';
@@ -35,7 +38,9 @@ export function ReadingSessionScreen({
   const { width } = useWindowDimensions();
   const isWideLayout = width >= 1040;
   const mode = getTrainingModeById(modeId);
-  const passage = getReadingPassageByMode(modeId);
+  const initialSessionCount = getModeSessionCountForDay(state, todayKey, modeId);
+  const readingPassages = getReadingPassagesByMode(modeId);
+  const passage = getReadingPassageForSession(modeId, initialSessionCount);
 
   if (!mode || !passage || passage.questions.length === 0) {
     return (
@@ -50,7 +55,6 @@ export function ReadingSessionScreen({
     );
   }
 
-  const initialSessionCount = getModeSessionCountForDay(state, todayKey, mode.id);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedChoice, setSelectedChoice] = useState<number | null>(null);
   const [submitted, setSubmitted] = useState(false);
@@ -68,6 +72,9 @@ export function ReadingSessionScreen({
   const chosenAnswer = submitted ? answers[question.id] ?? selectedChoice : selectedChoice;
   const isCorrect = chosenAnswer === question.answer;
   const progressValue = (currentIndex + 1) / passage.questions.length;
+  const readingSetIndex =
+    readingPassages.findIndex((currentPassage) => currentPassage.id === passage.id) + 1;
+  const readingSetLabel = `材料 ${readingSetIndex} / ${readingPassages.length}`;
   const missionText = submitted
     ? isCorrect
       ? '这题判断得对，下一步把依据句用自己的话复述一遍。'
@@ -196,6 +203,10 @@ export function ReadingSessionScreen({
                 {passage.paragraphs.length}
               </Text>
               <Text style={styles.heroMetaLabel}>段落数</Text>
+            </View>
+            <View style={styles.heroMetaCard}>
+              <Text style={styles.heroMetaValue}>{readingSetLabel}</Text>
+              <Text style={styles.heroMetaLabel}>当前材料</Text>
             </View>
           </View>
         </View>
@@ -718,7 +729,7 @@ const styles = StyleSheet.create({
   analysisItem: {
     gap: 4,
     borderRadius: radii.sm,
-    backgroundColor: '#FFFDF8',
+    backgroundColor: colors.backgroundCard,
     paddingHorizontal: 12,
     paddingVertical: 12,
     borderWidth: 1,
@@ -824,8 +835,6 @@ const styles = StyleSheet.create({
     fontFamily: fonts.body,
   },
 });
-
-
 
 
 

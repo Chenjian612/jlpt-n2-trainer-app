@@ -1,0 +1,167 @@
+[
+  {
+    "id": "grammar-study-1",
+    "modeId": "grammar_study",
+    "term": "にしたがって",
+    "coreMeaning": "随着前项变化，后项也跟着发生变化。",
+    "keyUsage": "前接名词或动词辞书形。强调规律性、同步性。",
+    "confusingPair": "与「につれて」相比，更常用于自然规律或趋势。",
+    "example": "試験の日が近づくにしたがって、緊張が强くなってきた。",
+    "memoryHook": "跟着主线走，一步一随。",
+    "reviewPrompt": "它是强调\"主观决定\"还是\"客观伴随\"？"
+  },
+  {
+    "id": "grammar-study-2",
+    "modeId": "grammar_study",
+    "term": "わけではない",
+    "coreMeaning": "并不是完全如此（部分否定）。",
+    "keyUsage": "句末部分否定，语气委婉。",
+    "confusingPair": "不要与「わけがない」（绝对不）混淆。",
+    "example": "日本語が話せるからといって、敬語が自由に使えるわけではない。",
+    "memoryHook": "把话说回来，别说得太死。",
+    "reviewPrompt": "它否定的是全部还是局部？"
+  },
+  {
+    "id": "grammar-study-3",
+    "modeId": "grammar_study",
+    "term": "ことになっている",
+    "coreMeaning": "表示规则、安排或约定（非个人决定）。",
+    "keyUsage": "常用于公司规定、法律、预定行程。",
+    "confusingPair": "与「ことにしている」（个人习惯）区分。",
+    "example": "この会議では、発表资料を前日までに共有することになっている。",
+    "memoryHook": "已经被定死了，我只能遵守。",
+    "reviewPrompt": "主语通常是谁？"
+  },
+  {
+    "id": "grammar-study-4",
+    "modeId": "grammar_study",
+    "term": "ものの",
+    "coreMeaning": "虽然……但是……，带有结果不如预期的语感。",
+    "keyUsage": "接在普通形后，多用于书面表达，后项常接消极或遗憾结果。",
+    "confusingPair": "和「けれども」相比，更正式，也更容易带出\"虽然如此，但还是……\"的落差。",
+    "example": "新しい制度は始まったものの、現場にはまだ十分に伝わっていない。",
+    "memoryHook": "前面先让一步，后面马上接现实落差。",
+    "reviewPrompt": "后项通常更偏积极还是偏遗憾？"
+  },
+  {
+    "id": "grammar-study-5",
+    "modeId": "grammar_study",
+    "term": "末に",
+    "coreMeaning": "经过长时间过程之后，最终……",
+    "keyUsage": "前接名词「〜の末に」或动词过去形「〜た末に」，强调过程漫长。",
+    "confusingPair": "不要和「結果」混成单纯结果词，它更强调\"折腾了很久才到这里\"。",
+    "example": "何度も話し合った末に、計画を来月に延期することになった。",
+    "memoryHook": "想到\"走到最后末端\"才出现的结论。",
+    "reviewPrompt": "它强调的是结果本身，还是到达结果前的过程？"
+  },
+  {
+    "id": "grammar-study-6",
+    "modeId": "grammar_study",
+    "term": "にすぎない",
+    "coreMeaning": "只不过是……，不过如此。",
+    "keyUsage": "前接普通形或名词，常用于降低评价、限定范围。",
+    "confusingPair": "和「しかない」不同，它不是\"只能\"，而是\"并没有那么厉害\"。",
+    "example": "今回の成功は通過点にすぎない。",
+    "memoryHook": "把东西往下压一格，只留\"不过如此\"的分量。",
+    "reviewPrompt": "它表达的是客观限制，还是说话人刻意压低评价？"
+  },
+  {
+    "id": "grammar-study-7",
+    "modeId": "grammar_study",
+    "term": "ことから",
+    "coreMeaning": "根据前项事实，可以判断……",
+    "keyUsage": "多接客观根据，用来说明命名理由、判断依据或推测根据。",
+    "confusingPair": "和「から」相比，它更像\"根据这一点来推断\"，不是单纯口语因果。",
+    "example": "空の色が急に暗くなったことから、夕方には雨が降りそうだ。",
+    "memoryHook": "看到证据，就顺着它往后推出判断。",
+    "reviewPrompt": "前项更像主观感受，还是可作为依据的客观事实？"
+  },
+  {
+    "id": "grammar-study-8",
+    "modeId": "grammar_study",
+    "term": "かねない",
+    "coreMeaning": "有可能导致不好的结果。",
+    "keyUsage": "前接动词ます形，后项多为负面后果，带警告语气。",
+    "confusingPair": "不要和「かねる」混淆，前者是\"可能会\"，后者是\"难以……\"。",
+    "example": "確認を怠ると、大きなミスにつながりかねない。",
+    "memoryHook": "看到它就默认后面要出事。",
+    "reviewPrompt": "它后面通常接中性结果还是负面风险？"
+  },
+  {
+    "id": "grammar-study-9",
+    "modeId": "grammar_study",
+    "term": "一方だ",
+    "coreMeaning": "一直朝某个方向发展，而且通常越来越明显。",
+    "keyUsage": "前接动词辞书形，多用于趋势持续恶化或单向扩大。",
+    "confusingPair": "和「ばかりだ」相近，但「一方だ」更强调单方向趋势。",
+    "example": "原材料の価格は上がる一方で、利益は出にくくなっている。",
+    "memoryHook": "像斜坡一样，只往一个方向滑。",
+    "reviewPrompt": "它适合描述瞬间变化，还是持续趋势？"
+  },
+  {
+    "id": "grammar-study-10",
+    "modeId": "grammar_study",
+    "term": "どころか",
+    "coreMeaning": "别说……了，甚至相反……",
+    "keyUsage": "前项常是原本期待的程度，后项给出更强烈或相反的事实。",
+    "confusingPair": "和「どころではない」不同，它更强调反差结果，而不是\"顾不上\"。",
+    "example": "静かどころか、会場は予想以上ににぎやかだった。",
+    "memoryHook": "先丢出一个预想，再直接把它翻过来。",
+    "reviewPrompt": "后项和前项是同向加强，还是直接形成反差？"
+  },
+  {
+    "id": "grammar-study-11",
+    "modeId": "grammar_study",
+    "term": "ばかりに",
+    "coreMeaning": "正因为……，结果导致了不好的结局。",
+    "keyUsage": "接普通形，带遗憾、后悔语气，后项多为负面结果。",
+    "confusingPair": "和普通「から」相比，它明显带\"偏偏因为这个\"的埋怨感。",
+    "example": "一言言い返したばかりに、話がさらにこじれてしまった。",
+    "memoryHook": "抓住一个小起点，后面全变糟。",
+    "reviewPrompt": "说话人的情绪更接近中性说明，还是后悔埋怨？"
+  },
+  {
+    "id": "grammar-study-12",
+    "modeId": "grammar_study",
+    "term": "に応じて",
+    "coreMeaning": "根据……而变化或处理。",
+    "keyUsage": "常接名词，后项往往是对应措施、数量变化或不同安排。",
+    "confusingPair": "和「によって」相比，更强调\"按情况分别对应\"。",
+    "example": "経験に応じて、担当する仕事の内容を変える。",
+    "memoryHook": "前项像条件按钮，后项跟着切换。",
+    "reviewPrompt": "它强调固定因果，还是\"看情况分别处理\"？"
+  },
+  {
+    "id": "grammar-study-13",
+    "modeId": "grammar_study",
+    "term": "うえで",
+    "coreMeaning": "在……之后 / 在……方面。",
+    "keyUsage": "「〜たうえで」强调先做前项再做后项；「〜うえで」也可表示某方面评价。",
+    "confusingPair": "不要和单纯时间顺序的「あとで」混用，它更强调\"以前项为前提\"。",
+    "example": "内容を確認したうえで、参加するかどうか決めてください。",
+    "memoryHook": "先把基础垫好，再往上做决定。",
+    "reviewPrompt": "前项是可省略的动作，还是后项必须依赖的前提？"
+  },
+  {
+    "id": "grammar-study-14",
+    "modeId": "grammar_study",
+    "term": "ことなく",
+    "coreMeaning": "没有……就…… / 不……而……",
+    "keyUsage": "多接动词辞书形，常用于书面表达，表示某动作完全没有发生。",
+    "confusingPair": "和「ないで」相比，更正式，也更常用于说明客观过程。",
+    "example": "彼は一度も弱音を吐くことなく、最後まで責任を果たした。",
+    "memoryHook": "把某动作整个拿掉，后项照样推进。",
+    "reviewPrompt": "它更偏口语还是书面？有\"完全没做\"的感觉吗？"
+  },
+  {
+    "id": "grammar-study-15",
+    "modeId": "grammar_study",
+    "term": "とは限らない",
+    "coreMeaning": "不一定……，未必……",
+    "keyUsage": "接普通形，用来避免绝对化判断，常出现在说明文和推理题里。",
+    "confusingPair": "和「わけではない」相比，它更强调\"并非所有情况都如此\"。",
+    "example": "値段が高いものが必ずしも品質も高いとは限らない。",
+    "memoryHook": "给绝对判断留一个出口。",
+    "reviewPrompt": "它是在部分否定事实，还是在否定\"必然成立\"的判断？"
+  }
+]

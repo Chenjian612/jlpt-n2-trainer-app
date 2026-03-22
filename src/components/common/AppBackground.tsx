@@ -14,6 +14,7 @@ export function AppBackground({ children }: AppBackgroundProps) {
         <View style={styles.topMist} />
         <View style={styles.cornerPool} />
         <View style={styles.sideRibbon} />
+        <View style={styles.midAccent} />
         <View style={styles.bottomPool} />
         <View style={styles.paperRing} />
         <View style={styles.horizonLine} />
@@ -33,23 +34,23 @@ const styles = StyleSheet.create({
   },
   topMist: {
     position: 'absolute',
-    top: -180,
-    right: -90,
-    width: 430,
-    height: 430,
-    borderRadius: 215,
+    top: -200,
+    right: -100,
+    width: 480,
+    height: 480,
+    borderRadius: 240,
     backgroundColor: '#EFD3A1',
-    opacity: 0.44,
+    opacity: 0.52,
   },
   cornerPool: {
     position: 'absolute',
-    top: 120,
-    right: -80,
-    width: 220,
-    height: 220,
-    borderRadius: 110,
+    top: 100,
+    right: -90,
+    width: 260,
+    height: 260,
+    borderRadius: 130,
     backgroundColor: '#D9EEE8',
-    opacity: 0.78,
+    opacity: 0.82,
   },
   sideRibbon: {
     position: 'absolute',
@@ -89,5 +90,15 @@ const styles = StyleSheet.create({
     right: 24,
     height: 1,
     backgroundColor: 'rgba(207, 185, 152, 0.34)',
+  },
+  midAccent: {
+    position: 'absolute',
+    top: 340,
+    left: -50,
+    width: 180,
+    height: 180,
+    borderRadius: 90,
+    backgroundColor: '#EBD9C0',
+    opacity: 0.38,
   },
 });

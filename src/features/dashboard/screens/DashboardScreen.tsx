@@ -22,6 +22,14 @@ import { WeaknessCoachCard } from '../components/WeaknessCoachCard';
 import { WeeklyRhythmCard } from '../components/WeeklyRhythmCard';
 import { useDashboardViewModel } from '../hooks/useDashboardViewModel';
 
+type ModeGroupKey = 'impact' | 'steady' | 'recovery';
+
+const GROUP_ACCENT_COLORS: Record<ModeGroupKey, string> = {
+  impact: colors.yellow,
+  steady: colors.teal,
+  recovery: colors.copper,
+};
+
 type DashboardScreenProps = {
   onOpenMode: (mode: TrainingMode) => void;
   onStartMode: (mode: TrainingMode) => void;
@@ -182,12 +190,21 @@ export function DashboardScreen({
               <View style={styles.sectionIntro}>
                 <Text style={styles.sectionTitle}>训练模式总览</Text>
                 <Text style={styles.sectionBody}>
-                  不再把全部模式平铺在一层。先把冲分、积累、回收拆开，用户会更容易判断下一步该点哪里。
+                  按训练目标分组，帮助你快速定位今天最适合的切入点。
                 </Text>
               </View>
 
               {modeGroups.map((group) => (
-                <View key={group.key} style={styles.modeGroup}>
+                <View
+                    key={group.key}
+                    style={[
+                      styles.modeGroup,
+                      {
+                        borderTopWidth: 3,
+                        borderTopColor: GROUP_ACCENT_COLORS[group.key as ModeGroupKey],
+                      },
+                    ]}
+                  >
                   <View style={styles.modeGroupHeader}>
                     <Text style={styles.modeGroupTitle}>{group.title}</Text>
                     <Text style={styles.modeGroupBody}>{group.body}</Text>

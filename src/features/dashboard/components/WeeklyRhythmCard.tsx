@@ -280,12 +280,15 @@ const styles = StyleSheet.create({
   goalPill: {
     flex: 1,
     borderRadius: radii.pill,
-    paddingVertical: 11,
+    paddingVertical: 12,
     alignItems: 'center',
     backgroundColor: colors.slateSoft,
+    borderWidth: 1,
+    borderColor: colors.lineSoft,
   },
   goalPillActive: {
     backgroundColor: colors.hero,
+    borderColor: colors.hero,
   },
   goalText: {
     fontSize: 13,
@@ -312,7 +315,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   weekBar: {
-    width: 22,
+    width: 26,
     borderRadius: radii.pill,
   },
   weekBarLabel: {
