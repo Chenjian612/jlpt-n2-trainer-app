@@ -328,5 +328,170 @@
     "example": "この写真を見るたびに、留学していた頃を思い出す。",
     "memoryHook": "一发生就重复",
     "reviewPrompt": "这是一次性的“时候”，还是每次都会出现的规律？"
+  },
+  {
+    "id": "grammar-study-31",
+    "modeId": "grammar_study",
+    "term": "わけにはいかない",
+    "coreMeaning": "由于立场或常识，不能……",
+    "keyUsage": "接动词辞书形，表示并非能力上做不到，而是从社会责任、身份或情理上不能那样做。",
+    "confusingPair": "和「できない」相比，它强调“不是不会，而是不适合/不允许那样做”。",
+    "example": "責任者として、その提案を簡単に受け入れるわけにはいかない。",
+    "memoryHook": "不是不能，是不便",
+    "reviewPrompt": "这里是真的没能力，还是有能力但碍于立场不能做？"
+  },
+  {
+    "id": "grammar-study-32",
+    "modeId": "grammar_study",
+    "term": "しかない",
+    "coreMeaning": "只有……，只好……",
+    "keyUsage": "接动词辞书形，表示在没有其他现实选择的情况下，只能采取这一办法。",
+    "confusingPair": "和「ほかない」相比，两者意思接近，但「しかない」更口语常见。它不是“最理想方案”，而是“别无选择”。",
+    "example": "電車が止まった以上、会場まで歩いて行くしかない。",
+    "memoryHook": "路堵了只剩这条",
+    "reviewPrompt": "这是积极推荐，还是在无奈中承认只剩这一种办法？"
+  },
+  {
+    "id": "grammar-study-33",
+    "modeId": "grammar_study",
+    "term": "わけだ",
+    "coreMeaning": "难怪…… / 也就是说……",
+    "keyUsage": "接普通形，用于根据前项信息得出自然结论，也可用来整理说明逻辑。",
+    "confusingPair": "和「ということだ」相比，它更强调“听到前项后，结论自然成立”的感觉。",
+    "example": "道路が混んでいたのだから、彼が遅れたのも無理はないわけだ。",
+    "memoryHook": "前因一摆，结论自然",
+    "reviewPrompt": "后项是生硬推断，还是从前项顺理成章得出的结论？"
+  },
+  {
+    "id": "grammar-study-34",
+    "modeId": "grammar_study",
+    "term": "にしても",
+    "coreMeaning": "即使……也…… / 就算……也……",
+    "keyUsage": "接普通形或名词，表示承认某种情况存在，但后项仍提出疑问、评价或保留意见。",
+    "confusingPair": "和「としても」相比，意思接近，但「にしても」常带说话人“即便如此还是……”的语气。",
+    "example": "急ぐにしても、最低限の確認はしておくべきだ。",
+    "memoryHook": "就算如此也得想",
+    "reviewPrompt": "前项只是被承认，还是被当作充分理由直接接受了？"
+  },
+  {
+    "id": "grammar-study-35",
+    "modeId": "grammar_study",
+    "term": "反面",
+    "coreMeaning": "另一方面，也有……的一面",
+    "keyUsage": "常接名词或普通形，用于说明某事有相反或并存的另一面，书面论述常见。",
+    "confusingPair": "和「一方で」相比，都能表示两面性，但「反面」更强调“正反两面并存”。",
+    "example": "便利になった反面、対面で相談する機会は減っている。",
+    "memoryHook": "正面背后还有一面",
+    "reviewPrompt": "作者是在简单并列信息，还是在强调事物的另一面代价？"
+  },
+  {
+    "id": "grammar-study-36",
+    "modeId": "grammar_study",
+    "term": "ことにする",
+    "coreMeaning": "决定……，作出自己的选择",
+    "keyUsage": "接动词辞书形或ない形，表示说话人主动决定某行动或生活规则。",
+    "confusingPair": "和「ことになる」相比，前者是自己决定，后者往往是外部安排或结果决定。",
+    "example": "迷ったが、今回は計画を見直すことにした。",
+    "memoryHook": "自己拍板用它",
+    "reviewPrompt": "这是自己作出的决定，还是被制度或局势推成的结果？"
+  },
+  {
+    "id": "grammar-study-37",
+    "modeId": "grammar_study",
+    "term": "に基づいて",
+    "coreMeaning": "以……为依据，基于……来进行判断或行动。",
+    "keyUsage": "常接名词，表示后项的判断、分析、制度或行动是以前项事实、数据、规则为基础展开的。",
+    "confusingPair": "和「によって」相比，它更强调“以前项为根据、依据”，不是单纯表示手段、原因或施事。",
+    "example": "調査結果に基づいて、来年度の方針が見直された。",
+    "memoryHook": "先有依据再行动",
+    "reviewPrompt": "后项只是受影响，还是明确把前项当成判断依据？"
+  },
+  {
+    "id": "grammar-study-38",
+    "modeId": "grammar_study",
+    "term": "ないわけにはいかない",
+    "coreMeaning": "不得不……，不能不……",
+    "keyUsage": "接动词ない形，表示从责任、情理或场合来看，必须做后项行为。",
+    "confusingPair": "和「ざるをえない」相比，意思接近，但前者更明显看出“双重否定形成义务感”。",
+    "example": "事情を知った以上、私も協力しないわけにはいかない。",
+    "memoryHook": "双重否定变必须",
+    "reviewPrompt": "这里是客观不能做，还是情理上不做说不过去？"
+  },
+  {
+    "id": "grammar-study-39",
+    "modeId": "grammar_study",
+    "term": "からには",
+    "coreMeaning": "既然……就……",
+    "keyUsage": "接普通形，表示前项既已成立，后项就应承担相应责任、决心或理所当然的结果。",
+    "confusingPair": "和「以上」相比，两者都表示“既然”，但「からには」常带更强的责任感和决意。",
+    "example": "引き受けたからには、最後まで責任を持ってやり抜くつもりだ。",
+    "memoryHook": "既然说了就得做",
+    "reviewPrompt": "后项只是普通结果，还是带有责任、觉悟或当然要求？"
+  },
+  {
+    "id": "grammar-study-40",
+    "modeId": "grammar_study",
+    "term": "てはじめて",
+    "coreMeaning": "只有在……之后，才首次……",
+    "keyUsage": "接动词て形，表示经过前项体验或过程后，后项的理解、感受或结果才第一次成立。",
+    "confusingPair": "和「てから」相比，它不只是时间先后，更强调“此前并未真正明白”。",
+    "example": "実際に担当してみてはじめて、この仕事の難しさがわかった。",
+    "memoryHook": "做过才真懂",
+    "reviewPrompt": "这里只是先后顺序，还是在强调“不到那一步就不会懂”？"
+  },
+  {
+    "id": "grammar-study-41",
+    "modeId": "grammar_study",
+    "term": "だけに",
+    "coreMeaning": "正因为……所以更……",
+    "keyUsage": "接普通形或名词，表示前项理由越充分，后项的结果或感受就越强烈。",
+    "confusingPair": "和「からこそ」相比，两者都强调原因，但「だけに」更常表现“程度相应增强”。",
+    "example": "期待していただけに、結果が出なかったことが悔やまれる。",
+    "memoryHook": "越真越痛越明显",
+    "reviewPrompt": "这里是在强调“恰恰因为”，还是在强调“前项越强，后项越明显”？"
+  },
+  {
+    "id": "grammar-study-42",
+    "modeId": "grammar_study",
+    "term": "わりに",
+    "coreMeaning": "与预想相比……，虽然……却……",
+    "keyUsage": "接普通形或名词，表示实际结果和一般预期不一致，常用于评价人或事物。",
+    "confusingPair": "和「のに」相比，它更强调“拿通常预期去比较后，结果出乎意料”。",
+    "example": "この店は駅から遠いわりに、いつも客が多い。",
+    "memoryHook": "和预想不一样",
+    "reviewPrompt": "这里是普通转折，还是在拿“通常会怎样”作比较后说意外结果？"
+  },
+  {
+    "id": "grammar-study-43",
+    "modeId": "grammar_study",
+    "term": "どころではない",
+    "coreMeaning": "哪有……的工夫 / 根本谈不上……",
+    "keyUsage": "接名词或动词辞书形，表示由于现实情况紧迫，已经没有余裕去做前项事情。",
+    "confusingPair": "和「わけにはいかない」相比，前者强调“局势上顾不上”，后者强调“立场上不能做”。",
+    "example": "締め切りが明日なので、今は休んでいるどころではない。",
+    "memoryHook": "忙到顾不上那个",
+    "reviewPrompt": "这里是“不被允许”，还是“现实上已经没余裕顾到它”？"
+  },
+  {
+    "id": "grammar-study-44",
+    "modeId": "grammar_study",
+    "term": "まい",
+    "coreMeaning": "大概不会…… / 决不……",
+    "keyUsage": "接动词辞书形，书面语较强，可表示否定推量，也可表示否定意志。",
+    "confusingPair": "和「ないだろう」相比，它更书面，也更适合较郑重的否定推测。",
+    "example": "彼ほど慎重な人なら、十分な確認もせずに契約するまい。",
+    "memoryHook": "书面版不会吧",
+    "reviewPrompt": "这里是在表达简单否定，还是在做带书面感的否定推量？"
+  },
+  {
+    "id": "grammar-study-45",
+    "modeId": "grammar_study",
+    "term": "ところを",
+    "coreMeaning": "在……的时候 / 在不方便的情况下还……",
+    "keyUsage": "常接「お忙しい」「お休みの」等表达，表示对方正处于不方便状态时仍受到其帮助，常用于致谢或道歉。",
+    "confusingPair": "和「ところに」相比，前者常用于客套表达，后者更偏叙述“正当……时发生某事”。",
+    "example": "お忙しいところをお時間をいただき、誠にありがとうございます。",
+    "memoryHook": "客套里常见的点",
+    "reviewPrompt": "这里是在叙述场景，还是在礼貌地对对方的不便表示歉意或感谢？"
   }
 ]
