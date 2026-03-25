@@ -163,5 +163,170 @@
     "example": "値段が高いものが必ずしも品質も高いとは限らない。",
     "memoryHook": "给绝对判断留一个出口。",
     "reviewPrompt": "它是在部分否定事实，还是在否定\"必然成立\"的判断？"
+  },
+  {
+    "id": "grammar-study-16",
+    "modeId": "grammar_study",
+    "term": "にもかかわらず",
+    "coreMeaning": "尽管……却……，不受前项影响。",
+    "keyUsage": "接普通形或名词，书面色彩较强，表示前项本应阻碍后项，但结果相反。",
+    "confusingPair": "和「のに」相比，它更书面、更客观，也更常用于说明文或正式表达。",
+    "example": "悪天候にもかかわらず、会場には多くの来場者が集まった。",
+    "memoryHook": "顶着条件也发生",
+    "reviewPrompt": "前项明明应阻碍后项，却还是发生了吗？"
+  },
+  {
+    "id": "grammar-study-17",
+    "modeId": "grammar_study",
+    "term": "とはいえ",
+    "coreMeaning": "虽说……但是……",
+    "keyUsage": "接普通形，用于先承认前项，再补充保留意见或实际判断，常见于书面评论。",
+    "confusingPair": "和「けれども」相比，它更偏书面，且常有“先承认一下，再补一句”的语气。",
+    "example": "経験者とはいえ、この業務を一人で任せるのは難しい。",
+    "memoryHook": "先认同再转话",
+    "reviewPrompt": "说话人是在完全否定前项，还是承认后再补充判断？"
+  },
+  {
+    "id": "grammar-study-18",
+    "modeId": "grammar_study",
+    "term": "ながら（も）",
+    "coreMeaning": "虽然……却……，带有并存落差。",
+    "keyUsage": "常接动词ます形、形容词或名词，表示前后情况并存，但结果带有转折或遗憾。",
+    "confusingPair": "和「つつ」相比，它更常用于让步转折，不是单纯说明两个动作同时进行。",
+    "example": "彼は不満を感じながらも、最後まで計画に従った。",
+    "memoryHook": "一边如此一边逆着",
+    "reviewPrompt": "前后是并行描述，还是带“明明如此却……”的落差？"
+  },
+  {
+    "id": "grammar-study-19",
+    "modeId": "grammar_study",
+    "term": "ないことには",
+    "coreMeaning": "如果不先……就不能……",
+    "keyUsage": "常接动词ない形，表示前项是后项成立的必要前提，多用于判断、决定或行动开始前。",
+    "confusingPair": "和「なければならない」相比，它强调条件不足，未必表示义务。",
+    "example": "実際に会ってみないことには、相手の印象はわからない。",
+    "memoryHook": "不做前项没后项",
+    "reviewPrompt": "这里是在说义务，还是在说“缺少前提就无法判断”？"
+  },
+  {
+    "id": "grammar-study-20",
+    "modeId": "grammar_study",
+    "term": "からといって",
+    "coreMeaning": "虽说因为……也不能就……",
+    "keyUsage": "接普通形，后项常接否定判断，表示不能仅凭前项就推出某结论或做某行动。",
+    "confusingPair": "和「とは限らない」相比，它更强调“不能因为这一点就立刻下结论”。",
+    "example": "日本語が話せるからといって、通訳の仕事がすぐできるわけではない。",
+    "memoryHook": "不能因为就……",
+    "reviewPrompt": "说话人是在否定事实，还是在否定“凭这一点就下结论”？"
+  },
+  {
+    "id": "grammar-study-21",
+    "modeId": "grammar_study",
+    "term": "ものなら",
+    "coreMeaning": "要是能……就…… / 要是……的话可就……",
+    "keyUsage": "常接动词可能形，前者多表强烈愿望，也可用于提醒某事一旦发生后果严重。",
+    "confusingPair": "和「なら」相比，它语气更强，更常带“实现困难”或“后果严重”的感觉。",
+    "example": "行けるものなら、私もその演奏会を聴きに行きたい。",
+    "memoryHook": "能做到就好了",
+    "reviewPrompt": "这个假设是普通条件，还是带“几乎做不到”的强烈语气？"
+  },
+  {
+    "id": "grammar-study-22",
+    "modeId": "grammar_study",
+    "term": "に加えて",
+    "coreMeaning": "除了……之外，还加上……",
+    "keyUsage": "常接名词，表示在原有基础上再追加新的因素，常见于说明文和书面表达。",
+    "confusingPair": "和「ばかりか」相比，它只是客观追加，不一定带“更进一步”的夸张语气。",
+    "example": "人手不足に加えて、原材料の価格も上がっている。",
+    "memoryHook": "先有A再加B",
+    "reviewPrompt": "后项只是追加信息，还是比前项更进一步地强调？"
+  },
+  {
+    "id": "grammar-study-23",
+    "modeId": "grammar_study",
+    "term": "上に",
+    "coreMeaning": "不但……而且……",
+    "keyUsage": "接普通形或名词+である，表示同方向信息的递进累加，常带说话人的评价色彩。",
+    "confusingPair": "和「に加えて」相比，它更像自然语气中的递进，常用于评价和描述优缺点。",
+    "example": "この旅館は景色が美しい上に、料理も評判がいい。",
+    "memoryHook": "好上再加好",
+    "reviewPrompt": "前后两项是在客观罗列，还是朝同一方向叠加评价？"
+  },
+  {
+    "id": "grammar-study-24",
+    "modeId": "grammar_study",
+    "term": "ばかりか",
+    "coreMeaning": "不但……而且……甚至……",
+    "keyUsage": "接普通形，表示后项比前项更进一步，常和「まで」呼应加强语气。",
+    "confusingPair": "和「上に」相比，它更强调“超出预想地再往前一步”。",
+    "example": "彼は約束に遅れたばかりか、必要な資料まで忘れてきた。",
+    "memoryHook": "不只A连B都",
+    "reviewPrompt": "后项只是并列追加，还是明显比前项更严重、更进一步？"
+  },
+  {
+    "id": "grammar-study-25",
+    "modeId": "grammar_study",
+    "term": "にほかならない",
+    "coreMeaning": "正是……，无非就是……",
+    "keyUsage": "常接名词，用于下定义或强调事物本质，书面论述感较强。",
+    "confusingPair": "和「にすぎない」相比，前者是强烈肯定本质，后者是限制、弱化范围。",
+    "example": "この制度の目的は、地域の安全を守ることにほかならない。",
+    "memoryHook": "一锤定本质",
+    "reviewPrompt": "这里是在弱化范围，还是在断定“本质就是这个”？"
+  },
+  {
+    "id": "grammar-study-26",
+    "modeId": "grammar_study",
+    "term": "というものだ",
+    "coreMeaning": "这才叫…… / 这就是……",
+    "keyUsage": "接评价性词语或句子，用于说话人作总结性评价，常带批评或感叹。",
+    "confusingPair": "和「にほかならない」相比，它更像主观评价句，而不是客观定义本质。",
+    "example": "相手の事情も聞かずに非難するのは、無責任というものだ。",
+    "memoryHook": "评语一锤定音",
+    "reviewPrompt": "这句话是在客观定义，还是在下主观评价？"
+  },
+  {
+    "id": "grammar-study-27",
+    "modeId": "grammar_study",
+    "term": "からこそ",
+    "coreMeaning": "正因为……才……",
+    "keyUsage": "接普通形或名词+だから，强调前项是后项成立的决定性理由。",
+    "confusingPair": "和普通「から」相比，它更强调“恰恰因为这个，所以后项才成立”。",
+    "example": "信頼しているからこそ、私は率直に意見を伝えるのだ。",
+    "memoryHook": "因为这个才会",
+    "reviewPrompt": "这里只是在说原因，还是在突出“恰恰因为如此”？"
+  },
+  {
+    "id": "grammar-study-28",
+    "modeId": "grammar_study",
+    "term": "に際して",
+    "coreMeaning": "在……之际，值此……",
+    "keyUsage": "常接名词或动词辞书形，表示正式场合或重要节点上发生某动作，书面感强。",
+    "confusingPair": "和「とき」相比，它更郑重，多用于开幕、就任、签约等正式场景。",
+    "example": "契約の締結に際して、条件をもう一度確認した。",
+    "memoryHook": "正式场合专用",
+    "reviewPrompt": "这里是普通“时候”，还是正式节点上的动作？"
+  },
+  {
+    "id": "grammar-study-29",
+    "modeId": "grammar_study",
+    "term": "に先立って",
+    "coreMeaning": "在……之前，先……",
+    "keyUsage": "常接名词，表示正式事件开始前先做准备性动作，常见于通知和说明文。",
+    "confusingPair": "和「前に」相比，它更正式，且后项往往是为前项做准备。",
+    "example": "開会に先立って、資料の配布が行われた。",
+    "memoryHook": "正式开始前先做",
+    "reviewPrompt": "后项只是时间上在前，还是在为前项做准备？"
+  },
+  {
+    "id": "grammar-study-30",
+    "modeId": "grammar_study",
+    "term": "たびに",
+    "coreMeaning": "每当……就……",
+    "keyUsage": "接动词辞书形或名词+の，表示某情况反复发生时，后项也反复出现。",
+    "confusingPair": "和「とき」相比，它强调重复性，不是一次性的时间点。",
+    "example": "この写真を見るたびに、留学していた頃を思い出す。",
+    "memoryHook": "一发生就重复",
+    "reviewPrompt": "这是一次性的“时候”，还是每次都会出现的规律？"
   }
 ]
