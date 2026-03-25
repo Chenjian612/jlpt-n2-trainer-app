@@ -1,4 +1,5 @@
 import type {
+  AiWrongAnswerExplanation,
   ProgressState,
   SessionsByDay,
   TrainingSessionRecord,
@@ -83,6 +84,7 @@ export const createDefaultProgressState = (): ProgressState => ({
   wrongAnswers: [],
   weaknessSignals: [],
   studyWeaknesses: [],
+  aiExplanationCache: {},
 });
 
 export const clampWeeklyGoal = (goal: number): number =>
@@ -398,6 +400,31 @@ const pruneHistory = (sessionsByDay: SessionsByDay): SessionsByDay => {
   return next;
 };
 
+const normalizeAiExplanationCache = (
+  value: unknown,
+): Record<string, AiWrongAnswerExplanation> => {
+  if (!value || typeof value !== 'object') return {};
+  const next: Record<string, AiWrongAnswerExplanation> = {};
+  for (const [key, entry] of Object.entries(value)) {
+    if (!entry || typeof entry !== 'object') continue;
+    const e = entry as Partial<AiWrongAnswerExplanation>;
+    if (
+      typeof e.mistakePattern === 'string' &&
+      typeof e.whyDistractorFooled === 'string' &&
+      typeof e.watchNextTime === 'string' &&
+      typeof e.generatedAt === 'string'
+    ) {
+      next[key] = {
+        mistakePattern: e.mistakePattern,
+        whyDistractorFooled: e.whyDistractorFooled,
+        watchNextTime: e.watchNextTime,
+        generatedAt: e.generatedAt,
+      };
+    }
+  }
+  return next;
+};
+
 export const normalizeProgressState = (raw: string | null): ProgressState => {
   if (!raw) return createDefaultProgressState();
   try {
@@ -411,6 +438,7 @@ export const normalizeProgressState = (raw: string | null): ProgressState => {
       wrongAnswers: normalizeWrongAnswers(parsed.wrongAnswers),
       weaknessSignals: normalizeWeaknessSignals(parsed.weaknessSignals),
       studyWeaknesses: normalizeStudyWeaknesses(parsed.studyWeaknesses),
+      aiExplanationCache: normalizeAiExplanationCache(parsed.aiExplanationCache),
     };
   } catch {
     return createDefaultProgressState();
@@ -609,8 +637,32 @@ export const recordWrongReviewSession = (state: ProgressState, dayKey: string, m
       lastReviewedAt: iso,
     };
   }
-  return { ...recordedState, wrongAnswers: sortWrongAnswers(nextWrongAnswers) };
+  const masteredIds = new Set(
+    decisions.filter((d) => d.mastered).map((d) => d.questionId),
+  );
+  const nextCache = { ...recordedState.aiExplanationCache };
+  for (const id of masteredIds) {
+    delete nextCache[id];
+  }
+
+  return {
+    ...recordedState,
+    wrongAnswers: sortWrongAnswers(nextWrongAnswers),
+    aiExplanationCache: nextCache,
+  };
 };
+
+export const cacheAiExplanation = (
+  state: ProgressState,
+  questionId: string,
+  explanation: AiWrongAnswerExplanation,
+): ProgressState => ({
+  ...state,
+  aiExplanationCache: {
+    ...state.aiExplanationCache,
+    [questionId]: explanation,
+  },
+});
 
 export const removeLatestSessionForMode = (state: ProgressState, dayKey: string, modeId: TrainingModeId): ProgressState => {
   const sessions = state.sessionsByDay[dayKey] ?? [];

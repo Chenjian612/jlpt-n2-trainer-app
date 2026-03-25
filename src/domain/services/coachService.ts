@@ -1,6 +1,8 @@
 ﻿import type {
   CoachPlanStep,
+  DailyStudyItem,
   DashboardWeaknessSnapshot,
+  GeneratedDailyPlan,
   ProgressState,
   WeaknessFocusItem,
 } from '../models/progress';
@@ -183,6 +185,109 @@ const buildPlanSteps = (focusItems: WeaknessFocusItem[]): CoachPlanStep[] => {
       recommendedModeId: primary.sourceModeId,
     },
   ];
+};
+
+export const getGeneratedDailyPlan = (
+  state: ProgressState,
+  date: string,
+): GeneratedDailyPlan => {
+  const items: DailyStudyItem[] = [];
+
+  const grammarBacklog = state.wrongAnswers.filter(
+    (w) => !w.mastered && w.modeId === 'grammar_drill',
+  );
+  const vocabBacklog = state.wrongAnswers.filter(
+    (w) => !w.mastered && w.modeId === 'vocab_drill',
+  );
+  const activeSignals = state.weaknessSignals.filter((s) => s.active);
+  const activeStudyWeaknesses = state.studyWeaknesses.filter((s) => s.active);
+
+  if (grammarBacklog.length > 0) {
+    items.push({
+      modeId: 'review_wrong',
+      reason: `文法错题队列有 ${grammarBacklog.length} 题待回收`,
+      priority: grammarBacklog.length >= APP_CONFIG.REVIEW_BATCH_SIZE ? 'urgent' : 'normal',
+      estimatedMinutes: 10,
+    });
+  }
+
+  if (vocabBacklog.length > 0) {
+    items.push({
+      modeId: 'vocab_review_wrong',
+      reason: `词汇错题队列有 ${vocabBacklog.length} 题待回收`,
+      priority: vocabBacklog.length >= APP_CONFIG.REVIEW_BATCH_SIZE ? 'urgent' : 'normal',
+      estimatedMinutes: 10,
+    });
+  }
+
+  if (activeSignals.length > 0) {
+    const readingSignals = activeSignals.filter((s) => s.modeId === 'reading_drill');
+    const listeningSignals = activeSignals.filter((s) => s.modeId === 'listening_analyze');
+
+    if (readingSignals.length > 0) {
+      items.push({
+        modeId: 'reading_drill',
+        reason: `读解弱项 ${readingSignals.length} 个待巩固`,
+        priority: 'normal',
+        estimatedMinutes: 20,
+      });
+    }
+
+    if (listeningSignals.length > 0) {
+      items.push({
+        modeId: 'listening_analyze',
+        reason: `听力弱项 ${listeningSignals.length} 个待巩固`,
+        priority: 'normal',
+        estimatedMinutes: 20,
+      });
+    }
+  }
+
+  if (activeStudyWeaknesses.length > 0) {
+    const grammarStudyWeak = activeStudyWeaknesses.filter(
+      (s) => s.modeId === 'grammar_study',
+    );
+    const vocabStudyWeak = activeStudyWeaknesses.filter(
+      (s) => s.modeId === 'vocab_study',
+    );
+
+    if (grammarStudyWeak.length > 0) {
+      items.push({
+        modeId: 'grammar_study',
+        reason: `文法记忆包有 ${grammarStudyWeak.length} 个不稳定项`,
+        priority: 'normal',
+        estimatedMinutes: 10,
+      });
+    }
+
+    if (vocabStudyWeak.length > 0) {
+      items.push({
+        modeId: 'vocab_study',
+        reason: `词汇记忆包有 ${vocabStudyWeak.length} 个不稳定项`,
+        priority: 'normal',
+        estimatedMinutes: 10,
+      });
+    }
+  }
+
+  if (items.length === 0) {
+    items.push(
+      {
+        modeId: 'grammar_drill',
+        reason: '文法题库还有未刷完的内容',
+        priority: 'normal',
+        estimatedMinutes: 15,
+      },
+      {
+        modeId: 'vocab_drill',
+        reason: '词汇题库还有未刷完的内容',
+        priority: 'normal',
+        estimatedMinutes: 15,
+      },
+    );
+  }
+
+  return { date, items, generatedBy: 'local' };
 };
 
 export const getDashboardWeaknessSnapshot = (

@@ -1,5 +1,6 @@
-﻿import { useRef, useState } from 'react';
+﻿import { useEffect, useRef, useState } from 'react';
 import {
+  ActivityIndicator,
   Pressable,
   ScrollView,
   Text,
@@ -8,6 +9,8 @@ import {
 
 import { APP_CONFIG } from '../../../config/constants';
 import { useProgressStore } from '../../../app/providers/ProgressProvider';
+import type { WrongAnswerExplanation } from '../../../services/aiCoachClient';
+import { getWrongAnswerExplanation } from '../../../services/aiCoachClient';
 import { AppBackground } from '../../../components/common/AppBackground';
 import { getTrainingModeById } from '../../../data/seed/trainingModes';
 import { REVIEW_SOURCE_MODE, type ReviewModeId } from '../../../domain/models/training';
@@ -32,7 +35,8 @@ export function WrongReviewScreen({
   onBackToDetail,
   onBackToDashboard,
 }: WrongReviewScreenProps) {
-  const { state, todayKey, completeWrongReviewSession } = useProgressStore();
+  const { state, todayKey, completeWrongReviewSession, saveAiExplanation } =
+    useProgressStore();
   const mode = getTrainingModeById(modeId);
 
   if (!mode) {
@@ -56,12 +60,23 @@ export function WrongReviewScreen({
   const [selectedChoice, setSelectedChoice] = useState<number | null>(null);
   const [hasCheckedAnswer, setHasCheckedAnswer] = useState(false);
   const [decisions, setDecisions] = useState<WrongReviewDecision[]>([]);
+  const [aiExplanation, setAiExplanation] = useState<WrongAnswerExplanation | null>(null);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState<string | null>(null);
   const [result, setResult] = useState<{
     reviewedCount: number;
     masteredCount: number;
     recordedSessionCount: number;
   } | null>(null);
   const finishRef = useRef(false);
+
+  useEffect(() => {
+    if (reviewItems.length === 0) return;
+    const cached = state.aiExplanationCache[reviewItems[currentIndex]?.questionId ?? ''];
+    setAiExplanation(cached ?? null);
+    setAiLoading(false);
+    setAiError(null);
+  }, [currentIndex]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (reviewItems.length === 0) {
     return (
@@ -138,6 +153,38 @@ export function WrongReviewScreen({
       masteredCount: nextDecisions.filter((decision) => decision.mastered).length,
       recordedSessionCount: initialSessionCount + 1,
     });
+  };
+
+  const handleAiExplain = async () => {
+    if (aiLoading || aiExplanation) return;
+    const cached = state.aiExplanationCache[item.questionId];
+    if (cached) {
+      setAiExplanation(cached);
+      return;
+    }
+    setAiLoading(true);
+    setAiError(null);
+    try {
+      const result = await getWrongAnswerExplanation({
+        question: item.prompt,
+        choices: item.choices,
+        selectedChoice: item.lastUserChoice ?? selectedChoice ?? 0,
+        correctChoice: item.answer,
+        tags: item.tags,
+        modeId: item.modeId,
+        wrongCount: item.wrongCount,
+      });
+      saveAiExplanation(item.questionId, {
+        ...result,
+        generatedAt: new Date().toISOString(),
+      });
+      setAiExplanation(result);
+    } catch (err) {
+      if (__DEV__) console.warn('[AI Coach]', err);
+      setAiError('获取解释失败，请稍后重试');
+    } finally {
+      setAiLoading(false);
+    }
   };
 
   return (
@@ -383,6 +430,39 @@ export function WrongReviewScreen({
                     <Text style={styles.analysisTitle}>复盘提醒</Text>
                     <Text style={styles.analysisBody}>{item.reviewNote}</Text>
                   </View>
+
+                  {aiExplanation ? (
+                    <View style={styles.aiBlock}>
+                      <Text style={styles.aiBlockTitle}>AI 错题分析</Text>
+                      <View style={styles.aiRow}>
+                        <Text style={styles.aiRowLabel}>错误模式</Text>
+                        <Text style={styles.aiRowBody}>{aiExplanation.mistakePattern}</Text>
+                      </View>
+                      <View style={styles.aiRow}>
+                        <Text style={styles.aiRowLabel}>干扰项为何有效</Text>
+                        <Text style={styles.aiRowBody}>{aiExplanation.whyDistractorFooled}</Text>
+                      </View>
+                      <View style={styles.aiRow}>
+                        <Text style={styles.aiRowLabel}>下次注意</Text>
+                        <Text style={styles.aiRowBody}>{aiExplanation.watchNextTime}</Text>
+                      </View>
+                    </View>
+                  ) : (
+                    <Pressable
+                      style={styles.aiButton}
+                      onPress={() => { void handleAiExplain(); }}
+                      disabled={aiLoading}
+                    >
+                      {aiLoading ? (
+                        <ActivityIndicator color="#FFFFFF" />
+                      ) : (
+                        <Text style={styles.aiButtonText}>为什么我错了？</Text>
+                      )}
+                    </Pressable>
+                  )}
+                  {aiError ? (
+                    <Text style={styles.aiError}>{aiError}</Text>
+                  ) : null}
                 </>
               ) : null}
             </View>

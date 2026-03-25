@@ -9,7 +9,7 @@ import {
 } from 'react';
 
 import { progressRepository } from '../../data/repositories/progressRepository';
-import type { ProgressState } from '../../domain/models/progress';
+import type { AiWrongAnswerExplanation, ProgressState } from '../../domain/models/progress';
 import type {
   StudyWeaknessDraft,
   WeaknessSignalDraft,
@@ -24,6 +24,7 @@ import type {
   TrainingSessionKind,
 } from '../../domain/models/training';
 import {
+  cacheAiExplanation,
   clampWeeklyGoal,
   clearDay,
   createTrainingSession,
@@ -61,6 +62,10 @@ type ProgressContextValue = {
   removeLatestSession: (modeId: TrainingModeId) => void;
   clearToday: () => void;
   setWeeklyGoal: (goal: number) => void;
+  saveAiExplanation: (
+    questionId: string,
+    explanation: AiWrongAnswerExplanation,
+  ) => void;
 };
 
 const ProgressContext = createContext<ProgressContextValue | null>(null);
@@ -166,6 +171,11 @@ export function ProgressProvider({ children }: ProgressProviderProps) {
           ...current,
           weeklyGoal: clampWeeklyGoal(goal),
         }));
+      },
+      saveAiExplanation: (questionId, explanation) => {
+        setState((current) =>
+          cacheAiExplanation(current, questionId, explanation),
+        );
       },
     }),
     [isHydrated, state, todayKey],

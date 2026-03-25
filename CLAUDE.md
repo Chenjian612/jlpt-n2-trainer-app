@@ -78,6 +78,35 @@ Nine modes are defined in `src/data/seed/trainingModes.ts` as `TrainingMode[]`. 
 - **Reading/listening errors** → `weaknessSignals[]` → aggregated by `coachService` → shown in `WeaknessCoachCard` on the dashboard
 - **Study pack self-assessment** → `studyWeaknesses[]` → dynamically staged to front of next study session
 
+### Feature structure
+
+Each feature under `src/features/<feature-name>/` follows: `screens/` (top-level route targets), `components/` (local UI), `hooks/` (view-model logic). Dashboard uses `useDashboardViewModel` to separate data from rendering.
+
+### Content data conventions
+
+**All learning content lives in JSON files; TypeScript files only load and query them.**
+
+| JSON file | TS loader | Content |
+|---|---|---|
+| `seed/drill_questions.json` | `seed/drillQuestions.ts` | Grammar/vocab drill questions |
+| `seed/n2_vocab_base.json` | `seed/extendedVocabLibrary.ts` | N2 vocab (500+ items) |
+| `seed/reading_passages.json` | `seed/readingPassages.ts` | Reading passages |
+| `seed/listening_cases.json` | `seed/listeningCases.ts` | Listening cases |
+| `seed/official_vocab_decks.json` | `seed/officialVocabDecks.ts` | Official vocab decks |
+| `seed/grammar_study_items.json` | `seed/studyPacks.ts` | Grammar study pack items |
+
+Do **not** inline data arrays in `.ts` files. All types are in `src/domain/models/trainingContent.ts`.
+
+**Drill question `id` format:** `"grammar-xxx"` or `"vocab-xxx"`. `modeId` must be `"grammar_drill"` or `"vocab_drill"`.
+
+**Listening audio:** React Native requires static `require()` strings. JSON stores an `audioKey` string (e.g. `"N2M1Q2"`); the actual `require()` mapping lives in the `AUDIO_ASSETS` object in `listeningCases.ts`. Adding a new audio file requires updating both the JSON and `AUDIO_ASSETS`.
+
+**Official vocab decks:** JSON uses `sourceSection` (`"vocabulary"` | `"grammar"` | `"reading"` | `"listening"`), not `source`. The loader resolves it via `getResourceLabel()`.
+
+### Config
+
+Tunable constants (batch sizes, priority weights, spaced-repetition intervals, mastery thresholds) are in `src/config/constants.ts` as `APP_CONFIG`.
+
 ### Theme
 
 All colors, fonts, radii, and shadows live in `src/theme/tokens.ts`. Import from there — do not hardcode color values in component files.

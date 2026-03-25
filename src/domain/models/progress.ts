@@ -1,4 +1,25 @@
 ﻿import type { TrainingModeId, TrainingSessionKind } from './training';
+
+export type AiWrongAnswerExplanation = {
+  mistakePattern: string;
+  whyDistractorFooled: string;
+  watchNextTime: string;
+  generatedAt: string; // ISO 8601
+};
+
+export type DailyStudyItem = {
+  modeId: TrainingModeId;
+  reason: string;
+  priority: 'urgent' | 'normal';
+  estimatedMinutes: number;
+};
+
+export type GeneratedDailyPlan = {
+  date: string;
+  items: DailyStudyItem[];
+  generatedBy: 'local' | 'ai';
+  examCountdown?: number;
+};
 import type {
   StudyWeaknessItem,
   WeaknessErrorType,
@@ -21,6 +42,7 @@ export type ProgressState = {
   wrongAnswers: WrongAnswerItem[];
   weaknessSignals: WeaknessSignalItem[];
   studyWeaknesses: StudyWeaknessItem[];
+  aiExplanationCache: Record<string, AiWrongAnswerExplanation>; // key: WrongAnswerItem.questionId
 };
 
 export type CapabilityDistribution = {

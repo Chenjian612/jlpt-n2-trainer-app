@@ -310,6 +310,53 @@ export const styles = StyleSheet.create({
     lineHeight: 21,
     fontFamily: fonts.body,
   },
+  aiBlock: {
+    borderRadius: radii.md,
+    backgroundColor: '#EEF2FF',
+    padding: 16,
+    gap: 12,
+    borderWidth: 1,
+    borderColor: '#C7D2FE',
+  },
+  aiBlockTitle: {
+    color: '#3730A3',
+    fontSize: 15,
+    fontWeight: '800',
+    fontFamily: fonts.title,
+  },
+  aiRow: {
+    gap: 4,
+  },
+  aiRowLabel: {
+    color: '#4338CA',
+    fontSize: 13,
+    fontWeight: '800',
+    fontFamily: fonts.body,
+  },
+  aiRowBody: {
+    color: '#1E1B4B',
+    fontSize: 14,
+    lineHeight: 21,
+    fontFamily: fonts.body,
+  },
+  aiButton: {
+    borderRadius: radii.sm,
+    backgroundColor: '#4F46E5',
+    paddingVertical: 14,
+    alignItems: 'center' as const,
+  },
+  aiButtonText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '800',
+    fontFamily: fonts.body,
+  },
+  aiError: {
+    color: '#991B1B',
+    fontSize: 13,
+    lineHeight: 20,
+    fontFamily: fonts.body,
+  },
   footerActions: {
     flexDirection: 'row',
     gap: 12,

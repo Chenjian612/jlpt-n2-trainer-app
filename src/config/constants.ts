@@ -21,4 +21,8 @@ export const APP_CONFIG = {
 
   // Spaced Repetition (Simple)
   STUDY_REAPPEAR_HOURS: 4, // Don't show unstable items again within 4 hours of last look
+
+  // AI Coach
+  AI_PROVIDER: 'claude' as 'claude' | 'deepseek',
+  AI_API_KEY: process.env.EXPO_PUBLIC_AI_API_KEY ?? '',
 };
