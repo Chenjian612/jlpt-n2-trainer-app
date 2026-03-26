@@ -168,7 +168,9 @@ export function WrongReviewScreen({
       const result = await getWrongAnswerExplanation({
         question: item.prompt,
         choices: item.choices,
-        selectedChoice: item.lastUserChoice ?? selectedChoice ?? 0,
+        selectedChoice: item.lastUserChoice !== null
+          ? item.lastUserChoice
+          : (selectedChoice !== item.answer ? selectedChoice ?? 0 : 0),
         correctChoice: item.answer,
         tags: item.tags,
         modeId: item.modeId,
@@ -295,16 +297,18 @@ export function WrongReviewScreen({
                       style={[
                         styles.choiceButton,
                         isSelected && styles.choiceButtonSelected,
-                        isCorrect && styles.choiceButtonCorrect,
+                        hasCheckedAnswer && isCorrect && styles.choiceButtonCorrect,
                         isLastWrong && !isCorrect && styles.choiceButtonWrong,
+                        hasCheckedAnswer && isSelected && !isCorrect && styles.choiceButtonWrong,
                       ]}
                     >
                       <Text
                         style={[
                           styles.choiceLabel,
                           isSelected && styles.choiceLabelSelected,
-                          isCorrect && styles.choiceLabelCorrect,
+                          hasCheckedAnswer && isCorrect && styles.choiceLabelCorrect,
                           isLastWrong && !isCorrect && styles.choiceLabelWrong,
+                          hasCheckedAnswer && isSelected && !isCorrect && styles.choiceLabelWrong,
                         ]}
                       >
                         {index + 1}. {choice}

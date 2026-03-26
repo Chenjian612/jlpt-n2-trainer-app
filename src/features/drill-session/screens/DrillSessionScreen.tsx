@@ -8,6 +8,7 @@ import {
   useWindowDimensions,
 } from 'react-native';
 
+import { APP_CONFIG } from '../../../config/constants';
 import { useProgressStore } from '../../../app/providers/ProgressProvider';
 import { AppBackground } from '../../../components/common/AppBackground';
 import { getDrillQuestionsByMode } from '../../../data/seed/drillQuestions';
@@ -35,7 +36,11 @@ export function DrillSessionScreen({
   const { state, todayKey, recordDrillSession } = useProgressStore();
   const { width } = useWindowDimensions();
   const mode = getTrainingModeById(modeId);
-  const questions = getDrillQuestionsByMode(modeId);
+  const allQuestions = getDrillQuestionsByMode(modeId);
+  const questions = useMemo(() => {
+    const shuffled = [...allQuestions].sort(() => Math.random() - 0.5);
+    return shuffled.slice(0, APP_CONFIG.DRILL_BATCH_SIZE);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!mode || questions.length === 0) {
     return (

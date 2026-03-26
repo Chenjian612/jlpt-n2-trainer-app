@@ -101,7 +101,7 @@ export type WeaknessSignalItem = {
 
 export type WrongReviewDecision = {
   questionId: string;
-  selectedChoice: number | null;
+  selectedChoice: number;
   mastered: boolean;
 };
 

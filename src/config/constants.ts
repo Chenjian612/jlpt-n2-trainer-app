@@ -10,6 +10,7 @@ export const APP_CONFIG = {
   DAILY_TARGET_SESSIONS: 3,
   
   // Review System
+  DRILL_BATCH_SIZE: 5,
   REVIEW_BATCH_SIZE: 5,
   MASTERED_THRESHOLD: 6, // Times correct before considered mastered
   
@@ -23,6 +24,6 @@ export const APP_CONFIG = {
   STUDY_REAPPEAR_HOURS: 4, // Don't show unstable items again within 4 hours of last look
 
   // AI Coach
-  AI_PROVIDER: 'claude' as 'claude' | 'deepseek',
+  AI_PROVIDER: (process.env.EXPO_PUBLIC_AI_PROVIDER ?? 'openai') as 'claude' | 'deepseek' | 'openai',
   AI_API_KEY: process.env.EXPO_PUBLIC_AI_API_KEY ?? '',
 };

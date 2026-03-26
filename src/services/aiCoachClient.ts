@@ -42,7 +42,13 @@ const buildUserContent = (params: WrongAnswerExplanationParams): string => {
 };
 
 const parseExplanation = (raw: string): WrongAnswerExplanation => {
-  const parsed = JSON.parse(raw) as Record<string, unknown>;
+  const stripped = raw.replace(/^```(?:json)?\s*/i, '').replace(/\s*```\s*$/i, '').trim();
+  let parsed: Record<string, unknown>;
+  try {
+    parsed = JSON.parse(stripped) as Record<string, unknown>;
+  } catch {
+    throw new Error(`AI returned non-JSON: ${stripped.slice(0, 100)}`);
+  }
   if (
     typeof parsed.mistakePattern !== 'string' ||
     typeof parsed.whyDistractorFooled !== 'string' ||
@@ -69,7 +75,10 @@ const callClaude = async (
   userContent: string,
   signal: AbortSignal,
 ): Promise<string> => {
-  const response = await fetch('https://api.anthropic.com/v1/messages', {
+  const endpoint = process.env.EXPO_PUBLIC_CLAUDE_PROXY_URL
+    ? `${process.env.EXPO_PUBLIC_CLAUDE_PROXY_URL}/v1/messages`
+    : 'https://api.anthropic.com/v1/messages';
+  const response = await fetch(endpoint, {
     method: 'POST',
     signal,
     headers: {
@@ -87,6 +96,31 @@ const callClaude = async (
   if (!response.ok) throw new Error(`Claude API error ${response.status}`);
   const data = (await response.json()) as ClaudeResponse;
   return data.content[0]?.text ?? '';
+};
+
+const callOpenAI = async (
+  userContent: string,
+  signal: AbortSignal,
+): Promise<string> => {
+  const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    method: 'POST',
+    signal,
+    headers: {
+      Authorization: `Bearer ${APP_CONFIG.AI_API_KEY}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      model: 'gpt-4o-mini',
+      max_tokens: 256,
+      messages: [
+        { role: 'system', content: SYSTEM_PROMPT },
+        { role: 'user', content: userContent },
+      ],
+    }),
+  });
+  if (!response.ok) throw new Error(`OpenAI API error ${response.status}`);
+  const data = (await response.json()) as OpenAIResponse;
+  return data.choices[0]?.message?.content ?? '';
 };
 
 const callDeepSeek = async (
@@ -122,11 +156,18 @@ export const getWrongAnswerExplanation = async (
 
   try {
     const userContent = buildUserContent(params);
-    const raw =
-      APP_CONFIG.AI_PROVIDER === 'deepseek'
-        ? await callDeepSeek(userContent, controller.signal)
-        : await callClaude(userContent, controller.signal);
+    let raw: string;
+    if (APP_CONFIG.AI_PROVIDER === 'openai') {
+      raw = await callOpenAI(userContent, controller.signal);
+    } else if (APP_CONFIG.AI_PROVIDER === 'deepseek') {
+      raw = await callDeepSeek(userContent, controller.signal);
+    } else {
+      raw = await callClaude(userContent, controller.signal);
+    }
     return parseExplanation(raw);
+  } catch (err) {
+    if (__DEV__) console.error('[AI Coach] error:', err);
+    throw err;
   } finally {
     clearTimeout(timeout);
   }

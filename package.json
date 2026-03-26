@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "main": "index.ts",
   "scripts": {
+    "dev": "node scripts/dev.js",
+    "proxy": "node scripts/claude-proxy.js",
+    "combined": "node scripts/combined-server.js",
     "start": "expo start",
     "android": "expo run:android",
     "ios": "expo run:ios",
