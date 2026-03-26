@@ -10,7 +10,7 @@
 npm run dev
 ```
 
-不要用 `npm run start` 代替它。`npm run start` 只启动 Expo，不会启动 Claude 代理，AI 解释功能会失败。
+不要用 `npm run start` 代替它。`npm run start` 只启动 Expo，不会启动 AI 代理，AI 解释功能会失败。
 
 ---
 
@@ -19,7 +19,7 @@ npm run dev
 ### 1. 进入项目根目录
 
 ```bash
-cd C:\chenjian\workspace\code\jlpt-n2-trainer-app
+cd /Users/chenjian/jlpt-n2-trainer-app
 ```
 
 ### 2. 首次启动或依赖变更后先装依赖
@@ -33,23 +33,24 @@ npm install
 项目根目录需要有 `.env.local`，内容如下：
 
 ```env
-EXPO_PUBLIC_AI_API_KEY=<你的 Claude API Key>
-EXPO_PUBLIC_AI_PROVIDER=claude
+EXPO_PUBLIC_AI_API_KEY=<你的 DeepSeek API Key>
+EXPO_PUBLIC_AI_PROVIDER=deepseek
 EXPO_PUBLIC_CLAUDE_PROXY_URL=http://localhost:9876
 ```
 
 - `.env.local` 不提交 git，每台机器单独配置。
-- 本地开发时，`EXPO_PUBLIC_CLAUDE_PROXY_URL` 必须是 `http://localhost:9876`。
 
 ---
 
 ## 场景一：本地开发
 
+开一个终端：
+
 ```bash
 npm run dev
 ```
 
-同时启动 Claude 代理（port 9876）和 Expo（port 8081）。
+同时启动 AI 代理（port 9876）和 Expo（port 8081）。
 
 浏览器访问 `http://localhost:8081`。
 
@@ -59,75 +60,39 @@ npm run dev
 
 ## 场景二：外网访问（手机或其他设备）
 
-**使用合并服务器**，app 和代理同一个端口同一个域名，彻底避免 CORS 问题。只需开两个终端。
+开两个终端。
 
-### 终端 1：启动 Expo
-
-```bash
-npx expo start
-```
-
-等待出现：
-
-```
-Waiting on http://localhost:8081
-```
-
-### 终端 2：启动合并服务器
-
-```bash
-npm run combined
-```
-
-等待出现：
-
-```
-[combined-server] listening on http://localhost:8082
-```
-
-合并服务器会把 `/v1/messages` 转发给 Claude API，其他请求转发给 Expo。
-
-### 更新 `.env.local`
-
-把代理地址改为合并服务器：
-
-```env
-EXPO_PUBLIC_CLAUDE_PROXY_URL=http://localhost:8082
-```
-
-### 重启 Expo（让新地址生效）
-
-停掉终端 1 的 Expo，重新运行：
-
-```bash
-npx expo start --clear
-```
-
-`--clear` 只需这一次，之后恢复 `npx expo start`。
-
-### 终端 3：开隧道
-
-```bash
-ssh -o StrictHostKeyChecking=no -R 80:localhost:8082 serveo.net
-```
-
-记下输出的地址，发给手机打开即可。第一次访问有 serveo 提示页，点 "Click to Continue" 跳过。
-
----
-
-## 结束外网访问后恢复本地
-
-把 `.env.local` 改回：
-
-```env
-EXPO_PUBLIC_CLAUDE_PROXY_URL=http://localhost:9876
-```
-
-然后：
+### 终端 1：启动本地服务
 
 ```bash
 npm run dev
 ```
+
+等待出现：
+
+```
+› Web is waiting on http://localhost:8081
+```
+
+### 终端 2：开 cloudflared 隧道
+
+```bash
+npx cloudflared tunnel --url http://localhost:8081
+```
+
+等待输出类似：
+
+```
+Your quick Tunnel has been created! Visit it at (it may take some time to be reachable):
+https://xxxxxx.trycloudflare.com
+```
+
+把这个 `https://` 地址发给手机或其他设备直接打开即可。
+
+> **注意**：
+> - 隧道地址每次重启都会变，重新发给别人即可。
+> - AI 代理运行在本机 9876 端口，外网访问时 AI 解释功能正常（代理走本机，不走隧道）。
+> - 停止时两个终端都 `Ctrl+C`。
 
 ---
 
@@ -135,29 +100,35 @@ npm run dev
 
 ### AI 解释报"获取解释失败"
 
-- 代理没启动：本地用 `npm run dev`，外网用 `npm run combined`
-- `.env.local` 改完但 Expo 没重启：重启 Expo 加 `--clear`
+- 代理没启动：确认用的是 `npm run dev` 而不是 `npm run start`
+- `.env.local` 改完但 Expo 没重启：重启并加 `--clear`
 
-### 页面 502
-
-- Expo 还没启动完，等待 `Waiting on http://localhost:8081` 出现后再访问
-- 合并服务器没启动：运行 `npm run combined`
+```bash
+npm run dev -- --clear
+```
 
 ### 页面白屏
 
-- 等 Metro 编译完（首次 `--clear` 约 1 分钟）
+- 等 Metro 编译完（首次约 1 分钟）
 - 按 F12 看 Console 报错
 
 ### 端口被占用（EADDRINUSE）
 
 ```bash
-netstat -ano | findstr :8081   # 找 Expo 进程
-netstat -ano | findstr :8082   # 找合并服务器进程
-netstat -ano | findstr :9876   # 找代理进程
+lsof -i :8081   # 找 Expo 进程
+lsof -i :9876   # 找 AI 代理进程
 ```
 
-找到 PID 后在任务管理器里结束，再重启。
+找到 PID 后：
 
-### serveo 地址每次都变
+```bash
+kill -9 <PID>
+```
 
-serveo 免费版每次重启地址都变，但合并服务器方案不需要更新 `.env.local`（代理地址始终是 `http://localhost:8082`），只需重开隧道即可。
+### cloudflared 未安装
+
+```bash
+npm install -g cloudflared
+```
+
+或直接用 `npx cloudflared`（无需全局安装）。
