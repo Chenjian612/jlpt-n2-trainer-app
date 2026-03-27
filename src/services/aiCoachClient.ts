@@ -127,11 +127,15 @@ const callDeepSeek = async (
   userContent: string,
   signal: AbortSignal,
 ): Promise<string> => {
-  const response = await fetch('https://api.deepseek.com/chat/completions', {
+  const proxyUrl = process.env.EXPO_PUBLIC_DEEPSEEK_PROXY_URL;
+  const endpoint = proxyUrl
+    ? `${proxyUrl}/v1/chat/completions`
+    : 'https://api.deepseek.com/v1/chat/completions';
+  const response = await fetch(endpoint, {
     method: 'POST',
     signal,
     headers: {
-      Authorization: `Bearer ${APP_CONFIG.AI_API_KEY}`,
+      Authorization: proxyUrl ? 'Bearer proxy' : `Bearer ${APP_CONFIG.AI_API_KEY}`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
