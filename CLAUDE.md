@@ -6,9 +6,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ```bash
 npm install          # install dependencies
-npm run dev          # 【推荐】一键启动：Claude 代理(9876) + Expo(8081)
+npm run dev          # 【推荐】一键启动：AI 代理(9876) + Expo(8081)
 npm run start        # 仅启动 Expo dev server（不含 AI 代理，AI 功能不可用）
-npm run proxy        # 仅启动 Claude API 代理（port 9876）
+npm run proxy        # 仅启动 AI 代理（port 9876）
 npm run web          # start web target
 npm run android      # run on Android
 npm run ios          # run on iOS
@@ -16,18 +16,20 @@ npm run ios          # run on iOS
 
 ## AI 错题解释功能说明
 
-AI 功能依赖本地代理绕过 Claude API 的 CORS 限制。**每次开发必须同时启动代理**，否则"为什么我错了"按钮会报错。
+AI 功能依赖本地代理绕过 CORS 限制。**每次开发必须同时启动代理**，否则"为什么我错了"按钮会报错。
 
 `npm run dev` 会同时启动代理和 Expo，**始终用这个命令代替 `npm run start`**。
 
 配置文件 `.env.local`（不提交 git）：
 ```
-EXPO_PUBLIC_AI_API_KEY=<Claude API Key>
-EXPO_PUBLIC_AI_PROVIDER=claude
+EXPO_PUBLIC_AI_API_KEY=<DeepSeek API Key>
+EXPO_PUBLIC_AI_PROVIDER=deepseek
 EXPO_PUBLIC_CLAUDE_PROXY_URL=http://localhost:9876
 ```
 
-代理脚本：`scripts/claude-proxy.js`（监听 9876，转发至 api.anthropic.com）
+代理脚本：`scripts/claude-proxy.js`（监听 9876，转发至对应 AI API）
+
+外网访问：在第二个终端运行 `npx cloudflared tunnel --url http://localhost:8081`，把生成的 `https://` 地址发给其他设备即可。详见 `DEV_STARTUP.md`。
 
 There is no test runner configured. Playwright is installed for browser-level smoke tests but there are no test scripts in `package.json` — tests are run manually.
 
