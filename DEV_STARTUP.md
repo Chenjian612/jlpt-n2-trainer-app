@@ -181,6 +181,19 @@ export default {
 
 ## 常见问题
 
+### 题库答案/解释不一致（选错却显示正确）
+
+题库 `src/data/seed/drill_questions.json` 里：
+
+- `answer` 使用 **0-based** 索引（0 表示第 1 个选项）。
+- 解释字段里的 `正确答案是「...」` 应与 `choices[answer]` 保持一致（注意有些文法题选项是“填空片段”，不一定包含整句型的所有部分）。
+
+可以用下面这条命令扫描不一致项（会输出 mismatch 数量）：
+
+```bash
+node -e "const fs=require('fs'); const p='src/data/seed/drill_questions.json'; const data=JSON.parse(fs.readFileSync(p,'utf8')); const re=/正确答案是「([^」]+)」/; let mism=0; for(const q of data){ if(!q?.explanation||!Array.isArray(q.choices)||typeof q.answer!=='number') continue; const m=q.explanation.match(re); if(!m) continue; const stated=m[1]; const actual=q.choices[q.answer]; if(actual!==stated) mism++; } console.log('mismatches',mism);"
+```
+
 ### AI 解释报"获取解释失败"
 
 - 代理没启动：本地用 `npm run dev`
