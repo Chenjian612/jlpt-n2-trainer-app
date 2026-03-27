@@ -75,8 +75,8 @@ const callClaude = async (
   userContent: string,
   signal: AbortSignal,
 ): Promise<string> => {
-  const endpoint = process.env.EXPO_PUBLIC_CLAUDE_PROXY_URL
-    ? `${process.env.EXPO_PUBLIC_CLAUDE_PROXY_URL}/v1/messages`
+  const endpoint = process.env.EXPO_PUBLIC_DEEPSEEK_PROXY_URL
+    ? `${process.env.EXPO_PUBLIC_DEEPSEEK_PROXY_URL}/v1/messages`
     : 'https://api.anthropic.com/v1/messages';
   const response = await fetch(endpoint, {
     method: 'POST',

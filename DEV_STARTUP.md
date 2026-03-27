@@ -37,11 +37,11 @@ npm install
 ```env
 EXPO_PUBLIC_AI_API_KEY=<你的 DeepSeek API Key>
 EXPO_PUBLIC_AI_PROVIDER=deepseek
-EXPO_PUBLIC_CLAUDE_PROXY_URL=http://localhost:9876
+EXPO_PUBLIC_DEEPSEEK_PROXY_URL=http://localhost:9876
 ```
 
 - `.env.local` 不提交 git，每台机器单独配置。
-- 使用 DeepSeek 时，`EXPO_PUBLIC_CLAUDE_PROXY_URL` 本地开发无需设置，仅 Claude 模式下需要。
+- 使用 DeepSeek 时，`EXPO_PUBLIC_DEEPSEEK_PROXY_URL` 本地开发无需设置，仅 Claude 模式下需要。
 
 ---
 
@@ -174,7 +174,7 @@ export default {
    ```
    EXPO_PUBLIC_AI_PROVIDER=deepseek
    EXPO_PUBLIC_AI_API_KEY=not-used
-   EXPO_PUBLIC_CLAUDE_PROXY_URL=https://jlpt-ai-proxy.你的账号.workers.dev
+   EXPO_PUBLIC_DEEPSEEK_PROXY_URL=https://jlpt-ai-proxy.你的账号.workers.dev
    ```
 
 ---

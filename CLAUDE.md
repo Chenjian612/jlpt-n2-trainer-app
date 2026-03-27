@@ -24,7 +24,7 @@ AI 功能依赖本地代理绕过 CORS 限制。**每次开发必须同时启动
 ```
 EXPO_PUBLIC_AI_API_KEY=<DeepSeek API Key>
 EXPO_PUBLIC_AI_PROVIDER=deepseek
-EXPO_PUBLIC_CLAUDE_PROXY_URL=http://localhost:9876
+EXPO_PUBLIC_DEEPSEEK_PROXY_URL=http://localhost:9876
 ```
 
 代理脚本：`scripts/claude-proxy.js`（监听 9876，转发至对应 AI API）
