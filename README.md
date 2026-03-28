@@ -1,25 +1,23 @@
 # JLPT N2 Trainer App
 
-一个基于 Expo / React Native 的 JLPT N2 训练应用，目标不是做单一题库页，而是把日常练习、首页推荐、错题回收、薄弱点聚合和本地进度追踪串成一个可连续使用的训练器。
-
-当前代码已经形成一条完整主链路：
-
-- 首页根据今日完成情况、错题 backlog、记忆不稳项和读解 / 听力薄弱点，动态给出推荐训练。
-- 训练完成后会写入本地进度。
-- 文法 / 词汇错题会进入回收队列。
-- 读解 / 听力错误会沉淀为 `weaknessSignals`。
-- 记忆包中标记为“不稳”的内容会进入 `studyWeaknesses`。
-- 首页“薄弱点摘要”和“今天怎么攻克”会统一消费这些信号。
+一个基于 Expo / React Native 的 JLPT N2 本地训练应用。它不是单页题库 Demo，而是把首页推荐、训练执行、错题回收、薄弱点聚合和本地进度追踪串成一条能持续复用的训练闭环。
 
 相关文档：
 
+- [开发环境启动说明](./DEV_STARTUP.md)
+- [部署说明](./DEPLOYMENT.md)
+- [题库扩充指令包](./CODEX-INSTRUCTIONS.md)
+- [内容扩充进度](./CONTENT-PROGRESS.md)
 - [项目历史](./PROJECT_HISTORY.md)
 - [路线图](./ROADMAP.md)
 - [AI 功能设计方案](./DESIGN-AI.md)
 
-## 项目概况
+## 当前状态
 
-这是一个纯前端、本地持久化的移动训练应用，目前没有后端依赖。
+- 纯前端、本地持久化应用，没有后端依赖。
+- 使用 `AsyncStorage` 保存训练状态，存储 key 为 `jlpt-n2-trainer-state-v1`。
+- 当前已落地 9 个训练模式，首页会根据错题、薄弱点和今日进度动态推荐下一步。
+- 错题回收页支持可选的 AI 错因分析，并会把结果缓存到本地状态。
 
 技术栈：
 
@@ -27,165 +25,112 @@
 - React 19
 - React Native 0.81
 - TypeScript
-- AsyncStorage
-- expo-audio
-- Playwright（用于本地 Web 冒烟验证）
+- `@react-native-async-storage/async-storage`
+- `expo-audio`
+- Playwright（Web 冒烟测试）
 
-运行形态：
+## 训练闭环
 
-- 入口为 `App.tsx -> src/app/AppRoot.tsx`
-- 使用 `ProgressProvider` 管理全局训练状态
-- 使用轻量级自定义路由切换页面，没有引入 `react-navigation`
-- 所有训练数据当前都来自本地 seed 文件
+### 首页推荐不是静态菜单
 
-## 当前已实现能力
+首页会统一消费以下信号：
 
-### 1. 九种训练模式
+- 今日完成轮次
+- 周目标完成度
+- 文法 / 词汇错题 backlog
+- 读解 / 听力薄弱点
+- 学习包里标记为“不稳”的内容
 
-当前支持 9 个模式：
+当前默认节奏：
 
-- 文法闯关 `grammar_drill`
-- 文法记忆包 `grammar_study`
-- 词汇刷题 `vocab_drill`
-- 词汇记忆包 `vocab_study`
-- 官方词卡记忆 `official_vocab_memory`
-- 读解实战 `reading_drill`
-- 听力要点拆解 `listening_analyze`
-- 文法错题回收 `review_wrong`
-- 词汇错题回收 `vocab_review_wrong`
+- 每日目标：3 轮
+- 每周目标：14 轮
+- 周目标可调范围：6 到 28
 
-不同模式对应不同页面和记录逻辑：
+### 九种训练模式
 
-- 刷题模式使用 `DrillSessionScreen`
-- 记忆包使用 `StudyPackScreen`
-- 官方词卡使用 `OfficialVocabMemoryScreen`
-- 读解使用 `ReadingSessionScreen`
-- 听力使用 `ListeningSessionScreen`
-- 错题回收使用 `WrongReviewScreen`
+| 模式 | `modeId` | 处理页面 | 当前行为 |
+| --- | --- | --- | --- |
+| 文法闯关 | `grammar_drill` | `DrillSessionScreen` | 每轮随机抽 5 题，错题进入文法回收队列 |
+| 文法记忆包 | `grammar_study` | `StudyPackScreen` | 每轮 3 个学习项，标记不稳项 |
+| 词汇刷题 | `vocab_drill` | `DrillSessionScreen` | 每轮随机抽 5 题，错题进入词汇回收队列 |
+| 词汇记忆包 | `vocab_study` | `StudyPackScreen` | 当前按 70 词分段轮换，记录不稳项 |
+| 官方词卡记忆 | `official_vocab_memory` | `OfficialVocabMemoryScreen` | 按卡组学习，支持 `known / fuzzy / hard` 标记 |
+| 读解实战 | `reading_drill` | `ReadingSessionScreen` | 按篇训练，错误写入 `weaknessSignals` |
+| 听力要点拆解 | `listening_analyze` | `ListeningSessionScreen` | 按案例训练，错误写入 `weaknessSignals` |
+| 文法错题回收 | `review_wrong` | `WrongReviewScreen` | 每轮回收 5 题，支持 AI 错因分析 |
+| 词汇错题回收 | `vocab_review_wrong` | `WrongReviewScreen` | 每轮回收 5 题，支持 AI 错因分析 |
 
-### 2. 首页推荐与训练节奏
-
-首页不是静态菜单，而是一个带推荐逻辑的 dashboard：
-
-- 今日目标默认 3 轮训练
-- 每周目标默认 14 轮，可调整
-- 推荐逻辑会优先考虑错题回收 backlog
-- 如果记忆包里存在“不稳”项，会优先推对应学习模式
-- 如果没有 backlog，再根据模式优先级推荐新训练
-- 首页同时展示今日进度、近 7 天节奏、能力分布和薄弱点摘要
-
-相关逻辑主要在：
-
-- `src/domain/services/dashboardService.ts`
-- `src/domain/services/coachService.ts`
-- `src/features/dashboard/hooks/useDashboardViewModel.ts`
-
-### 3. 错题、薄弱点与复盘系统
-
-目前代码里已经形成 3 套不同但互相关联的复盘数据：
+### 三类薄弱点会汇总到首页
 
 - `wrongAnswers`
-  - 来自文法 / 词汇刷题
-  - 记录错题内容、错误次数、最近误选、是否已掌握
+  - 来源：文法 / 词汇刷题
+  - 作用：进入错题回收队列并参与首页推荐
 - `weaknessSignals`
-  - 来自读解 / 听力
-  - 记录题级弱点、错误次数、是否仍 active
+  - 来源：读解 / 听力
+  - 作用：记录题级薄弱点，在首页生成“薄弱点摘要”和“今天怎么攻克”
 - `studyWeaknesses`
-  - 来自文法 / 词汇记忆包
-  - 记录哪些学习项被标记为“不稳”
+  - 来源：文法 / 词汇记忆包
+  - 作用：将标记为不稳的学习项推回后续学习优先级
 
-系统会对这些数据做优先级排序，并在首页聚合成最多 3 个当前最该先补的焦点项。
+另外还有一层本地缓存：
 
-当前已经覆盖的弱点类型包括：
+- `aiExplanationCache`
+  - 来源：错题回收页的 AI 错因分析
+  - 作用：避免同一题重复请求 AI
 
-- 文法：限制、判断、结论、并列、让步
-- 词汇：搭配、语境、词义细差
-- 读解：证据定位、主旨判断、干扰项排除
-- 听力：转折漏听、信息追踪、最终结论、主任务判断
-- 学习包：文法记忆不稳、词汇记忆不稳
+## 当前内容规模
 
-### 4. 题库与学习内容
+下面的数字来自当前仓库 seed 数据：
 
-当前本地内容大致包括：
+| 内容 | 当前量 | 说明 |
+| --- | --- | --- |
+| 文法刷题 | 300 题 | `grammar_drill` |
+| 词汇刷题 | 500 题 | `vocab_drill` |
+| 刷题总量 | 800 题 | `drill_questions.json` 总量 |
+| 文法学习项 | 90 项 | `grammar_study_items.json` |
+| 词汇库 | 540 词 | `n2_vocab_base.json` |
+| 官方词卡卡组 | 6 组 | 全部为 `ready` |
+| 官方词卡条目 | 48 张 | 6 组卡组总计 |
+| 读解文章 | 10 篇 | 共 40 道题 |
+| 听力案例 | 8 组 | 共 8 道题 |
+| 本地听力 MP3 | 5 个 | 静态映射在 `listeningCases.ts` |
 
-- 文法刷题 260 题 / 词汇刷题 100 题（持续扩充中）
-- 文法记忆包（90 项，持续扩充中）
-- 词汇记忆包（540 词，由扩展词库按阶段切片生成，每轮默认取一段内容）
-- 官方词卡 6 组（文字・语汇 × 2、听力 × 2、读解 × 2）
-- 读解材料 10 篇
-- 听力案例 8 组（含占位符，待接入真实音频）
+当前题库扩充进度请看 [CONTENT-PROGRESS.md](./CONTENT-PROGRESS.md)。
 
-### 5. 官方词卡模式
+## 架构概览
 
-`official_vocab_memory` 是独立流程，不复用普通记忆包：
+入口链路：
 
-- 先按题型筛选词卡包
-- 进入单包后逐张翻卡
-- 每张卡标记为 `known / fuzzy / hard`
-- 完成后生成结果页
-- 可以只对本轮 `hard` 项再开一轮复习
-- 仅完整学习整包时记录一次正式 session，复习轮不重复记入完成次数
+```text
+App.tsx
+  -> src/app/AppRoot.tsx
+  -> ProgressProvider
+  -> AppNavigator
+  -> 各 feature screen
+```
 
-### 6. 本地进度持久化
+核心特点：
 
-所有进度保存在 AsyncStorage，本地 key 为：
+- 没有引入 `react-navigation`，使用 `AppNavigator` 手写轻量路由。
+- `ProgressProvider` 是唯一全局状态入口，负责 hydration 和保存。
+- 训练内容以 JSON 为单一数据源，TypeScript 文件只做适配和查询。
+- 主题 token 集中在 `src/theme/tokens.ts`。
 
-- `jlpt-n2-trainer-state-v1`
-
-状态结构定义在 `src/domain/models/progress.ts`，核心字段包括：
-
-- `weeklyGoal`
-- `sessionsByDay`
-- `wrongAnswers`
-- `weaknessSignals`
-- `studyWeaknesses`
-
-当前规则：
-
-- 最多保留 45 天历史
-- 学习包中“不稳”项默认至少隔 2 天再重新出现
-- 错题 / 弱点会按频次、近期性、是否待复习等信号排序
-
-## 目录结构
+关键目录：
 
 - `src/app`
-  - 应用根节点、Provider、导航
+  - 根节点、Provider、导航
 - `src/features`
-  - 首页、模式详情、刷题、记忆包、官方词卡、读解、听力、错题回收等页面
+  - 首页、刷题、记忆包、官方词卡、读解、听力、错题回收
 - `src/domain`
-  - 领域模型、进度服务、首页推荐、薄弱点教练逻辑
+  - 类型定义、进度服务、推荐逻辑、薄弱点聚合
 - `src/data`
-  - 本地 seed 数据、题库、官方词卡、读解 / 听力材料、仓储封装
-- `src/components`
-  - 通用 UI 组件
-- `src/theme`
-  - 设计 token
-- `assets/audio/official`
-  - 已接入的官方公开听力音频资源
-
-## 关键数据流
-
-### 刷题
-
-`DrillSessionScreen -> recordDrillSession -> wrongAnswers -> Dashboard / WrongReview`
-
-- 做完一轮刷题后记录 session
-- 错题进入 `wrongAnswers`
-- 首页和错题回收页都会读取这些数据
-
-### 读解 / 听力
-
-`ReadingSessionScreen | ListeningSessionScreen -> recordSession(...weaknessSignals) -> weaknessSignals -> Dashboard`
-
-- 这两类模式不会进入文法 / 词汇错题回收队列
-- 而是写入独立的 `weaknessSignals`
-
-### 记忆包
-
-`StudyPackScreen -> recordStudySession -> studyWeaknesses -> Dashboard`
-
-- 学习项如果被标记为不稳，会写入 `studyWeaknesses`
-- 首页推荐会优先考虑这些待补强项
+  - 本地题库、词库、官方词卡、读解 / 听力素材、仓储封装
+- `src/services`
+  - AI 错题分析客户端
+- `tests`
+  - Node 侧逻辑测试与 Playwright Web 冒烟脚本
 
 ## 本地运行
 
@@ -195,50 +140,78 @@
 npm install
 ```
 
-启动开发服务（推荐，同时启动 AI 代理和 Expo）：
+常用命令：
 
 ```bash
 npm run dev
-```
-
-其他目标：
-
-```bash
+npm run start
+npm run proxy
 npm run web
 npm run android
 npm run ios
 ```
 
-## 当前更适合怎么理解这个项目
+说明：
 
-用现在这版代码来定义，这个项目更接近：
+- `npm run dev`
+  - 同时启动 Expo dev server 和本地代理脚本
+- `npm run start`
+  - 只启动 Expo，不启动代理
+- `npm run proxy`
+  - 只启动本地代理
+- `npm run web`
+  - 启动 Web 目标
 
-- 一个本地优先的 N2 训练工作台
-- 一个把“训练 -> 记录 -> 发现弱点 -> 再推荐”闭环做起来的学习应用原型
+### `.env.local`
 
-而不是：
+复制 `.env.example` 为 `.env.local`，按需填写：
 
-- 只有静态题目展示的 Demo
-- 只做单次练习、不保留训练记忆的练习页集合
+```env
+EXPO_PUBLIC_AI_API_KEY=<your_api_key>
+EXPO_PUBLIC_AI_PROVIDER=openai
+# 可选：Claude on Web 必填；DeepSeek / OpenAI 走自建代理时也可填写
+EXPO_PUBLIC_DEEPSEEK_PROXY_URL=http://localhost:9876
+```
 
-## 后续可继续补强的方向
+当前代码支持的 provider：
 
-从当前代码看，下一步最自然的演进方向是：
+- `openai`
+- `deepseek`
+- `claude`
 
-- 扩充题库与官方资源导入流程（进行中，见 CODEX-INSTRUCTIONS.md）
-- 补更细的间隔复习规则
-- 增加更稳定的自动化测试覆盖
-- 把当前自定义导航升级到更完整的导航方案
-- 处理部分 seed 文本与资源整理流程，降低内容维护成本
+默认值：
 
-## 内容扩充进度
+- 如果未设置 `EXPO_PUBLIC_AI_PROVIDER`，默认使用 `openai`
 
-题库扩充由 AI 辅助生成，进度记录在 `CODEX-PROGRESS.md`，任务指令在 `CODEX-INSTRUCTIONS.md`。
+注意：
 
-| 内容         | 当前量  | 目标量  |
-| ------------ | ------- | ------- |
-| 文法刷题     | 260 题  | 500+ 题 |
-| 词汇刷题     | 100 题  | 500+ 题 |
-| 文法学习项   | 90 项   | 100+ 项 |
-| 读解素材     | 10 篇   | 15+ 篇  |
-| 词汇库       | 540 词  | —       |
+- `EXPO_PUBLIC_DEEPSEEK_PROXY_URL` 这个变量名历史上只给 DeepSeek 用，但当前实现里它实际承担“通用代理 base URL”的角色。
+- 在浏览器里直连第三方模型会暴露 API Key。要分享给别人用或做正式部署，应该改成服务端代理或 Worker 保管密钥。
+
+## 测试与验证
+
+当前仓库已经配置了可直接运行的测试脚本：
+
+```bash
+npm test
+npx tsc --noEmit
+npm run test:web:components
+npm run test:web:e2e
+```
+
+说明：
+
+- `npm test`
+  - 运行 `tests/*.test.js`，当前共 38 个逻辑测试
+- `npm run test:web:components`
+  - 运行 Playwright 组件流测试
+- `npm run test:web:e2e`
+  - 运行首页到错题回收的 Web 冒烟链路
+- Playwright 默认访问 `http://127.0.0.1:19006`，可通过 `BASE_URL` 覆盖
+
+## 当前边界
+
+- 仍是本地优先架构，没有账号体系、云同步和后端题库服务。
+- 自定义导航已经够当前体量使用，但复杂度继续上升时更适合迁移到正式导航方案。
+- AI 功能仍依赖前端环境变量和可选代理，正式部署前必须收口密钥暴露问题。
+- 词汇记忆包当前按 70 词切片轮换，适合总量推进，但后续仍可继续优化为更细颗粒度的节奏控制。

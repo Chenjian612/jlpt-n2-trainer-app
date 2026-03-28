@@ -76,12 +76,12 @@ export const TRAINING_MODES: TrainingMode[] = [
     title: '词汇记忆包',
     shortTitle: '背词',
     subtitle: 'Vocab Study',
-    description: '按一天 12 词推进，保留读音、核心义和短例句。',
+    description: '按阶段词包轮换推进，保留读音、核心义和短例句。',
     durationLabel: '14 分钟',
     focus: '读音、核心义、对比记忆',
     sourceLabel: '来源：N2 每日词汇包',
     detailIntro:
-      '词汇记忆包是为了稳定推进总量。每天保持固定的 12 词，比偶尔一次性背很多更稳。',
+      '词汇记忆包是为了稳定推进总量。当前按阶段词包轮换，每轮聚焦一段核心词，避免内容无限堆在同一天。',
     sessionFlow: [
       '先快速过一遍读音和核心义',
       '挑出 2 到 3 个容易混淆词做对比',
@@ -213,5 +213,4 @@ export const TRAINING_MODES: TrainingMode[] = [
 export const getTrainingModeById = (
   modeId: TrainingModeId,
 ): TrainingMode | undefined => TRAINING_MODES.find((mode) => mode.id === modeId);
-
 
