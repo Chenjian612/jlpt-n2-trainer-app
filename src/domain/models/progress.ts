@@ -83,6 +83,8 @@ export type RecentDay = {
   count: number;
 };
 
+export type WeaknessTrend = 'improving' | 'stable' | 'worsening';
+
 export type WeaknessFocusItem = {
   id: WeaknessErrorType;
   label: string;
@@ -93,6 +95,7 @@ export type WeaknessFocusItem = {
   recommendedModeId: TrainingModeId;
   body: string;
   coachPoint: string;
+  trend?: WeaknessTrend;
 };
 
 export type CoachPlanStep = {

@@ -72,6 +72,7 @@ export function ListeningSessionScreen({
   const [playbackRate, setPlaybackRate] =
     useState<(typeof PLAYBACK_RATES)[number]>(1);
   const [listenCounts, setListenCounts] = useState<Record<string, number>>({});
+  const [tipsShownCases, setTipsShownCases] = useState<Set<string>>(new Set());
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [result, setResult] = useState<{
     correctCount: number;
@@ -120,14 +121,21 @@ export function ListeningSessionScreen({
     audioStatus.duration > 0
       ? formatSeconds(audioStatus.duration)
       : currentCase.audioDurationLabel;
-  const submitDisabled = selectedChoice === null || !hasPlayedCurrent;
-  const missionText = submitted
-    ? isCorrect
-      ? '这题判断方向对了，下一步把改变结论的那一句再复述一遍。'
-      : '先别记答案，先确认是哪一句把结论改写掉了。'
-    : hasPlayedCurrent
-      ? '现在已经可以作答，重点抓转折后的决定信息。'
-      : '先听出场景和任务，再去辨认真正决定答案的那一句。';
+  const isInstantReply = question.tags?.includes('即時応答') ?? false;
+  const submitDisabled = selectedChoice === null || (!isInstantReply && !hasPlayedCurrent);
+  const missionText = isInstantReply
+    ? submitted
+      ? isCorrect
+        ? '语感判断对了，回想一下为什么其他选项不自然。'
+        : '注意语气和语境，再读一遍刺激句确认说话人的意图。'
+      : '读刺激句，判断说话人的意图，选出最自然的回应。'
+    : submitted
+      ? isCorrect
+        ? '这题判断方向对了，下一步把改变结论的那一句再复述一遍。'
+        : '先别记答案，先确认是哪一句把结论改写掉了。'
+      : hasPlayedCurrent
+        ? '现在已经可以作答，重点抓转折后的决定信息。'
+        : '先听出场景和任务，再去辨认真正决定答案的那一句。';
   const questionMetaText = `第 ${currentIndex + 1} 题 · 本材料第 ${currentCaseQuestionIndex + 1} 题`;
   const wrongQuestionLabels = useMemo(
     () =>
@@ -322,7 +330,7 @@ export function ListeningSessionScreen({
 
         {result ? (
           <View style={[styles.sectionCard, styles.resultCard, shadows.card]}>
-            <Text style={styles.sectionTitle}>本轮听力完成</Text>
+            <Text testID="listening-result-title" style={styles.sectionTitle}>本轮听力完成</Text>
             <Text style={styles.sectionBody}>
               本轮结果已经写入今日进度。你共答对 {result.correctCount} 题，答错 {result.wrongCount} 题；今天这个模式累计完成 {result.recordedSessionCount} 轮。
             </Text>
@@ -367,6 +375,40 @@ export function ListeningSessionScreen({
 
             <Pressable onPress={onBackToDetail} style={styles.secondaryButton}>
               <Text style={styles.secondaryButtonText}>回到模式页</Text>
+            </Pressable>
+          </View>
+        ) : !tipsShownCases.has(currentCase.id) && currentCaseQuestionIndex === 0 ? (
+          <View style={[styles.tipsCard, shadows.card]}>
+            <Text style={styles.tipsEyebrow}>本题型解题要领</Text>
+            <Text style={styles.sectionTitle}>{currentCase.title}</Text>
+            <Text style={styles.sceneText}>场景：{currentCase.scene}</Text>
+            <Text style={styles.taskText}>任务：{currentCase.task}</Text>
+
+            <View style={styles.noteCard}>
+              <Text style={styles.noteTitle}>核心陷阱</Text>
+              <Text style={styles.noteBody}>{currentCase.note}</Text>
+            </View>
+
+            <View style={styles.checklistCard}>
+              <Text style={styles.noteTitle}>听题三要点</Text>
+              <View style={styles.checklistList}>
+                {currentCase.listenChecklist.map((item, i) => (
+                  <View key={item} style={styles.checklistItem}>
+                    <Text style={styles.checklistIndex}>{i + 1}</Text>
+                    <Text style={styles.checklistText}>{item}</Text>
+                  </View>
+                ))}
+              </View>
+            </View>
+
+            <Pressable
+              testID="listening-tips-confirm"
+              style={[styles.primaryButton, { backgroundColor: mode.accent }]}
+              onPress={() =>
+                setTipsShownCases((prev) => new Set([...prev, currentCase.id]))
+              }
+            >
+              <Text style={styles.primaryButtonText}>明白了，开始听题</Text>
             </Pressable>
           </View>
         ) : (
@@ -454,6 +496,7 @@ export function ListeningSessionScreen({
 
               <View style={styles.audioButtonRow}>
                 <Pressable
+                  testID="listening-play-button"
                   disabled={!audioStatus.isLoaded}
                   onPress={handlePlayPause}
                   style={[
@@ -520,11 +563,19 @@ export function ListeningSessionScreen({
 
             <View style={[styles.sectionCard, styles.resultCard, shadows.card]}>
               <Text style={styles.questionMeta}>{questionMetaText}</Text>
+              {isInstantReply ? (
+                <View style={styles.stimulusCard}>
+                  <Text style={styles.stimulusEyebrow}>刺激句</Text>
+                  <Text style={styles.stimulusText}>{currentCase.dialogue[0]?.text}</Text>
+                </View>
+              ) : null}
               <Text style={styles.sectionTitle}>{question.prompt}</Text>
               <Text style={styles.questionHint}>
-                {hasPlayedCurrent
-                  ? '可以作答。若还不稳，建议先再听一遍再提交。'
-                  : '先播放至少 1 次音频后，提交按钮才会解锁。'}
+                {isInstantReply
+                  ? '读刺激句，选出最自然、最得体的回应。'
+                  : hasPlayedCurrent
+                    ? '可以作答。若还不稳，建议先再听一遍再提交。'
+                    : '先播放至少 1 次音频后，提交按钮才会解锁。'}
               </Text>
 
               <View style={styles.choiceList}>
@@ -535,6 +586,7 @@ export function ListeningSessionScreen({
                   return (
                     <Pressable
                       key={choice}
+                      testID={`listening-choice-${index}`}
                       onPress={() => !submitted && setSelectedChoice(index)}
                       style={[
                         styles.choiceButton,
@@ -660,6 +712,7 @@ export function ListeningSessionScreen({
 
             <View style={styles.footerActions}>
               <Pressable
+                testID={submitted ? 'listening-next' : 'listening-submit'}
                 onPress={submitted ? handleNext : handleSubmit}
                 disabled={!submitted && submitDisabled}
                 style={[
@@ -899,6 +952,54 @@ const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 21,
     fontFamily: fonts.body,
+  },
+  tipsCard: {
+    backgroundColor: colors.backgroundCard,
+    borderRadius: radii.xl,
+    padding: 24,
+    gap: 18,
+    borderWidth: 1,
+    borderColor: colors.lineSoft,
+  },
+  tipsEyebrow: {
+    color: colors.teal,
+    fontSize: 12,
+    fontWeight: '800',
+    fontFamily: fonts.body,
+  },
+  stimulusCard: {
+    backgroundColor: colors.heroSoft,
+    borderRadius: radii.md,
+    borderWidth: 1,
+    borderColor: colors.heroLine,
+    padding: 14,
+    gap: 6,
+  },
+  stimulusEyebrow: {
+    color: colors.teal,
+    fontSize: 11,
+    fontWeight: '800',
+    fontFamily: fonts.body,
+  },
+  stimulusText: {
+    color: colors.inkStrong,
+    fontSize: 17,
+    fontWeight: '700',
+    fontFamily: fonts.title,
+    lineHeight: 26,
+  },
+  checklistIndex: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: colors.tealSoft,
+    textAlign: 'center',
+    lineHeight: 20,
+    fontSize: 12,
+    fontWeight: '800',
+    fontFamily: fonts.body,
+    color: colors.teal,
+    overflow: 'hidden',
   },
   progressCard: {
     backgroundColor: colors.backgroundCard,

@@ -64,7 +64,7 @@ module.exports = {
       run() {
         const passages = getReadingPassagesByMode('reading_drill');
 
-        assert.equal(passages.length, 10);
+        assert.equal(passages.length, 15);
         assert.equal(getReadingPassageForSession('reading_drill', 0)?.id, passages[0].id);
         assert.equal(getReadingPassageForSession('reading_drill', 1)?.id, passages[1].id);
         assert.equal(

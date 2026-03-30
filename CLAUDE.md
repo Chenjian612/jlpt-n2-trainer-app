@@ -15,6 +15,7 @@ npm run ios
 npm test
 npm run test:web:components
 npm run test:web:e2e
+npm run test:web:listening
 npx tsc --noEmit
 ```
 
@@ -160,9 +161,9 @@ Current content scale:
 - 800 drill questions total (300 grammar + 500 vocab)
 - 90 grammar study items
 - 540 vocab items
-- 6 official ready decks / 48 cards
-- 10 reading passages / 40 questions
-- 8 listening cases / 8 questions
+- 6 official vocab decks / 120 cards
+- 15 reading passages / 60 questions
+- 23 listening cases / 26 questions (covers all 5 N2 listening question types)
 
 ### Testing
 
@@ -174,6 +175,8 @@ The repository does have runnable test scripts now.
   - Playwright component flow smoke tests
 - `npm run test:web:e2e`
   - Playwright dashboard/review smoke flow
+- `npm run test:web:listening`
+  - Playwright listening session smoke flow (tips page, instant-reply, result screen)
 - `npx tsc --noEmit`
   - TypeScript check
 

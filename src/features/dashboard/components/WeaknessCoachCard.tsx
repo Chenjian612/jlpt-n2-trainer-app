@@ -1,8 +1,14 @@
 ﻿import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import type { DashboardWeaknessSnapshot } from '../../../domain/models/progress';
+import type { DashboardWeaknessSnapshot, WeaknessTrend } from '../../../domain/models/progress';
 import type { TrainingMode } from '../../../domain/models/training';
 import { colors, fonts, radii, shadows } from '../../../theme/tokens';
+
+const TREND_CONFIG: Record<WeaknessTrend, { label: string; color: string }> = {
+  improving: { label: '↓ 好转', color: colors.teal },
+  stable:    { label: '→ 持平', color: colors.inkMuted },
+  worsening: { label: '↑ 恶化', color: colors.copper },
+};
 
 type WeaknessCoachCardProps = {
   snapshot: DashboardWeaknessSnapshot;
@@ -40,7 +46,14 @@ export function WeaknessCoachCard({
             {snapshot.focusItems.map((item) => (
               <View key={item.id} style={styles.focusRow}>
                 <View style={styles.focusHeader}>
-                  <Text style={styles.focusLabel}>{item.label}</Text>
+                  <View style={styles.focusLabelRow}>
+                    <Text style={styles.focusLabel}>{item.label}</Text>
+                    {item.trend ? (
+                      <Text style={[styles.trendBadge, { color: TREND_CONFIG[item.trend].color }]}>
+                        {TREND_CONFIG[item.trend].label}
+                      </Text>
+                    ) : null}
+                  </View>
                   <View style={styles.focusMetaRow}>
                     <View style={styles.focusBadge}>
                       <Text style={styles.focusBadgeText}>{item.statusLabel}</Text>
@@ -173,12 +186,23 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
     gap: 6,
   },
-  focusLabel: {
+  focusLabelRow: {
     flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    flexWrap: 'wrap',
+  },
+  focusLabel: {
     color: colors.inkStrong,
     fontSize: 17,
     fontWeight: '800',
     fontFamily: fonts.title,
+  },
+  trendBadge: {
+    fontSize: 12,
+    fontWeight: '700',
+    fontFamily: fonts.body,
   },
   focusBadge: {
     alignSelf: 'flex-start',

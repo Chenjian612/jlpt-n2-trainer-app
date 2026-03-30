@@ -45,7 +45,7 @@ export function useDashboardViewModel() {
     todayPlan[0] ??
     null;
 
-  const weaknessSnapshot = getDashboardWeaknessSnapshot(state);
+  const weaknessSnapshot = getDashboardWeaknessSnapshot(state, todayKey);
 
   const weaknessRecommendedMode =
     TRAINING_MODES.find((mode) => mode.id === weaknessSnapshot.recommendedModeId) ?? null;

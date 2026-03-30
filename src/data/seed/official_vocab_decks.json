@@ -90,6 +90,126 @@
         "example": "スマートフォンの普及で生活が便利になった。由于智能手机的普及，生活变得便利了。",
         "memoryHook": "它强调\"面\"上的扩散，让更多人用到。",
         "sourceHint": "引用自官方样题 N2V，社会现象常用词。"
+      },
+      {
+        "id": "official-vocab-lang-9",
+        "term": "抽象",
+        "reading": "ちゅうしょう",
+        "coreMeaning": "核心概念；在 N2 文字語彙里常出现在解释说明或概念对立中。",
+        "keyUsage": "用于抽象名词辨义，例如“具体/抽象”的对比题。",
+        "example": "この問題は少し抽象的で、すぐには答えが出ない。\n这个问题有点抽象，不能立刻得出答案。",
+        "memoryHook": "看到“抽象”就联想到“看不见但能想”的概念。",
+        "sourceHint": "N2V 抽象名词"
+      },
+      {
+        "id": "official-vocab-lang-10",
+        "term": "具体",
+        "reading": "ぐたい",
+        "coreMeaning": "把内容说清楚、落到实际层面的表达。",
+        "keyUsage": "常和“抽象”形成对比，考察词义对照。",
+        "example": "具体的な案を出してください。\n请提出具体方案。",
+        "memoryHook": "“具体”就是能指到手上的内容。",
+        "sourceHint": "N2V 抽象/具体"
+      },
+      {
+        "id": "official-vocab-lang-11",
+        "term": "順調",
+        "reading": "じゅんちょう",
+        "coreMeaning": "事情进展顺利，没有明显阻碍。",
+        "keyUsage": "常见于计划、工程、考试进度的描述。",
+        "example": "準備は順調に進んでいる。\n准备进展顺利。",
+        "memoryHook": "“顺”就是一路顺到底。",
+        "sourceHint": "N2V 状态形容词"
+      },
+      {
+        "id": "official-vocab-lang-12",
+        "term": "不便",
+        "reading": "ふべん",
+        "coreMeaning": "使用或到达不方便，存在麻烦。",
+        "keyUsage": "可用于地点、系统、服务体验的评价。",
+        "example": "この駅は少し不便だが、静かで住みやすい。\n这个车站稍微不方便，但安静、适合居住。",
+        "memoryHook": "“不方便”不等于“不能用”，只是麻烦。",
+        "sourceHint": "N2V 形容动词"
+      },
+      {
+        "id": "official-vocab-lang-13",
+        "term": "改善",
+        "reading": "かいぜん",
+        "coreMeaning": "把问题一点点改好，向更好的方向调整。",
+        "keyUsage": "常见于工作流程、卫生、安全、质量题。",
+        "example": "業務の流れを改善する必要がある。\n有必要改善业务流程。",
+        "memoryHook": "“改良”不是推倒重来，而是修正优化。",
+        "sourceHint": "N2V 动词/名词"
+      },
+      {
+        "id": "official-vocab-lang-14",
+        "term": "発展",
+        "reading": "はってん",
+        "coreMeaning": "从原有基础上进一步扩大、进步。",
+        "keyUsage": "在文章主旨和社会变化题中常见。",
+        "example": "この地域は観光で大きく発展した。\n这个地区因旅游而大幅发展。",
+        "memoryHook": "“发”出来并往前展开。",
+        "sourceHint": "N2V 抽象名词"
+      },
+      {
+        "id": "official-vocab-lang-15",
+        "term": "当然",
+        "reading": "とうぜん",
+        "coreMeaning": "理所当然，不需要特别说明。",
+        "keyUsage": "常在作者态度或因果说明中出现。",
+        "example": "安全対策を重視するのは当然だ。\n重视安全对策是理所当然的。",
+        "memoryHook": "“当然”是无需争论的默认判断。",
+        "sourceHint": "N2V 逻辑判断词"
+      },
+      {
+        "id": "official-vocab-lang-16",
+        "term": "一応",
+        "reading": "いちおう",
+        "coreMeaning": "先做一次、暂时、姑且。",
+        "keyUsage": "常见于口语和考试对话中的保留态度。",
+        "example": "一応、資料を送っておきます。\n我先把资料发过去。",
+        "memoryHook": "“一应”就是先应付到位。",
+        "sourceHint": "N2V 口语副词"
+      },
+      {
+        "id": "official-vocab-lang-17",
+        "term": "徐々に",
+        "reading": "じょじょに",
+        "coreMeaning": "慢慢地、逐步地。",
+        "keyUsage": "常考变化过程，如环境、体力、关系。",
+        "example": "気温は徐々に上がってきた。\n气温逐渐升高了。",
+        "memoryHook": "像梯子一样一格一格往上走。",
+        "sourceHint": "N2V 变化副词"
+      },
+      {
+        "id": "official-vocab-lang-18",
+        "term": "再び",
+        "reading": "ふたたび",
+        "coreMeaning": "再次、重新。",
+        "keyUsage": "常用于重复发生或回到原状态。",
+        "example": "再び確認してください。\n请再次确认。",
+        "memoryHook": "“再一次”不是“马上”，而是“又一回”。",
+        "sourceHint": "N2V 动作副词"
+      },
+      {
+        "id": "official-vocab-lang-19",
+        "term": "ほとんど",
+        "reading": "ほとんど",
+        "coreMeaning": "大部分、几乎。",
+        "keyUsage": "常考与否定搭配，或表示比例。",
+        "example": "今日はほとんど雨が降らなかった。\n今天几乎没下雨。",
+        "memoryHook": "“几乎”常和否定一起考。",
+        "sourceHint": "N2V 副词"
+      },
+      {
+        "id": "official-vocab-lang-20",
+        "term": "なお",
+        "reading": "なお",
+        "coreMeaning": "此外；而且；另外说明。",
+        "keyUsage": "多见于通知、说明、公告语气。",
+        "example": "なお、詳細は後日連絡します。\n另外，详情会在日后通知。",
+        "memoryHook": "“なお”像公告里的补充说明。",
+        "sourceHint": "N2V 公文连接词"
       }
     ]
   },
@@ -184,6 +304,126 @@
         "example": "あとで必要な資料を追加します。之后再补上需要的资料。",
         "memoryHook": "听力里一出现\"对了，别忘了...\"就是追加信号。",
         "sourceHint": "引用自官方样题 N2L 听解，最后补充信息。"
+      },
+      {
+        "id": "official-vocab-a-9",
+        "term": "持っていく",
+        "reading": "もっていく",
+        "coreMeaning": "带去某处。",
+        "keyUsage": "听力里常用于动作指示。",
+        "example": "会議に資料を持っていく。\n把资料带去会议。",
+        "memoryHook": "“带走”是听力常考动作。",
+        "sourceHint": "N2L 动作指示"
+      },
+      {
+        "id": "official-vocab-a-10",
+        "term": "置く",
+        "reading": "おく",
+        "coreMeaning": "放置、先做准备。",
+        "keyUsage": "常见于“先放那儿”“先做着”的指示。",
+        "example": "ここに荷物を置いてください。\n请把行李放在这里。",
+        "memoryHook": "听到“置く”要注意位置。",
+        "sourceHint": "N2L 动作指示"
+      },
+      {
+        "id": "official-vocab-a-11",
+        "term": "止まる",
+        "reading": "とまる",
+        "coreMeaning": "停止、停下。",
+        "keyUsage": "常用于设备、车、进程停止。",
+        "example": "エレベーターが止まりました。\n电梯停了。",
+        "memoryHook": "“停了”可能是故障或正常。",
+        "sourceHint": "N2L 状态变化"
+      },
+      {
+        "id": "official-vocab-a-12",
+        "term": "直す",
+        "reading": "なおす",
+        "coreMeaning": "修理；改正；重新调整。",
+        "keyUsage": "听力里常考“改一下/修一下”的动作。",
+        "example": "プリンターを直してもらいました。\n我让人修好了打印机。",
+        "memoryHook": "一个词两种动词义，要听上下文。",
+        "sourceHint": "N2L 动作词"
+      },
+      {
+        "id": "official-vocab-a-13",
+        "term": "先に",
+        "reading": "さきに",
+        "coreMeaning": "先、先行一步。",
+        "keyUsage": "用于顺序判断题。",
+        "example": "先に食事を済ませましょう。\n先把饭吃了吧。",
+        "memoryHook": "“先”是顺序题关键。",
+        "sourceHint": "N2L 时间关系"
+      },
+      {
+        "id": "official-vocab-a-14",
+        "term": "後で",
+        "reading": "あとで",
+        "coreMeaning": "之后、稍后。",
+        "keyUsage": "与先に成对出现频繁。",
+        "example": "後で電話します。\n我稍后打电话。",
+        "memoryHook": "听力里常考“先后顺序”。",
+        "sourceHint": "N2L 时间关系"
+      },
+      {
+        "id": "official-vocab-a-15",
+        "term": "終わる",
+        "reading": "おわる",
+        "coreMeaning": "结束、完结。",
+        "keyUsage": "常用于作业、会议、点餐等结束点。",
+        "example": "会議はもうすぐ終わります。\n会议马上结束。",
+        "memoryHook": "“终了”比“开始”更常当陷阱。",
+        "sourceHint": "N2L 结束动作"
+      },
+      {
+        "id": "official-vocab-a-16",
+        "term": "開ける",
+        "reading": "あける",
+        "coreMeaning": "打开、开启。",
+        "keyUsage": "常用于门、窗、箱、会议主题。",
+        "example": "窓を少し開けてください。\n请把窗户打开一点。",
+        "memoryHook": "听到“开”就要找对象。",
+        "sourceHint": "N2L 物品动作"
+      },
+      {
+        "id": "official-vocab-a-17",
+        "term": "閉める",
+        "reading": "しめる",
+        "coreMeaning": "关上、关闭。",
+        "keyUsage": "常见于门窗、电源、文件。",
+        "example": "ドアを閉めてから出てください。\n请关门后再出去。",
+        "memoryHook": "和“开ける”成对。",
+        "sourceHint": "N2L 物品动作"
+      },
+      {
+        "id": "official-vocab-a-18",
+        "term": "借りる",
+        "reading": "かりる",
+        "coreMeaning": "借来、借用。",
+        "keyUsage": "常出现在借物、借设备、借座位。",
+        "example": "会議室を借りることにした。\n决定借用会议室。",
+        "memoryHook": "“借来”不是“借出”。",
+        "sourceHint": "N2L 物品名称"
+      },
+      {
+        "id": "official-vocab-a-19",
+        "term": "並ぶ",
+        "reading": "ならぶ",
+        "coreMeaning": "排队、并排。",
+        "keyUsage": "听力中常问位置和顺序。",
+        "example": "入口に人が並んでいます。\n入口处有人在排队。",
+        "memoryHook": "“排队”常和场所一起考。",
+        "sourceHint": "N2L 场景词"
+      },
+      {
+        "id": "official-vocab-a-20",
+        "term": "届ける",
+        "reading": "とどける",
+        "coreMeaning": "送到、递交。",
+        "keyUsage": "常用于快递、文件、失物。",
+        "example": "書類を受付に届けてください。\n请把文件送到前台。",
+        "memoryHook": "“送达”是服务场景高频词。",
+        "sourceHint": "N2L 服务场景"
       }
     ]
   },
@@ -278,6 +518,126 @@
         "example": "彼は自分の主張を曲げなかった。他没有改变自己的主张。",
         "memoryHook": "读解的终极目的就是为了找到作者的 主張。",
         "sourceHint": "引用自官方样题 N2R，主旨大意题。"
+      },
+      {
+        "id": "official-vocab-read-9",
+        "term": "つまり",
+        "reading": "つまり",
+        "coreMeaning": "也就是说、换言之。",
+        "keyUsage": "读解中常用于总结前文。",
+        "example": "つまり、失敗の原因は準備不足だった。\n也就是说，失败的原因是准备不足。",
+        "memoryHook": "看到它要回头找总结句。",
+        "sourceHint": "N2R 结论词"
+      },
+      {
+        "id": "official-vocab-read-10",
+        "term": "たとえば",
+        "reading": "たとえば",
+        "coreMeaning": "例如。",
+        "keyUsage": "常用于举例说明。",
+        "example": "たとえば、朝の時間を使って勉強する方法がある。\n例如，可以利用早晨时间学习。",
+        "memoryHook": "“例如”后面一般是例子。",
+        "sourceHint": "N2R 例示词"
+      },
+      {
+        "id": "official-vocab-read-11",
+        "term": "一方",
+        "reading": "いっぽう",
+        "coreMeaning": "另一方面；相反地。",
+        "keyUsage": "常用于对比两种情况。",
+        "example": "都市は便利である。一方、自然は少ない。\n城市很便利。另一方面，自然却较少。",
+        "memoryHook": "一边一边，对照看。",
+        "sourceHint": "N2R 对比词"
+      },
+      {
+        "id": "official-vocab-read-12",
+        "term": "そのため",
+        "reading": "そのため",
+        "coreMeaning": "因此、所以。",
+        "keyUsage": "常用于因果关系承接。",
+        "example": "人手が足りない。そのため、開店時間を変更した。\n人手不足，因此调整了营业时间。",
+        "memoryHook": "“因为这个原因”就是它。",
+        "sourceHint": "N2R 因果词"
+      },
+      {
+        "id": "official-vocab-read-13",
+        "term": "したがって",
+        "reading": "したがって",
+        "coreMeaning": "因此、所以。",
+        "keyUsage": "偏正式、逻辑性强。",
+        "example": "ルールに違反した。したがって、再提出が必要だ。\n违反了规则，因此需要重新提交。",
+        "memoryHook": "读解里常是结论跳板。",
+        "sourceHint": "N2R 结论词"
+      },
+      {
+        "id": "official-vocab-read-14",
+        "term": "さらに",
+        "reading": "さらに",
+        "coreMeaning": "而且、进而。",
+        "keyUsage": "用于追加信息或加强论点。",
+        "example": "この製品は安い。さらに、使いやすい。\n这款产品便宜，而且好用。",
+        "memoryHook": "“再加一层”就是它。",
+        "sourceHint": "N2R 追加词"
+      },
+      {
+        "id": "official-vocab-read-15",
+        "term": "また",
+        "reading": "また",
+        "coreMeaning": "此外；再者。",
+        "keyUsage": "用于并列说明。",
+        "example": "この方法は簡単だ。また、費用も少ない。\n这种方法简单，而且费用也少。",
+        "memoryHook": "像把第二点补上。",
+        "sourceHint": "N2R 追加词"
+      },
+      {
+        "id": "official-vocab-read-16",
+        "term": "つまりは",
+        "reading": "つまりは",
+        "coreMeaning": "归根结底、总之。",
+        "keyUsage": "常用于文章收束。",
+        "example": "つまりは、継続が大切だということだ。\n归根结底，就是坚持很重要。",
+        "memoryHook": "比“つまり”更有收口感。",
+        "sourceHint": "N2R 结论词"
+      },
+      {
+        "id": "official-vocab-read-17",
+        "term": "言い換えれば",
+        "reading": "いいかえれば",
+        "coreMeaning": "换句话说、也就是说。",
+        "keyUsage": "读解中常用于把前文改写成更直接的总结。",
+        "example": "言い換えれば、時間の使い方が成果を左右する。\n换句话说，时间的使用方式会左右成果。",
+        "memoryHook": "把难懂的话翻成更直白的话，就是它。",
+        "sourceHint": "N2R 结论词"
+      },
+      {
+        "id": "official-vocab-read-18",
+        "term": "要するに",
+        "reading": "ようするに",
+        "coreMeaning": "总之、归根结底。",
+        "keyUsage": "文章最后常作为总结。",
+        "example": "要するに、準備の差が結果を分ける。\n总之，准备程度决定结果。",
+        "memoryHook": "看到它基本就是答案句。",
+        "sourceHint": "N2R 结论词"
+      },
+      {
+        "id": "official-vocab-read-19",
+        "term": "総じて",
+        "reading": "そうじて",
+        "coreMeaning": "总的来看、总体来说。",
+        "keyUsage": "读解中常用于收束全段并给出整体判断。",
+        "example": "この制度は、総じて利用者にとって便利だ。\n这项制度总体来说对使用者是方便的。",
+        "memoryHook": "先看局部，再被它带到整体判断。",
+        "sourceHint": "N2R 结论词"
+      },
+      {
+        "id": "official-vocab-read-20",
+        "term": "このように",
+        "reading": "このように",
+        "coreMeaning": "像这样、如此。",
+        "keyUsage": "用于归纳说明。",
+        "example": "このように、数値だけでは判断できない。\n像这样，不能只靠数字判断。",
+        "memoryHook": "它常把前文整理成一层结论。",
+        "sourceHint": "N2R 归纳词"
       }
     ]
   },
@@ -372,6 +732,126 @@
         "example": "報告書の不備を速やかに是正する必要がある。需要尽快纠正报告中的问题。",
         "memoryHook": "把偏掉的东西拉回\"正\"轨。",
         "sourceHint": "引用自官方样题 N2V，正式整改语汇。"
+      },
+      {
+        "id": "official-vocab-lang-b-9",
+        "term": "果たして",
+        "reading": "はたして",
+        "coreMeaning": "果然、到底、究竟。",
+        "keyUsage": "用于表示期待验证或结果揭晓。",
+        "example": "果たして、結果は予想通りだった。\n果然，结果和预想一样。",
+        "memoryHook": "看到它就想到“到底会怎样”。",
+        "sourceHint": "N2V-B 近义副词"
+      },
+      {
+        "id": "official-vocab-lang-b-10",
+        "term": "やがて",
+        "reading": "やがて",
+        "coreMeaning": "不久之后、最终。",
+        "keyUsage": "常考时间推移和结果到来。",
+        "example": "やがて雨は止んだ。\n不久之后雨停了。",
+        "memoryHook": "像时间慢慢走到终点。",
+        "sourceHint": "N2V-B 时间副词"
+      },
+      {
+        "id": "official-vocab-lang-b-11",
+        "term": "ひたすら",
+        "reading": "ひたすら",
+        "coreMeaning": "一味地、只顾着。",
+        "keyUsage": "常用于强调单方向持续。",
+        "example": "彼はひたすら問題を解いていた。\n他只顾着做题。",
+        "memoryHook": "“一条路走到底”的感觉。",
+        "sourceHint": "N2V-B 动作副词"
+      },
+      {
+        "id": "official-vocab-lang-b-12",
+        "term": "むやみに",
+        "reading": "むやみに",
+        "coreMeaning": "随便地、过度地、毫无节制地。",
+        "keyUsage": "常和否定或警告语气搭配。",
+        "example": "むやみに心配する必要はない。\n没必要过度担心。",
+        "memoryHook": "像没有刹车地乱来。",
+        "sourceHint": "N2V-B 否定搭配"
+      },
+      {
+        "id": "official-vocab-lang-b-13",
+        "term": "やたらに",
+        "reading": "やたらに",
+        "coreMeaning": "过分地、频繁地。",
+        "keyUsage": "常用于频率过高或行为夸张。",
+        "example": "やたらに電話がかかってきた。\n电话接连不断地打来。",
+        "memoryHook": "“太多了”就是它的重点。",
+        "sourceHint": "N2V-B 副词辨析"
+      },
+      {
+        "id": "official-vocab-lang-b-14",
+        "term": "あくまで",
+        "reading": "あくまで",
+        "coreMeaning": "坚持到底；毕竟还是；仅仅从原则上。",
+        "keyUsage": "常见于作者主张、态度坚定的表达。",
+        "example": "あくまで参考意見として受け取ってください。\n请仅把它当作参考意见。",
+        "memoryHook": "像把边界线守到底。",
+        "sourceHint": "N2V-B 立场副词"
+      },
+      {
+        "id": "official-vocab-lang-b-15",
+        "term": "さほど",
+        "reading": "さほど",
+        "coreMeaning": "并不那么、并不太。",
+        "keyUsage": "常和否定搭配，表示程度不高。",
+        "example": "この作業はさほど難しくない。\n这项工作没那么难。",
+        "memoryHook": "“程度不高”是核心。",
+        "sourceHint": "N2V-B 程度副词"
+      },
+      {
+        "id": "official-vocab-lang-b-16",
+        "term": "一見",
+        "reading": "いっけん",
+        "coreMeaning": "乍看、看起来。",
+        "keyUsage": "常用于表面印象与实际相反。",
+        "example": "一見簡単だが、実は難しい。\n乍看简单，其实很难。",
+        "memoryHook": "先看一眼，未必看对。",
+        "sourceHint": "N2V-B 近义词辨析"
+      },
+      {
+        "id": "official-vocab-lang-b-17",
+        "term": "わざわざ",
+        "reading": "わざわざ",
+        "coreMeaning": "特意、专门。",
+        "keyUsage": "常用于动作有额外付出时。",
+        "example": "わざわざ来てくれてありがとう。\n谢谢你特地过来。",
+        "memoryHook": "多跑一趟，就是它的意思。",
+        "sourceHint": "N2V-B 口语副词"
+      },
+      {
+        "id": "official-vocab-lang-b-18",
+        "term": "かろうじて",
+        "reading": "かろうじて",
+        "coreMeaning": "勉强、好不容易。",
+        "keyUsage": "常用于险些失败但最终勉强达成。",
+        "example": "かろうじて終電に間に合った。\n勉强赶上了末班车。",
+        "memoryHook": "“刚刚好”偏危险。",
+        "sourceHint": "N2V-B 程度副词"
+      },
+      {
+        "id": "official-vocab-lang-b-19",
+        "term": "いかにも",
+        "reading": "いかにも",
+        "coreMeaning": "确实像、很有……的样子。",
+        "keyUsage": "常用于“表面特征很明显”的描述。",
+        "example": "いかにも彼らしい返事だった。\n这回答很像他的风格。",
+        "memoryHook": "一看就很像。",
+        "sourceHint": "N2V-B 印象副词"
+      },
+      {
+        "id": "official-vocab-lang-b-20",
+        "term": "むしろ",
+        "reading": "むしろ",
+        "coreMeaning": "倒不如说、反而。",
+        "keyUsage": "常用于反转前后判断。",
+        "example": "この案より、むしろ前の案のほうがよい。\n与其说这个方案，不如说前一个更好。",
+        "memoryHook": "读到这里要立刻转向。",
+        "sourceHint": "N2V-B 逻辑反转词"
       }
     ]
   },
@@ -466,6 +946,126 @@
         "example": "次の便に振り替えてご案内します。我们将为您改签到下一班。",
         "memoryHook": "不是简单推后，而是换到另一条线。",
         "sourceHint": "引用自官方样题 N2L，交通变更题。"
+      },
+      {
+        "id": "official-vocab-listen-b-9",
+        "term": "でも",
+        "reading": "でも",
+        "coreMeaning": "但是。",
+        "keyUsage": "判断题里常引出转折。",
+        "example": "行きたいんですが、でも時間がありません。\n我想去，但没有时间。",
+        "memoryHook": "一听到“でも”要转向。",
+        "sourceHint": "N2L-B 转折信号"
+      },
+      {
+        "id": "official-vocab-listen-b-10",
+        "term": "ところが",
+        "reading": "ところが",
+        "coreMeaning": "可是、没想到。",
+        "keyUsage": "常用于预期与结果相反。",
+        "example": "準備したのに、ところが雨で中止になった。\n明明准备好了，可是却因为下雨取消了。",
+        "memoryHook": "“结果反了”是关键。",
+        "sourceHint": "N2L-B 转折信号"
+      },
+      {
+        "id": "official-vocab-listen-b-11",
+        "term": "確かに",
+        "reading": "たしかに",
+        "coreMeaning": "确实、的确。",
+        "keyUsage": "用于先承认一部分再转折。",
+        "example": "確かに便利ですが、少し高いです。\n确实方便，但有点贵。",
+        "memoryHook": "先肯定，再补条件。",
+        "sourceHint": "N2L-B 确认信号"
+      },
+      {
+        "id": "official-vocab-listen-b-12",
+        "term": "そういえば",
+        "reading": "そういえば",
+        "coreMeaning": "这么说来、对了。",
+        "keyUsage": "用于回忆补充信息。",
+        "example": "そういえば、先週も同じ話をしました。\n这么说来，上周也说过同样的话。",
+        "memoryHook": "像突然想起一个线索。",
+        "sourceHint": "N2L-B 回忆信号"
+      },
+      {
+        "id": "official-vocab-listen-b-13",
+        "term": "わけではない",
+        "reading": "わけではない",
+        "coreMeaning": "并不是……；不等于。",
+        "keyUsage": "常用于否定误解。",
+        "example": "急いでいるわけではないです。\n并不是很着急。",
+        "memoryHook": "不是全盘否定，而是限定否定。",
+        "sourceHint": "N2L-B 否定追加"
+      },
+      {
+        "id": "official-vocab-listen-b-14",
+        "term": "必ずしも",
+        "reading": "かならずしも",
+        "coreMeaning": "未必、并不一定。",
+        "keyUsage": "常与否定搭配。",
+        "example": "経験があれば、必ずしも成功するわけではない。\n即使有经验，也不一定成功。",
+        "memoryHook": "“不一定”是听力里常见陷阱。",
+        "sourceHint": "N2L-B 否定追加"
+      },
+      {
+        "id": "official-vocab-listen-b-15",
+        "term": "ただ",
+        "reading": "ただ",
+        "coreMeaning": "只是；不过。",
+        "keyUsage": "常考“仅仅”和“转折补充”。",
+        "example": "急ぎますが、ただ今日は混んでいます。\n我会尽快，不过今天很拥挤。",
+        "memoryHook": "既能限缩，也能转折。",
+        "sourceHint": "N2L-B 语气词"
+      },
+      {
+        "id": "official-vocab-listen-b-16",
+        "term": "しかし",
+        "reading": "しかし",
+        "coreMeaning": "但是。",
+        "keyUsage": "正式场合和公告中常见。",
+        "example": "準備は進んでいます。しかし、まだ完成ではありません。\n准备在推进，不过还没完成。",
+        "memoryHook": "比“でも”更正式。",
+        "sourceHint": "N2L-B 转折信号"
+      },
+      {
+        "id": "official-vocab-listen-b-17",
+        "term": "実は",
+        "reading": "じつは",
+        "coreMeaning": "其实、说实话。",
+        "keyUsage": "常用于揭示真相。",
+        "example": "実は、昨日から熱があります。\n其实，我从昨天开始就发烧了。",
+        "memoryHook": "“其实”通常后面才是重点。",
+        "sourceHint": "N2L-B 说明信号"
+      },
+      {
+        "id": "official-vocab-listen-b-18",
+        "term": "もちろん",
+        "reading": "もちろん",
+        "coreMeaning": "当然、当然可以。",
+        "keyUsage": "常用于肯定，但需注意后面限制。",
+        "example": "もちろん参加できます。\n当然可以参加。",
+        "memoryHook": "先听肯定，再看后限定。",
+        "sourceHint": "N2L-B 确认信号"
+      },
+      {
+        "id": "official-vocab-listen-b-19",
+        "term": "さすが",
+        "reading": "さすが",
+        "coreMeaning": "不愧是。",
+        "keyUsage": "用于评价结果高于预期。",
+        "example": "さすが、早いですね。\n不愧是你，真快。",
+        "memoryHook": "“不愧”常伴随赞叹。",
+        "sourceHint": "N2L-B 评价信号"
+      },
+      {
+        "id": "official-vocab-listen-b-20",
+        "term": "とはいえ",
+        "reading": "とはいえ",
+        "coreMeaning": "话虽如此。",
+        "keyUsage": "用于承认前文，再提出修正。",
+        "example": "忙しいとはいえ、連絡は必要です。\n话虽如此，还是需要联系。",
+        "memoryHook": "先让步，再推进主张。",
+        "sourceHint": "N2L-B 让步信号"
       }
     ]
   },
@@ -560,6 +1160,126 @@
         "example": "一つの言葉が文章理解の手がかりになる。有时一个词就是理解文章的线索。",
         "memoryHook": "它是让你继续往下追的那根线。",
         "sourceHint": "引用自官方样题 N2R，信息检索与推断题。"
+      },
+      {
+        "id": "official-vocab-read-b-9",
+        "term": "こそ",
+        "reading": "こそ",
+        "coreMeaning": "正是、唯有。",
+        "keyUsage": "作者主张题中常强调真正关键点。",
+        "example": "今こそ行動すべきだ。\n现在正是该行动的时候。",
+        "memoryHook": "把焦点钉死在这一点上。",
+        "sourceHint": "N2R-B 立场词"
+      },
+      {
+        "id": "official-vocab-read-b-10",
+        "term": "だからこそ",
+        "reading": "だからこそ",
+        "coreMeaning": "正因为如此。",
+        "keyUsage": "常用于强化因果与主张。",
+        "example": "失敗した。だからこそ、次は慎重にすべきだ。\n失败了，正因为如此，下次才更应谨慎。",
+        "memoryHook": "因果推进更强。",
+        "sourceHint": "N2R-B 因果强化"
+      },
+      {
+        "id": "official-vocab-read-b-11",
+        "term": "べきだ",
+        "reading": "べきだ",
+        "coreMeaning": "应该。",
+        "keyUsage": "用于明确主张和判断。",
+        "example": "ルールは守るべきだ。\n规则应该遵守。",
+        "memoryHook": "听到它就要找立场。",
+        "sourceHint": "N2R-B 立场词"
+      },
+      {
+        "id": "official-vocab-read-b-12",
+        "term": "ではないか",
+        "reading": "ではないか",
+        "coreMeaning": "不是吗；应当如此。",
+        "keyUsage": "常带提议或主张语气。",
+        "example": "もっと話し合うべきではないか。\n难道不应该多商量一下吗？",
+        "memoryHook": "表面像疑问，实际在主张。",
+        "sourceHint": "N2R-B 立场词"
+      },
+      {
+        "id": "official-vocab-read-b-13",
+        "term": "にしても",
+        "reading": "にしても",
+        "coreMeaning": "即使……也；就算……。",
+        "keyUsage": "用于让步，常出现在作者平衡语气中。",
+        "example": "急ぐにしても、確認は必要だ。\n即使赶时间，也需要确认。",
+        "memoryHook": "先让步，再转主张。",
+        "sourceHint": "N2R-B 让步词"
+      },
+      {
+        "id": "official-vocab-read-b-14",
+        "term": "確かに",
+        "reading": "たしかに",
+        "coreMeaning": "确实。",
+        "keyUsage": "先承认一部分再转折。",
+        "example": "確かに便利だが、コストが高い。\n确实方便，但成本高。",
+        "memoryHook": "先点头，再补限制。",
+        "sourceHint": "N2R-B 让步词"
+      },
+      {
+        "id": "official-vocab-read-b-15",
+        "term": "こそあれ",
+        "reading": "こそあれ",
+        "coreMeaning": "虽然……但；即便……也。",
+        "keyUsage": "用于带让步但不削弱主张。",
+        "example": "忙しさこそあれ、工夫はできる。\n虽说忙，但还是可以想办法。",
+        "memoryHook": "“有”让步，但主张不退。",
+        "sourceHint": "N2R-B 让步词"
+      },
+      {
+        "id": "official-vocab-read-b-16",
+        "term": "とはいえ",
+        "reading": "とはいえ",
+        "coreMeaning": "话虽如此。",
+        "keyUsage": "用于承认前提后转向结论。",
+        "example": "便利とはいえ、使いすぎはよくない。\n话虽如此，过度使用也不好。",
+        "memoryHook": "让步后面才是作者真正态度。",
+        "sourceHint": "N2R-B 让步词"
+      },
+      {
+        "id": "official-vocab-read-b-17",
+        "term": "まさに",
+        "reading": "まさに",
+        "coreMeaning": "正是、无疑是。",
+        "keyUsage": "用于强烈认定。",
+        "example": "これはまさに理想的な方法だ。\n这正是理想的方法。",
+        "memoryHook": "像把答案盖章。",
+        "sourceHint": "N2R-B 强调词"
+      },
+      {
+        "id": "official-vocab-read-b-18",
+        "term": "あえて",
+        "reading": "あえて",
+        "coreMeaning": "特意；硬是。",
+        "keyUsage": "常用于挑战常规的主张。",
+        "example": "あえて言えば、改善の余地がある。\n要特意说的话，还有改进空间。",
+        "memoryHook": "“故意说出来”的感觉。",
+        "sourceHint": "N2R-B 立场词"
+      },
+      {
+        "id": "official-vocab-read-b-19",
+        "term": "何より",
+        "reading": "なにより",
+        "coreMeaning": "最重要的是。",
+        "keyUsage": "作者主张题中常用于压轴判断。",
+        "example": "何より大切なのは安全だ。\n最重要的是安全。",
+        "memoryHook": "直接把优先级抬到最高。",
+        "sourceHint": "N2R-B 结论强化词"
+      },
+      {
+        "id": "official-vocab-read-b-20",
+        "term": "こそだ",
+        "reading": "こそだ",
+        "coreMeaning": "正因为如此；恰恰是。",
+        "keyUsage": "用于收束作者主张。",
+        "example": "今こそ対話が必要だ。\n现在正需要对话。",
+        "memoryHook": "“现在”这两个字就是强调点。",
+        "sourceHint": "N2R-B 结论强化词"
       }
     ]
   }

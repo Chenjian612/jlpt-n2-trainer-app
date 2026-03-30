@@ -12,7 +12,8 @@
     "web": "expo start --web",
     "test": "node tests/run-tests.js",
     "test:web:components": "node tests/web/component-flows.js",
-    "test:web:e2e": "node tests/web/dashboard-e2e.js"
+    "test:web:e2e": "node tests/web/dashboard-e2e.js",
+    "test:web:listening": "node tests/web/listening-flow.js"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "2.2.0",

@@ -5,12 +5,14 @@
   GeneratedDailyPlan,
   ProgressState,
   WeaknessFocusItem,
+  WeaknessTrend,
 } from '../models/progress';
 import type { TrainingModeId } from '../models/training';
 import type {
   StudyWeaknessItem,
   WeaknessErrorType,
   WeaknessSignalItem,
+  WrongAnswerErrorType,
   WrongAnswerItem,
 } from '../models/trainingContent';
 import {
@@ -290,8 +292,64 @@ export const getGeneratedDailyPlan = (
   return { date, items, generatedBy: 'local' };
 };
 
+const computeTrendsForTypes = (
+  errorTypes: WeaknessErrorType[],
+  wrongAnswers: WrongAnswerItem[],
+  weaknessSignals: WeaknessSignalItem[],
+  todayKey: string,
+): Record<WeaknessErrorType, WeaknessTrend> => {
+  const today = new Date(todayKey);
+  const msPerDay = 86_400_000;
+  const recentStart = new Date(today.getTime() - 7 * msPerDay);
+  const priorStart = new Date(today.getTime() - 14 * msPerDay);
+
+  const inRecent = (iso: string) => {
+    const d = new Date(iso);
+    return d >= recentStart && d <= today;
+  };
+  const inPrior = (iso: string) => {
+    const d = new Date(iso);
+    return d >= priorStart && d < recentStart;
+  };
+
+  const result = {} as Record<WeaknessErrorType, WeaknessTrend>;
+
+  for (const errorType of errorTypes) {
+    let recentCount = 0;
+    let priorCount = 0;
+
+    for (const item of wrongAnswers) {
+      if (!item.errorTypes.includes(errorType as WrongAnswerErrorType)) continue;
+      if (inRecent(item.lastWrongAt)) recentCount++;
+      else if (inPrior(item.lastWrongAt)) priorCount++;
+    }
+    for (const item of weaknessSignals) {
+      if (!item.errorTypes.includes(errorType)) continue;
+      if (inRecent(item.lastWrongAt)) recentCount++;
+      else if (inPrior(item.lastWrongAt)) priorCount++;
+    }
+
+    if (priorCount === 0 && recentCount === 0) {
+      result[errorType] = 'stable';
+    } else if (priorCount === 0) {
+      result[errorType] = 'worsening';
+    } else if (recentCount === 0) {
+      result[errorType] = 'improving';
+    } else if (recentCount > priorCount * 1.2) {
+      result[errorType] = 'worsening';
+    } else if (recentCount < priorCount * 0.8) {
+      result[errorType] = 'improving';
+    } else {
+      result[errorType] = 'stable';
+    }
+  }
+
+  return result;
+};
+
 export const getDashboardWeaknessSnapshot = (
   state: ProgressState,
+  todayKey: string,
 ): DashboardWeaknessSnapshot => {
   const focusItems = aggregateWeaknesses(
     state.wrongAnswers,
@@ -308,14 +366,26 @@ export const getDashboardWeaknessSnapshot = (
     };
   }
 
-  const primary = focusItems[0];
+  const trends = computeTrendsForTypes(
+    focusItems.map((item) => item.id),
+    state.wrongAnswers,
+    state.weaknessSignals,
+    todayKey,
+  );
+
+  const focusItemsWithTrend = focusItems.map((item) => ({
+    ...item,
+    trend: trends[item.id] ?? 'stable',
+  }));
+
+  const primary = focusItemsWithTrend[0];
   const sourceModeTitle = REVIEW_MODE_LABEL[primary.sourceModeId];
 
   return {
     headline: `当前最该先补：${primary.label}`,
     body: `${primary.label} 相关的未稳项有 ${primary.questionCount} 项，主要集中在 ${sourceModeTitle}。先把这一类压回去，比继续推新内容更划算。`,
-    focusItems,
-    planSteps: buildPlanSteps(focusItems),
+    focusItems: focusItemsWithTrend,
+    planSteps: buildPlanSteps(focusItemsWithTrend),
     recommendedModeId: primary.recommendedModeId,
   };
 };
