@@ -73,6 +73,27 @@ const SESSION_KIND_BY_MODE: Record<TrainingModeId, TrainingSessionKind> = {
   vocab_review_wrong: 'review',
 };
 
+const LEITNER_INTERVALS = [1, 2, 4, 8, Infinity] as const;
+
+function advanceLeitner(item: WrongAnswerItem, correct: boolean, now: Date): WrongAnswerItem {
+  if (correct) {
+    const nextBox = Math.min(item.leitnerBox + 1, 5);
+    const intervalDays = LEITNER_INTERVALS[nextBox - 1];
+    const nextReviewAt =
+      intervalDays === Infinity
+        ? '9999-12-31'
+        : addDays(now, intervalDays).toISOString().slice(0, 10);
+    return { ...item, leitnerBox: nextBox, nextReviewAt, mastered: nextBox === 5 };
+  } else {
+    return {
+      ...item,
+      leitnerBox: 1,
+      nextReviewAt: addDays(now, 1).toISOString().slice(0, 10),
+      mastered: false,
+    };
+  }
+}
+
 type LegacyCompletedByDay = Partial<Record<string, TrainingModeId[]>>;
 type LegacyProgressState = Partial<ProgressState> & {
   completedByDay?: LegacyCompletedByDay;
@@ -274,6 +295,8 @@ const normalizeWrongAnswer = (value: unknown): WrongAnswerItem | null => {
     lastReviewedAt: typeof parsed.lastReviewedAt === 'string' && parsed.lastReviewedAt.length > 0 ? parsed.lastReviewedAt : undefined,
     mastered: Boolean(parsed.mastered),
     errorTypes: normalizeWrongAnswerErrorTypes(parsed.errorTypes, parsed.modeId as DrillModeId, tags),
+    leitnerBox: typeof parsed.leitnerBox === 'number' && parsed.leitnerBox >= 1 && parsed.leitnerBox <= 5 ? Math.round(parsed.leitnerBox) : 1,
+    nextReviewAt: typeof parsed.nextReviewAt === 'string' && parsed.nextReviewAt.length > 0 ? parsed.nextReviewAt : new Date().toISOString().slice(0, 10),
   };
 };
 
@@ -468,6 +491,20 @@ export const getModeSessionCountForDay = (state: ProgressState, dayKey: string, 
 export const getActiveWrongAnswersForMode = (state: ProgressState, modeId: DrillModeId): WrongAnswerItem[] =>
   sortWrongAnswers(state.wrongAnswers.filter((item) => item.modeId === modeId && !item.mastered));
 
+export const getDueWrongAnswersForMode = (state: ProgressState, modeId: DrillModeId, referenceDate: Date = new Date()): WrongAnswerItem[] => {
+  const todayKey = referenceDate.toISOString().slice(0, 10);
+  return sortWrongAnswers(
+    state.wrongAnswers.filter(
+      (item) => {
+        const nextReviewAt = typeof item.nextReviewAt === 'string' && item.nextReviewAt.length > 0
+          ? item.nextReviewAt
+          : todayKey;
+        return item.modeId === modeId && !item.mastered && nextReviewAt <= todayKey;
+      },
+    ),
+  );
+};
+
 export const getActiveWeaknessSignals = (
   state: ProgressState,
   modeId?: Extract<TrainingModeId, 'reading_drill' | 'listening_analyze'>,
@@ -490,12 +527,12 @@ export const getActiveStudyWeaknesses = (
 };
 
 export const getPrioritizedWrongAnswersForMode = (state: ProgressState, modeId: DrillModeId, limit?: number): WrongAnswerItem[] => {
-  const items = getActiveWrongAnswersForMode(state, modeId);
+  const items = getDueWrongAnswersForMode(state, modeId);
   return typeof limit === 'number' ? items.slice(0, limit) : items;
 };
 
 export const getWrongReviewBacklogCount = (state: ProgressState, modeId: ReviewModeId): number =>
-  getActiveWrongAnswersForMode(state, REVIEW_SOURCE_MODE[modeId]).length;
+  getDueWrongAnswersForMode(state, REVIEW_SOURCE_MODE[modeId]).length;
 
 export const getStudyWeaknessBacklogCount = (state: ProgressState, modeId?: StudyModeId): number =>
   getActiveStudyWeaknesses(state, modeId).length;
@@ -533,16 +570,21 @@ export const recordWrongAnswers = (state: ProgressState, wrongAnswers: WrongAnsw
         lastUserChoice: draft.selectedChoice,
         mastered: false,
         errorTypes: inferWrongAnswerErrorTypes(draft.question.modeId, draft.question.tags),
+        leitnerBox: 1,
+        nextReviewAt: recordedAt.toISOString().slice(0, 10),
       });
     } else {
       const existing = nextWrongAnswers[idx];
-      nextWrongAnswers[idx] = {
-        ...existing,
-        wrongCount: existing.wrongCount + 1,
-        lastWrongAt: recordedAtIso,
-        lastUserChoice: draft.selectedChoice,
-        mastered: false,
-      };
+      nextWrongAnswers[idx] = advanceLeitner(
+        {
+          ...existing,
+          wrongCount: existing.wrongCount + 1,
+          lastWrongAt: recordedAtIso,
+          lastUserChoice: draft.selectedChoice,
+        },
+        false,
+        recordedAt,
+      );
     }
   }
   return { ...state, wrongAnswers: sortWrongAnswers(nextWrongAnswers) };
@@ -628,14 +670,17 @@ export const recordWrongReviewSession = (state: ProgressState, dayKey: string, m
   for (const decision of decisions) {
     const idx = nextWrongAnswers.findIndex((i) => i.questionId === decision.questionId);
     if (idx < 0) continue;
-    
+
     const existing = nextWrongAnswers[idx];
-    nextWrongAnswers[idx] = {
-      ...existing,
-      mastered: decision.mastered,
-      lastUserChoice: decision.selectedChoice,
-      lastReviewedAt: iso,
-    };
+    nextWrongAnswers[idx] = advanceLeitner(
+      {
+        ...existing,
+        lastUserChoice: decision.selectedChoice,
+        lastReviewedAt: iso,
+      },
+      decision.mastered,
+      completedAt,
+    );
   }
   const masteredIds = new Set(
     decisions.filter((d) => d.mastered).map((d) => d.questionId),

@@ -113,7 +113,7 @@ Screen mapping:
 - `src/domain/models/`
   - Pure types only
 - `src/domain/services/progressService.ts`
-  - Session recording, normalization, wrong-answer queueing, weakness tracking
+  - Session recording, normalization, wrong-answer queueing, weakness tracking, Leitner scheduling
 - `src/domain/services/dashboardService.ts`
   - Dashboard metrics, today plan, recommendation ordering
 - `src/domain/services/coachService.ts`
@@ -136,9 +136,23 @@ Current shape:
 }
 ```
 
+`WrongAnswerItem` carries Leitner state:
+
+```ts
+leitnerBox: number;    // 1–5；Box 5 = mastered
+nextReviewAt: string;  // YYYY-MM-DD；当天到期才会出题
+```
+
+Box 间隔：Box 1 → 1 天，Box 2 → 2 天，Box 3 → 4 天，Box 4 → 8 天，Box 5 → 毕业。
+答对升一格，答错退回 Box 1。
+
+Key functions:
+- `advanceLeitner(item, correct, now)` — 更新 box 和 nextReviewAt（内部）
+- `getDueWrongAnswersForMode(state, modeId, date)` — 返回今天到期的错题
+
 Behavior summary:
 
-- drill errors -> `wrongAnswers` -> review queue
+- drill errors -> `wrongAnswers` -> Leitner queue (due by `nextReviewAt`)
 - reading/listening mistakes -> `weaknessSignals`
 - study-pack unstable items -> `studyWeaknesses`
 - AI analysis responses -> `aiExplanationCache`

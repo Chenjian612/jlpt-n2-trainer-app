@@ -220,7 +220,7 @@ export function WrongReviewScreen({
           <View style={styles.sectionCard}>
             <Text testID="wrong-review-result-title" style={styles.sectionTitle}>本轮回收完成</Text>
             <Text style={styles.sectionBody}>
-              本轮结果已经写入今日进度。你共处理 {result.reviewedCount} 题，其中重新作答正确并移出队列 {result.masteredCount} 题；今天这个模式累计完成 {result.recordedSessionCount} 轮。
+              本轮结果已经写入今日进度。你共处理 {result.reviewedCount} 题，其中 {result.masteredCount} 题答对升格（答对 4 轮后毕业移出队列）；今天这个模式累计完成 {result.recordedSessionCount} 轮。
             </Text>
             <View style={styles.summaryCard}>
               <Text style={styles.summaryTitle}>下一步建议</Text>
@@ -271,7 +271,7 @@ export function WrongReviewScreen({
                 <View style={styles.priorityPill}>
                   <Text style={styles.priorityPillText}>{priorityLabel}</Text>
                 </View>
-                <Text style={styles.priorityMeta}>已错 {item.wrongCount} 次</Text>
+                <Text style={styles.priorityMeta}>Box {item.leitnerBox}/4 · 已错 {item.wrongCount} 次</Text>
               </View>
 
               <Text style={styles.sectionTitle}>{item.prompt}</Text>

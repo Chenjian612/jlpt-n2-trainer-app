@@ -73,6 +73,8 @@ export type WrongAnswerItem = {
   lastReviewedAt?: string;
   mastered: boolean;
   errorTypes: WrongAnswerErrorType[];
+  leitnerBox: number;
+  nextReviewAt: string;
 };
 
 export type WeaknessSignalDraft = {

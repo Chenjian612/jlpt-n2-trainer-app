@@ -354,7 +354,11 @@ module.exports = {
           new Date('2026-03-19T10:00:00.000Z'),
         );
 
-        assert.equal(reviewedState.wrongAnswers[0].mastered, true);
+        // Leitner: answering correctly advances box (1→2), not immediately mastered.
+        // mastered only becomes true when box reaches 5.
+        assert.equal(reviewedState.wrongAnswers[0].mastered, false);
+        assert.equal(reviewedState.wrongAnswers[0].leitnerBox, 2);
+        assert.equal(reviewedState.wrongAnswers[0].nextReviewAt, '2026-03-21'); // box 2 = +2 days
         assert.equal(reviewedState.wrongAnswers[0].lastUserChoice, 2);
         assert.equal(reviewedState.wrongAnswers[0].lastReviewedAt, '2026-03-19T10:00:00.000Z');
         assert.equal(reviewedState.sessionsByDay['2026-03-19'].length, 1);
