@@ -57,6 +57,7 @@
 ## 相关文档
 
 - [开发启动](./DEV_STARTUP.md)
+- [CLI 代理启动](./CLI_PROXY_STARTUP.md)
 - [部署说明](./DEPLOYMENT.md)
 - [Codex 指令](./CODEX-INSTRUCTIONS.md)
 - [内容进度](./CONTENT-PROGRESS.md)
