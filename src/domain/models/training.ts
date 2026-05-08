@@ -7,7 +7,8 @@ export type TrainingModeId =
   | 'reading_drill'
   | 'listening_analyze'
   | 'review_wrong'
-  | 'vocab_review_wrong';
+  | 'vocab_review_wrong'
+  | 'grammar_200';
 
 export type DrillModeId = 'grammar_drill' | 'vocab_drill';
 export type ReadingModeId = 'reading_drill';
@@ -15,7 +16,8 @@ export type ListeningModeId = 'listening_analyze';
 export type StudyModeId = 'grammar_study' | 'vocab_study';
 export type OfficialVocabMemoryModeId = 'official_vocab_memory';
 export type ReviewModeId = 'review_wrong' | 'vocab_review_wrong';
-export type TrainingSessionKind = 'drill' | 'study' | 'review';
+export type Grammar200ModeId = 'grammar_200';
+export type TrainingSessionKind = 'drill' | 'study' | 'review' | 'chapter';
 
 export const DRILL_MODE_IDS = ['grammar_drill', 'vocab_drill'] as const;
 export const READING_MODE_IDS = ['reading_drill'] as const;
@@ -23,6 +25,7 @@ export const LISTENING_MODE_IDS = ['listening_analyze'] as const;
 export const STUDY_MODE_IDS = ['grammar_study', 'vocab_study'] as const;
 export const OFFICIAL_VOCAB_MEMORY_MODE_IDS = ['official_vocab_memory'] as const;
 export const REVIEW_MODE_IDS = ['review_wrong', 'vocab_review_wrong'] as const;
+export const GRAMMAR_200_MODE_IDS = ['grammar_200'] as const;
 export const REVIEW_SOURCE_MODE: Record<ReviewModeId, DrillModeId> = {
   review_wrong: 'grammar_drill',
   vocab_review_wrong: 'vocab_drill',
@@ -53,6 +56,11 @@ export const isOfficialVocabMemoryModeId = (
 export const isReviewModeId = (
   modeId: TrainingModeId,
 ): modeId is ReviewModeId => REVIEW_MODE_IDS.includes(modeId as ReviewModeId);
+
+export const isGrammar200ModeId = (
+  modeId: TrainingModeId,
+): modeId is Grammar200ModeId =>
+  GRAMMAR_200_MODE_IDS.includes(modeId as Grammar200ModeId);
 
 export type TrainingMode = {
   id: TrainingModeId;

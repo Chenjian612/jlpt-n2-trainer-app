@@ -40,6 +40,7 @@ const MODE_CAPABILITY: Record<TrainingModeId, keyof CapabilityDistribution> = {
   listening_analyze: 'listening',
   review_wrong: 'grammar',
   vocab_review_wrong: 'vocab',
+  grammar_200: 'grammar',
 };
 
 const getModeOrderIndex = (modeId: TrainingModeId): number => {

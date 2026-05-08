@@ -3,6 +3,7 @@ import { startTransition, useState } from 'react';
 import { LoadingScreen } from '../../components/common/LoadingScreen';
 import { DrillSessionScreen } from '../../features/drill-session/screens/DrillSessionScreen';
 import { DashboardScreen } from '../../features/dashboard/screens/DashboardScreen';
+import { Grammar200Screen } from '../../features/grammar-200/screens/Grammar200Screen';
 import { ListeningSessionScreen } from '../../features/listening-session/screens/ListeningSessionScreen';
 import { ModeDetailScreen } from '../../features/mode-detail/screens/ModeDetailScreen';
 import { OfficialVocabMemoryScreen } from '../../features/official-vocab-memory/screens/OfficialVocabMemoryScreen';
@@ -12,6 +13,7 @@ import { TrainingSessionScreen } from '../../features/training-session/screens/T
 import { WrongReviewScreen } from '../../features/wrong-review/screens/WrongReviewScreen';
 import {
   isDrillModeId,
+  isGrammar200ModeId,
   isListeningModeId,
   isOfficialVocabMemoryModeId,
   isReadingModeId,
@@ -137,6 +139,17 @@ export function AppNavigator() {
     if (isReviewModeId(route.modeId)) {
       return (
         <WrongReviewScreen
+          modeId={route.modeId}
+          onExit={() => leaveSession(route.modeId, route.returnTo)}
+          onBackToDetail={() => openModeDetail(route.modeId)}
+          onBackToDashboard={goBack}
+        />
+      );
+    }
+
+    if (isGrammar200ModeId(route.modeId)) {
+      return (
+        <Grammar200Screen
           modeId={route.modeId}
           onExit={() => leaveSession(route.modeId, route.returnTo)}
           onBackToDetail={() => openModeDetail(route.modeId)}

@@ -93,6 +93,15 @@ const SESSION_COPY: Record<
     reviewBody:
       '把“下次再遇到这种题先检查什么”说清楚。完成这一步后，本轮会自动写入训练记录。',
   },
+  chapter: {
+    introTitle: '进入章节闯关',
+    introBody:
+      '本轮按章节推进，先学完文法卡再做排序题。章节型模式由专属屏幕承接，这里仅作占位。',
+    checklistTitle: '确认本章节奏',
+    checklistBody: '走完整章后再进入下一章。',
+    reviewTitle: '收口本章',
+    reviewBody: '完成后会自动记录到本模式独立进度。',
+  },
 };
 
 export function TrainingSessionScreen({

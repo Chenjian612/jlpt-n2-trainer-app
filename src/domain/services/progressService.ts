@@ -53,12 +53,14 @@ const VALID_MODE_IDS = new Set<TrainingModeId>([
   'listening_analyze',
   'review_wrong',
   'vocab_review_wrong',
+  'grammar_200',
 ]);
 
 const VALID_SESSION_KINDS = new Set<TrainingSessionKind>([
   'drill',
   'study',
   'review',
+  'chapter',
 ]);
 
 const SESSION_KIND_BY_MODE: Record<TrainingModeId, TrainingSessionKind> = {
@@ -71,6 +73,7 @@ const SESSION_KIND_BY_MODE: Record<TrainingModeId, TrainingSessionKind> = {
   listening_analyze: 'drill',
   review_wrong: 'review',
   vocab_review_wrong: 'review',
+  grammar_200: 'chapter',
 };
 
 const LEITNER_INTERVALS = [1, 2, 4, 8, Infinity] as const;

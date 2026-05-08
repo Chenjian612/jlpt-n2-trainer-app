@@ -32,6 +32,7 @@ const REVIEW_MODE_LABEL: Record<TrainingModeId, string> = {
   listening_analyze: '听力要点拆解',
   review_wrong: '文法错题回收',
   vocab_review_wrong: '词汇错题回收',
+  grammar_200: 'N2 文法 200 条特训',
 };
 
 const resolveStatusLabel = (questionCount: number, wrongCount: number): string => {
