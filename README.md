@@ -2,6 +2,8 @@
 
 一个面向 JLPT N2 备考的 Expo / React Native 应用，提供文法、词汇、读解、听力、错题回收与官方词卡记忆等训练模式。
 
+当前规划方向是在现有训练闭环上扩展轻量级 AI RAG 能力：练习模块继续负责产生错题和弱点数据，AI 层负责基于结构化知识库生成可追溯的错题讲解、相似知识点对比和复习建议。详见 [JLPT N2 AI RAG 学习平台方案](./AI-RAG-LEARNING-PLAN.md)。
+
 ## 主要功能
 
 - 文法刷题与学习包
@@ -10,6 +12,7 @@
 - 听力训练与弱点回收
 - 错题复习与 AI 讲解
 - 首页根据薄弱点推荐下一步训练
+- 规划中的 AI RAG 增强：结构化知识库、混合检索、Rerank、来源引用与错题讲解记录
 
 ## 技术栈
 
@@ -63,4 +66,5 @@
 - [内容进度](./CONTENT-PROGRESS.md)
 - [项目历史](./PROJECT_HISTORY.md)
 - [路线图](./ROADMAP.md)
+- [AI RAG 学习平台方案](./AI-RAG-LEARNING-PLAN.md)
 - [AI 说明](./DESIGN-AI.md)

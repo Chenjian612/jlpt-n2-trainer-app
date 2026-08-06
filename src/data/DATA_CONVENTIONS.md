@@ -17,6 +17,8 @@
 | `seed/official_vocab_decks.json` | `seed/officialVocabDecks.ts` | 官方样题词卡 deck |
 | `seed/grammar_study_items.json` | `seed/studyPacks.ts` | 文法学习包条目 |
 
+> AI RAG 扩展说明：现有 seed 数据继续作为训练内容来源。后续若增加结构化 AI 知识库，建议优先新增独立 JSON 文件，例如 `ai_grammar_knowledge.json`、`ai_vocab_knowledge.json`、`ai_question_mappings.json`，不要把 RAG 专用字段直接散落到多个 TS 文件中。总体方案见仓库根目录的 `AI-RAG-LEARNING-PLAN.md`。
+
 ---
 
 ## 新增内容时的操作步骤
@@ -132,3 +134,16 @@ const DATA: SomeType[] = [
 | 听力案例 | `ListeningCase`（JSON 用 `ListeningCaseRaw`） |
 | 官方词卡 | `OfficialVocabDeck` |
 | 学习包条目 | `StudyPackItem` |
+
+## AI RAG 数据建议
+
+为了让 AI 错题讲解稳定、可追溯，后续建议把 RAG 相关数据也保持 JSON-first：
+
+| 建议 JSON 文件 | 内容说明 |
+|---|---|
+| `seed/ai_grammar_knowledge.json` | 结构化 N2 语法知识点、接续、例句、相似表达、来源 |
+| `seed/ai_vocab_knowledge.json` | 结构化 N2 词汇知识点、读音、释义、搭配、近义词、来源 |
+| `seed/ai_question_mappings.json` | 题目到知识点的映射，包括 `testedPointId`、干扰项和证据引用 |
+| `seed/ai_eval_cases.json` | 小规模评估集，用于验证检索命中和讲解质量 |
+
+这些文件第一阶段可以只覆盖 30-50 道题，不需要一次性覆盖全量题库。
