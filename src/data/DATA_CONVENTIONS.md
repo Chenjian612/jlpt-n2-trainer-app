@@ -135,15 +135,25 @@ const DATA: SomeType[] = [
 | 官方词卡 | `OfficialVocabDeck` |
 | 学习包条目 | `StudyPackItem` |
 
-## AI RAG 数据建议
+## AI RAG 数据约定
 
-为了让 AI 错题讲解稳定、可追溯，后续建议把 RAG 相关数据也保持 JSON-first：
+`AI-M0` 复用 `drill_questions.json` 中已经校对的 `explanation`、`choiceInsights`、`reviewNote`、`tags` 和 `source` 字段，由 `seed/aiKnowledge.ts` 生成以下结构：
 
-| 建议 JSON 文件 | 内容说明 |
+```text
+questionId -> testedPointId -> AiKnowledgeEntry
+```
+
+当前映射覆盖 300 道文法题和 500 道词汇题。维护题目时必须保证：
+
+- `id` 全局唯一，作为错题和知识映射的稳定主键。
+- `tags[1]` 是本题主要考点，例如语法表达或目标词汇。
+- `explanation` 和每一项 `choiceInsights` 能独立说明判断依据。
+- `source` 必须填写可展示给用户的来源标签。
+
+进入 `AI-M1` 后，如需补充跨题知识、相似表达和评估数据，再新增独立 JSON：
+
+| 计划 JSON 文件 | 内容说明 |
 |---|---|
-| `seed/ai_grammar_knowledge.json` | 结构化 N2 语法知识点、接续、例句、相似表达、来源 |
-| `seed/ai_vocab_knowledge.json` | 结构化 N2 词汇知识点、读音、释义、搭配、近义词、来源 |
-| `seed/ai_question_mappings.json` | 题目到知识点的映射，包括 `testedPointId`、干扰项和证据引用 |
-| `seed/ai_eval_cases.json` | 小规模评估集，用于验证检索命中和讲解质量 |
-
-这些文件第一阶段可以只覆盖 30-50 道题，不需要一次性覆盖全量题库。
+| `seed/ai_grammar_knowledge.json` | 跨题语法知识、接续、例句和相似表达 |
+| `seed/ai_vocab_knowledge.json` | 跨题词汇释义、搭配和近义词 |
+| `seed/ai_eval_cases.json` | 验证检索命中与讲解质量的固定评估集 |

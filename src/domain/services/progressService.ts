@@ -440,10 +440,46 @@ const normalizeAiExplanationCache = (
       typeof e.watchNextTime === 'string' &&
       typeof e.generatedAt === 'string'
     ) {
+      const choiceAnalysis = Array.isArray(e.choiceAnalysis)
+        ? e.choiceAnalysis.filter(
+            (item) =>
+              item &&
+              typeof item.choice === 'string' &&
+              typeof item.reason === 'string' &&
+              ['correct', 'selected_wrong', 'other'].includes(item.status),
+          )
+        : [];
+      const sources = Array.isArray(e.sources)
+        ? e.sources.filter(
+            (source) =>
+              source &&
+              typeof source.id === 'string' &&
+              typeof source.title === 'string' &&
+              typeof source.snippet === 'string' &&
+              typeof source.sourceLabel === 'string' &&
+              source.sourceType === 'local_knowledge',
+          )
+        : [];
       next[key] = {
+        testedPoint: typeof e.testedPoint === 'string' ? e.testedPoint : '历史讲解',
         mistakePattern: e.mistakePattern,
+        whyCorrect: typeof e.whyCorrect === 'string' ? e.whyCorrect : '',
+        whyUserWrong:
+          typeof e.whyUserWrong === 'string'
+            ? e.whyUserWrong
+            : e.whyDistractorFooled,
         whyDistractorFooled: e.whyDistractorFooled,
         watchNextTime: e.watchNextTime,
+        choiceAnalysis,
+        sources,
+        confidence:
+          e.confidence === 'high' || e.confidence === 'medium' || e.confidence === 'low'
+            ? e.confidence
+            : 'low',
+        generationMode:
+          e.generationMode === 'ai_service' || e.generationMode === 'local_knowledge'
+            ? e.generationMode
+            : 'legacy',
         generatedAt: e.generatedAt,
       };
     }
@@ -688,7 +724,7 @@ export const recordWrongReviewSession = (state: ProgressState, dayKey: string, m
   const masteredIds = new Set(
     decisions.filter((d) => d.mastered).map((d) => d.questionId),
   );
-  const nextCache = { ...recordedState.aiExplanationCache };
+  const nextCache = { ...(recordedState.aiExplanationCache ?? {}) };
   for (const id of masteredIds) {
     delete nextCache[id];
   }
@@ -707,7 +743,7 @@ export const cacheAiExplanation = (
 ): ProgressState => ({
   ...state,
   aiExplanationCache: {
-    ...state.aiExplanationCache,
+    ...(state.aiExplanationCache ?? {}),
     [questionId]: explanation,
   },
 });

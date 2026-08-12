@@ -43,3 +43,8 @@ tmp/
 # generated native folders
 /ios
 /android
+
+# Python AI service
+ai-service/.venv/
+__pycache__/
+*.py[cod]

@@ -31,6 +31,7 @@ const styles = StyleSheet.create({
   },
   background: {
     ...StyleSheet.absoluteFillObject,
+    overflow: 'hidden',
   },
   topMist: {
     position: 'absolute',

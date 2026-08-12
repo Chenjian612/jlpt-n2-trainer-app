@@ -12,7 +12,8 @@
 - 听力训练与弱点回收
 - 错题复习与 AI 讲解
 - 首页根据薄弱点推荐下一步训练
-- 规划中的 AI RAG 增强：结构化知识库、混合检索、Rerank、来源引用与错题讲解记录
+- 已完成 AI-M0：文法/词汇题目精确映射、结构化错题讲解、来源引用、缓存与资料不足拒答
+- 后续 AI RAG 增强：混合检索、Rerank、读解/听力增强与受控 Web RAG
 
 ## 技术栈
 
@@ -49,6 +50,22 @@
 - 官方词卡：120 张
 
 ## 维护说明
+
+常用验证和 AI 服务命令：
+
+```bash
+npm test
+npm run test:ai
+npm run ai:dev
+```
+
+错题讲解默认使用 App 内置的本地结构化知识库，不配置 API Key 也能运行。需要通过 FastAPI 服务调用时，在 `.env.local` 中设置：
+
+```bash
+EXPO_PUBLIC_AI_SERVICE_URL=http://localhost:8000
+```
+
+服务端模型润色是可选能力，配置方式见 [AI Service README](./ai-service/README.md)。模型只能润色已检索出的解释字段，正确答案、考点和来源由知识库锁定。
 
 - 只修改 `src/data/seed/*.json`，不要直接改对应的 `.ts` 加载文件。
 - 更新 seed 后，要检查 JSON 是否能正常解析。

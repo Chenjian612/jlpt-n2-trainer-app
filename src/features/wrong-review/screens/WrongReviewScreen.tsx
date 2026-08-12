@@ -72,7 +72,7 @@ export function WrongReviewScreen({
 
   useEffect(() => {
     if (reviewItems.length === 0) return;
-    const cached = state.aiExplanationCache[reviewItems[currentIndex]?.questionId ?? ''];
+    const cached = state.aiExplanationCache?.[reviewItems[currentIndex]?.questionId ?? ''];
     setAiExplanation(cached ?? null);
     setAiLoading(false);
     setAiError(null);
@@ -155,35 +155,52 @@ export function WrongReviewScreen({
     });
   };
 
-  const handleAiExplain = async () => {
-    if (aiLoading || aiExplanation) return;
-    const cached = state.aiExplanationCache[item.questionId];
-    if (cached) {
+  const handleAiExplain = async (forceRefresh = false) => {
+    if (aiLoading || (aiExplanation && !forceRefresh)) return;
+    const cached = state.aiExplanationCache?.[item.questionId];
+    if (cached && !forceRefresh) {
       setAiExplanation(cached);
       return;
     }
     setAiLoading(true);
     setAiError(null);
     try {
-      const result = await getWrongAnswerExplanation({
-        question: item.prompt,
-        choices: item.choices,
-        selectedChoice: item.lastUserChoice !== null
+      const fallbackWrongChoice = item.choices.findIndex((_, index) => index !== item.answer);
+      const explanationChoice =
+        item.lastUserChoice !== null && item.lastUserChoice !== item.answer
           ? item.lastUserChoice
-          : (selectedChoice !== item.answer ? selectedChoice ?? 0 : 0),
-        correctChoice: item.answer,
-        tags: item.tags,
+          : selectedChoice !== null && selectedChoice !== item.answer
+            ? selectedChoice
+            : fallbackWrongChoice;
+      const result = await getWrongAnswerExplanation({
+        questionId: item.questionId,
         modeId: item.modeId,
+        prompt: item.prompt,
+        choices: item.choices,
+        answer: item.answer,
+        explanation: item.explanation,
+        choiceInsights: item.choiceInsights,
+        reviewNote: item.reviewNote,
+        tags: item.tags,
+        source: item.source,
         wrongCount: item.wrongCount,
+        selectedChoice: explanationChoice,
       });
       saveAiExplanation(item.questionId, {
         ...result,
         generatedAt: new Date().toISOString(),
       });
       setAiExplanation(result);
+      if (forceRefresh && result.generationMode !== 'ai_service') {
+        setAiError('AI 服务暂时不可用，已保留本地知识库讲解。可以稍后重试。');
+      }
     } catch (err) {
       if (__DEV__) console.warn('[AI Coach]', err);
-      setAiError('获取解释失败，请稍后重试');
+      setAiError(
+        err instanceof Error && err.message === 'KNOWLEDGE_NOT_FOUND'
+          ? '本地知识库证据不足，暂时不能可靠解释这道题。'
+          : '获取解释失败，请稍后重试',
+      );
     } finally {
       setAiLoading(false);
     }
@@ -437,19 +454,63 @@ export function WrongReviewScreen({
 
                   {aiExplanation ? (
                     <View style={styles.aiBlock}>
-                      <Text style={styles.aiBlockTitle}>AI 错题分析</Text>
+                      <View style={styles.aiTitleRow}>
+                        <Text style={styles.aiBlockTitle}>RAG 错题讲解</Text>
+                        <Text style={styles.aiModeBadge}>
+                          {aiExplanation.generationMode === 'ai_service'
+                            ? 'AI 服务'
+                            : aiExplanation.generationMode === 'local_knowledge'
+                              ? '本地知识库'
+                              : '历史缓存'}
+                        </Text>
+                      </View>
+                      <View style={styles.aiRow}>
+                        <Text style={styles.aiRowLabel}>本题考点</Text>
+                        <Text style={styles.aiRowBody}>{aiExplanation.testedPoint}</Text>
+                      </View>
                       <View style={styles.aiRow}>
                         <Text style={styles.aiRowLabel}>错误模式</Text>
                         <Text style={styles.aiRowBody}>{aiExplanation.mistakePattern}</Text>
                       </View>
+                      {aiExplanation.whyCorrect ? (
+                        <View style={styles.aiRow}>
+                          <Text style={styles.aiRowLabel}>正确答案依据</Text>
+                          <Text style={styles.aiRowBody}>{aiExplanation.whyCorrect}</Text>
+                        </View>
+                      ) : null}
                       <View style={styles.aiRow}>
-                        <Text style={styles.aiRowLabel}>干扰项为何有效</Text>
-                        <Text style={styles.aiRowBody}>{aiExplanation.whyDistractorFooled}</Text>
+                        <Text style={styles.aiRowLabel}>你的选择为什么不对</Text>
+                        <Text style={styles.aiRowBody}>{aiExplanation.whyUserWrong}</Text>
                       </View>
                       <View style={styles.aiRow}>
                         <Text style={styles.aiRowLabel}>下次注意</Text>
                         <Text style={styles.aiRowBody}>{aiExplanation.watchNextTime}</Text>
                       </View>
+                      {aiExplanation.sources.length > 0 ? (
+                        <View style={styles.aiSources}>
+                          <Text style={styles.aiSourcesTitle}>检索来源</Text>
+                          {aiExplanation.sources.map((source) => (
+                            <View key={source.id} style={styles.aiSourceItem}>
+                              <Text style={styles.aiSourceTitle}>{source.title}</Text>
+                              <Text style={styles.aiRowBody}>{source.snippet}</Text>
+                              <Text style={styles.aiSourceMeta}>来源：{source.sourceLabel}</Text>
+                            </View>
+                          ))}
+                        </View>
+                      ) : null}
+                      {aiExplanation.generationMode !== 'ai_service' ? (
+                        <Pressable
+                          style={styles.aiRefreshButton}
+                          onPress={() => { void handleAiExplain(true); }}
+                          disabled={aiLoading}
+                        >
+                          {aiLoading ? (
+                            <ActivityIndicator color="#3730A3" />
+                          ) : (
+                            <Text style={styles.aiRefreshButtonText}>使用 AI 重新讲解</Text>
+                          )}
+                        </Pressable>
+                      ) : null}
                     </View>
                   ) : (
                     <Pressable
@@ -460,7 +521,7 @@ export function WrongReviewScreen({
                       {aiLoading ? (
                         <ActivityIndicator color="#FFFFFF" />
                       ) : (
-                        <Text style={styles.aiButtonText}>为什么我错了？</Text>
+                        <Text style={styles.aiButtonText}>查看知识库讲解</Text>
                       )}
                     </Pressable>
                   )}
@@ -499,4 +560,3 @@ export function WrongReviewScreen({
     </AppBackground>
   );
 }
-

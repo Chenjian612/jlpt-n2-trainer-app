@@ -1,9 +1,8 @@
 ﻿import type { TrainingModeId, TrainingSessionKind } from './training';
 
-export type AiWrongAnswerExplanation = {
-  mistakePattern: string;
-  whyDistractorFooled: string;
-  watchNextTime: string;
+import type { WrongAnswerExplanation } from './aiExplanation';
+
+export type AiWrongAnswerExplanation = WrongAnswerExplanation & {
   generatedAt: string; // ISO 8601
 };
 
