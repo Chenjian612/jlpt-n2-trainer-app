@@ -5,6 +5,10 @@ import type {
   TrainingSessionRecord,
 } from '../models/progress';
 import type {
+  CachedPersonalizedTutorExplanation,
+  TransferResult,
+} from '../models/personalizedTutor';
+import type {
   StudyWeaknessDraft,
   StudyWeaknessItem,
   WeaknessErrorType,
@@ -109,6 +113,8 @@ export const createDefaultProgressState = (): ProgressState => ({
   weaknessSignals: [],
   studyWeaknesses: [],
   aiExplanationCache: {},
+  personalizedTutorCache: {},
+  transferResults: [],
 });
 
 export const clampWeeklyGoal = (goal: number): number =>
@@ -487,6 +493,49 @@ const normalizeAiExplanationCache = (
   return next;
 };
 
+const normalizePersonalizedTutorCache = (
+  value: unknown,
+): Record<string, CachedPersonalizedTutorExplanation> => {
+  if (!value || typeof value !== 'object') return {};
+  const next: Record<string, CachedPersonalizedTutorExplanation> = {};
+  for (const [key, entry] of Object.entries(value)) {
+    if (!entry || typeof entry !== 'object') continue;
+    const parsed = entry as Partial<CachedPersonalizedTutorExplanation>;
+    if (
+      typeof parsed.diagnosisSummary !== 'string' ||
+      typeof parsed.whyYouChoseIt !== 'string' ||
+      !Array.isArray(parsed.reasoningSteps) ||
+      parsed.reasoningSteps.length !== 3 ||
+      !parsed.confusionComparison ||
+      !parsed.personalizationEvidence ||
+      !parsed.transferQuestion ||
+      typeof parsed.contextVersion !== 'string' ||
+      typeof parsed.generatedAt !== 'string'
+    ) {
+      continue;
+    }
+    next[key] = parsed as CachedPersonalizedTutorExplanation;
+  }
+  return next;
+};
+
+const normalizeTransferResults = (value: unknown): TransferResult[] => {
+  if (!Array.isArray(value)) return [];
+  return value
+    .filter((entry): entry is TransferResult => {
+      if (!entry || typeof entry !== 'object') return false;
+      const parsed = entry as Partial<TransferResult>;
+      return (
+        typeof parsed.questionId === 'string' &&
+        typeof parsed.contextVersion === 'string' &&
+        typeof parsed.selectedChoice === 'number' &&
+        typeof parsed.correct === 'boolean' &&
+        typeof parsed.answeredAt === 'string'
+      );
+    })
+    .slice(-100);
+};
+
 export const normalizeProgressState = (raw: string | null): ProgressState => {
   if (!raw) return createDefaultProgressState();
   try {
@@ -501,6 +550,8 @@ export const normalizeProgressState = (raw: string | null): ProgressState => {
       weaknessSignals: normalizeWeaknessSignals(parsed.weaknessSignals),
       studyWeaknesses: normalizeStudyWeaknesses(parsed.studyWeaknesses),
       aiExplanationCache: normalizeAiExplanationCache(parsed.aiExplanationCache),
+      personalizedTutorCache: normalizePersonalizedTutorCache(parsed.personalizedTutorCache),
+      transferResults: normalizeTransferResults(parsed.transferResults),
     };
   } catch {
     return createDefaultProgressState();
@@ -746,6 +797,26 @@ export const cacheAiExplanation = (
     ...(state.aiExplanationCache ?? {}),
     [questionId]: explanation,
   },
+});
+
+export const cachePersonalizedTutor = (
+  state: ProgressState,
+  cacheKey: string,
+  explanation: CachedPersonalizedTutorExplanation,
+): ProgressState => ({
+  ...state,
+  personalizedTutorCache: {
+    ...state.personalizedTutorCache,
+    [cacheKey]: explanation,
+  },
+});
+
+export const recordTransferResult = (
+  state: ProgressState,
+  result: TransferResult,
+): ProgressState => ({
+  ...state,
+  transferResults: [...state.transferResults, result].slice(-100),
 });
 
 export const removeLatestSessionForMode = (state: ProgressState, dayKey: string, modeId: TrainingModeId): ProgressState => {

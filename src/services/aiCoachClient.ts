@@ -1,5 +1,6 @@
 import { APP_CONFIG } from '../config/constants';
 import type { WrongAnswerExplanation } from '../domain/models/aiExplanation';
+import type { PersonalizedTutorExplanation } from '../domain/models/personalizedTutor';
 import {
   buildLocalRagExplanation,
   type RagExplanationRequest,
@@ -7,6 +8,12 @@ import {
 
 export type WrongAnswerExplanationParams = RagExplanationRequest;
 export type { WrongAnswerExplanation };
+
+export type PersonalizedTutorParams = RagExplanationRequest & {
+  weaknessType: string;
+  recentSimilarWrongCount: number;
+  recentSimilarPointIds: string[];
+};
 
 type ClaudeResponse = {
   content: Array<{ type: string; text: string }>;
@@ -149,6 +156,177 @@ export const getWrongAnswerExplanation = async (
   }
 
   return localExplanation;
+};
+
+const isReviewTiming = (value: unknown): value is 'now' | 'tomorrow' | 'three_days' =>
+  value === 'now' || value === 'tomorrow' || value === 'three_days';
+
+export const mergePersonalizedTutorResponse = (
+  generated: Record<string, unknown>,
+  localExplanation: WrongAnswerExplanation,
+  params: PersonalizedTutorParams,
+): PersonalizedTutorExplanation => {
+  const steps = generated.reasoningSteps;
+  const comparison = generated.confusionComparison as Record<string, unknown> | undefined;
+  const reviewPlan = generated.reviewPlan;
+  const transfer = generated.transferQuestion as Record<string, unknown> | undefined;
+  const transferChoices = transfer?.choices;
+  const transferAnswer = transfer?.answer;
+  const selectedChoice = params.choices[params.selectedChoice];
+
+  if (
+    typeof generated.diagnosisSummary !== 'string' ||
+    typeof generated.whyYouChoseIt !== 'string' ||
+    !Array.isArray(steps) ||
+    steps.length !== 3 ||
+    !steps.every((step) => typeof step === 'string' && step.trim().length > 0) ||
+    !comparison ||
+    typeof comparison.decisiveDifference !== 'string' ||
+    !Array.isArray(reviewPlan) ||
+    reviewPlan.length < 1 ||
+    reviewPlan.length > 3 ||
+    !reviewPlan.every(
+      (item) =>
+        item &&
+        typeof item === 'object' &&
+        isReviewTiming((item as Record<string, unknown>).timing) &&
+        typeof (item as Record<string, unknown>).action === 'string',
+    ) ||
+    !transfer ||
+    typeof transfer.prompt !== 'string' ||
+    !Array.isArray(transferChoices) ||
+    transferChoices.length < 2 ||
+    transferChoices.length > 4 ||
+    !transferChoices.every((choice) => typeof choice === 'string' && choice.trim().length > 0) ||
+    typeof transferAnswer !== 'number' ||
+    !Number.isInteger(transferAnswer) ||
+    transferAnswer < 0 ||
+    transferAnswer >= transferChoices.length ||
+    typeof transfer.explanation !== 'string' ||
+    !selectedChoice
+  ) {
+    throw new Error('Invalid personalized tutor response');
+  }
+
+  return {
+    diagnosisSummary: generated.diagnosisSummary,
+    whyYouChoseIt: generated.whyYouChoseIt,
+    reasoningSteps: steps as [string, string, string],
+    confusionComparison: {
+      correctPoint: localExplanation.testedPoint,
+      confusedPoint: selectedChoice,
+      decisiveDifference: comparison.decisiveDifference,
+    },
+    reviewPlan: reviewPlan as PersonalizedTutorExplanation['reviewPlan'],
+    personalizationEvidence: {
+      selectedChoice,
+      wrongCount: params.wrongCount,
+      weaknessType: params.weaknessType,
+      recentSimilarWrongCount: params.recentSimilarWrongCount,
+    },
+    transferQuestion: {
+      prompt: transfer.prompt,
+      choices: transferChoices as string[],
+      answer: transferAnswer,
+      testedPoint: localExplanation.testedPoint,
+      explanation: transfer.explanation,
+    },
+    generationMode: 'ai_tutor',
+  };
+};
+
+const requestFastApiTutor = async (
+  params: PersonalizedTutorParams,
+): Promise<Record<string, unknown>> => {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 55_000);
+  try {
+    const response = await fetch(`${APP_CONFIG.AI_SERVICE_URL}/tutor/wrong-answer`, {
+      method: 'POST',
+      signal: controller.signal,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        questionId: params.questionId,
+        selectedChoice: params.selectedChoice,
+        wrongCount: params.wrongCount,
+        weaknessType: params.weaknessType,
+        recentSimilarWrongCount: params.recentSimilarWrongCount,
+        recentSimilarPointIds: params.recentSimilarPointIds.slice(0, 3),
+      }),
+    });
+    if (!response.ok) throw new Error(`Personalized tutor service error ${response.status}`);
+    return (await response.json()) as Record<string, unknown>;
+  } finally {
+    clearTimeout(timeout);
+  }
+};
+
+const requestProxyTutor = async (
+  params: PersonalizedTutorParams,
+  localExplanation: WrongAnswerExplanation,
+): Promise<Record<string, unknown>> => {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 55_000);
+  const evidence = {
+    groundedExplanation: localExplanation,
+    learningContext: {
+      selectedChoice: params.choices[params.selectedChoice],
+      wrongCount: params.wrongCount,
+      weaknessType: params.weaknessType,
+      recentSimilarWrongCount: params.recentSimilarWrongCount,
+      recentSimilarPointIds: params.recentSimilarPointIds.slice(0, 3),
+    },
+  };
+  const prompt =
+    '你是 JLPT N2 个性化错题教练。事实只能来自 evidence。不要重复知识库定义，重点诊断学生为何误选。' +
+    '只返回 JSON：diagnosisSummary, whyYouChoseIt, reasoningSteps(正好3项), ' +
+    'confusionComparison{decisiveDifference}, reviewPlan(1-3项，timing 为 now/tomorrow/three_days), ' +
+    'transferQuestion{prompt,choices(2-4项),answer(0开始),explanation}。迁移题必须考查同一考点。\n' +
+    JSON.stringify(evidence);
+  try {
+    const response = await fetch(`${APP_CONFIG.DEEPSEEK_PROXY_URL}/v1/chat/completions`, {
+      method: 'POST',
+      signal: controller.signal,
+      headers: { Authorization: 'Bearer proxy', 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'deepseek-chat',
+        temperature: 0.2,
+        max_tokens: 1400,
+        messages: [
+          { role: 'system', content: '基于证据个性化教学，只输出合法 JSON。' },
+          { role: 'user', content: prompt },
+        ],
+      }),
+    });
+    if (!response.ok) throw new Error(`Personalized tutor proxy error ${response.status}`);
+    const raw = (await response.json()) as OpenAIResponse;
+    return parseJsonObject(raw.choices[0]?.message?.content ?? '');
+  } finally {
+    clearTimeout(timeout);
+  }
+};
+
+export const getPersonalizedTutorExplanation = async (
+  params: PersonalizedTutorParams,
+): Promise<PersonalizedTutorExplanation> => {
+  const localExplanation = buildLocalRagExplanation(params);
+  if (!localExplanation) throw new Error('KNOWLEDGE_NOT_FOUND');
+
+  if (APP_CONFIG.AI_SERVICE_URL) {
+    try {
+      const generated = await requestFastApiTutor(params);
+      return mergePersonalizedTutorResponse(generated, localExplanation, params);
+    } catch (err) {
+      if (__DEV__) console.warn('[AI Tutor] FastAPI unavailable, trying proxy:', err);
+    }
+  }
+
+  if (APP_CONFIG.AI_PROVIDER === 'deepseek' && APP_CONFIG.DEEPSEEK_PROXY_URL) {
+    const generated = await requestProxyTutor(params, localExplanation);
+    return mergePersonalizedTutorResponse(generated, localExplanation, params);
+  }
+
+  throw new Error('AI_TUTOR_UNAVAILABLE');
 };
 
 // ====================== Sort question explanation ======================

@@ -24,7 +24,7 @@ EXPO_PUBLIC_AI_SERVICE_URL=http://localhost:8000
 
 服务默认不依赖模型也能工作。配置以下环境变量后，会调用 OpenAI-compatible API；模型只能润色检索结果中的讲解字段，答案、考点和来源仍由本地知识库锁定。
 
-当前实现属于受控润色，不等同于完整的个性化 AI 辅导。下一阶段将新增独立的个性化接口，结合误选项、累计错误和近期同类错误，生成诊断、三步判断路径、复习动作和迁移题。设计见 [个性化 AI 错题辅导设计](../AI-PERSONALIZED-TUTOR-DESIGN.md)。
+除受控润色外，服务已提供 `POST /tutor/wrong-answer` 个性化辅导接口。它结合误选项、累计错误和近期同类错误，生成诊断、三步判断路径、复习动作和迁移题。设计与实现边界见 [个性化 AI 错题辅导设计](../AI-PERSONALIZED-TUTOR-DESIGN.md)。
 
 ```bash
 AI_LLM_BASE_URL=https://api.deepseek.com/v1
@@ -42,6 +42,9 @@ curl http://127.0.0.1:8000/health/ai
 - `/health` 只检查 FastAPI、知识库和模型配置，不访问外网。
 - `/health/ai` 会向模型发送固定的 `Reply with only: ok` 探针，不包含题库、错题或学习记录。`reachable: true` 才表示外部模型真实可访问。
 - `/explain-wrong-answer` 响应中的 `generationMode` 为 `ai_service` 表示模型润色成功；为 `local_knowledge` 表示模型调用失败，服务已自动回退到本地知识库讲解。
+- `/tutor/wrong-answer` 只在模型成功且结构校验通过时返回 `generationMode: ai_tutor`；模型不可用或迁移题结构无效时返回 503，前端继续保留知识库事实讲解。
+
+`generationMode` 是客户端判断缓存和降级状态的接口字段，不是页面标题。前端在 `ai_service` 成功时不显示额外徽标，在 `local_knowledge` 或旧缓存状态下分别显示“本地知识库”或“历史缓存”；个性化辅导使用“智能辅导”。
 
 Codex 不能在没有逐项授权目标和数据的情况下，代替用户把本地真实题目发送给第三方模型。这是开发工具的数据外发安全限制，不是 App 的运行限制。展示前先用 `/health/ai` 验证网络和模型，再由使用者在 App 中点击“使用 AI 重新讲解”完成真实业务验证。
 

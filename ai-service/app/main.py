@@ -2,8 +2,13 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
 from .knowledge_service import build_grounded_explanation, load_question_index
-from .llm_gateway import enrich_with_llm, get_llm_config, probe_llm
-from .schemas import ExplainWrongAnswerRequest, WrongAnswerExplanation
+from .llm_gateway import enrich_with_llm, generate_personalized_tutor, get_llm_config, probe_llm
+from .schemas import (
+    ExplainWrongAnswerRequest,
+    PersonalizedTutorExplanation,
+    TutorWrongAnswerRequest,
+    WrongAnswerExplanation,
+)
 
 
 app = FastAPI(
@@ -51,3 +56,27 @@ def explain_wrong_answer(
             detail="知识库证据不足，暂时不能可靠解释这道题。",
         )
     return enrich_with_llm(explanation, request.wrongCount)
+
+
+@app.post("/tutor/wrong-answer", response_model=PersonalizedTutorExplanation)
+def tutor_wrong_answer(
+    request: TutorWrongAnswerRequest,
+) -> PersonalizedTutorExplanation:
+    grounded_request = ExplainWrongAnswerRequest(
+        questionId=request.questionId,
+        selectedChoice=request.selectedChoice,
+        wrongCount=request.wrongCount,
+    )
+    explanation = build_grounded_explanation(grounded_request)
+    if explanation is None:
+        raise HTTPException(
+            status_code=404,
+            detail="知识库证据不足，暂时不能生成个性化辅导。",
+        )
+    result = generate_personalized_tutor(request, explanation)
+    if result is None:
+        raise HTTPException(
+            status_code=503,
+            detail="个性化 AI 辅导暂时不可用，请保留知识库讲解。",
+        )
+    return result

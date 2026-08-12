@@ -177,6 +177,8 @@ module.exports = {
         );
 
         assert.deepEqual(withoutCache.aiExplanationCache, {});
+        assert.deepEqual(withoutCache.personalizedTutorCache, {});
+        assert.deepEqual(withoutCache.transferResults, []);
         assert.equal(withCache.aiExplanationCache['grammar-001'].generationMode, 'legacy');
       },
     },

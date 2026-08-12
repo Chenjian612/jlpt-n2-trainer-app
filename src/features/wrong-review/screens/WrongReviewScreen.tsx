@@ -10,7 +10,11 @@ import {
 import { APP_CONFIG } from '../../../config/constants';
 import { useProgressStore } from '../../../app/providers/ProgressProvider';
 import type { WrongAnswerExplanation } from '../../../services/aiCoachClient';
-import { getWrongAnswerExplanation } from '../../../services/aiCoachClient';
+import {
+  getPersonalizedTutorExplanation,
+  getWrongAnswerExplanation,
+} from '../../../services/aiCoachClient';
+import type { PersonalizedTutorExplanation } from '../../../domain/models/personalizedTutor';
 import { AppBackground } from '../../../components/common/AppBackground';
 import { getTrainingModeById } from '../../../data/seed/trainingModes';
 import { REVIEW_SOURCE_MODE, type ReviewModeId } from '../../../domain/models/training';
@@ -20,6 +24,12 @@ import {
   getPrioritizedWrongAnswersForMode,
   getWrongAnswerPriorityLabel,
 } from '../../../domain/services/progressService';
+import {
+  buildTutorLearningContext,
+  getCachedPersonalizedTutor,
+  getTutorCacheKey,
+  withTutorCacheMetadata,
+} from '../../../domain/services/personalizedTutorService';
 import { styles } from './wrongReviewStyles';
 
 type WrongReviewScreenProps = {
@@ -35,8 +45,14 @@ export function WrongReviewScreen({
   onBackToDetail,
   onBackToDashboard,
 }: WrongReviewScreenProps) {
-  const { state, todayKey, completeWrongReviewSession, saveAiExplanation } =
-    useProgressStore();
+  const {
+    state,
+    todayKey,
+    completeWrongReviewSession,
+    saveAiExplanation,
+    savePersonalizedTutor,
+    saveTransferResult,
+  } = useProgressStore();
   const mode = getTrainingModeById(modeId);
 
   if (!mode) {
@@ -63,6 +79,12 @@ export function WrongReviewScreen({
   const [aiExplanation, setAiExplanation] = useState<WrongAnswerExplanation | null>(null);
   const [aiLoading, setAiLoading] = useState(false);
   const [aiError, setAiError] = useState<string | null>(null);
+  const [personalizedTutor, setPersonalizedTutor] =
+    useState<PersonalizedTutorExplanation | null>(null);
+  const [tutorLoading, setTutorLoading] = useState(false);
+  const [tutorError, setTutorError] = useState<string | null>(null);
+  const [transferSelectedChoice, setTransferSelectedChoice] = useState<number | null>(null);
+  const [transferChecked, setTransferChecked] = useState(false);
   const [result, setResult] = useState<{
     reviewedCount: number;
     masteredCount: number;
@@ -76,6 +98,11 @@ export function WrongReviewScreen({
     setAiExplanation(cached ?? null);
     setAiLoading(false);
     setAiError(null);
+    setPersonalizedTutor(null);
+    setTutorLoading(false);
+    setTutorError(null);
+    setTransferSelectedChoice(null);
+    setTransferChecked(false);
   }, [currentIndex]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (reviewItems.length === 0) {
@@ -204,6 +231,78 @@ export function WrongReviewScreen({
     } finally {
       setAiLoading(false);
     }
+  };
+
+  const getTutorSelectedChoice = (): number => {
+    if (selectedChoice !== null && selectedChoice !== item.answer) return selectedChoice;
+    if (item.lastUserChoice !== null && item.lastUserChoice !== item.answer) {
+      return item.lastUserChoice;
+    }
+    return item.choices.findIndex((_, index) => index !== item.answer);
+  };
+
+  const handlePersonalizedTutor = async (forceRefresh = false) => {
+    if (tutorLoading) return;
+    const tutorSelectedChoice = getTutorSelectedChoice();
+    const context = buildTutorLearningContext(state, item, tutorSelectedChoice);
+    const cached = getCachedPersonalizedTutor(
+      state,
+      item.questionId,
+      context.contextVersion,
+    );
+    if (cached && !forceRefresh) {
+      setPersonalizedTutor(cached);
+      setTutorError(null);
+      return;
+    }
+
+    setTutorLoading(true);
+    setTutorError(null);
+    setTransferSelectedChoice(null);
+    setTransferChecked(false);
+    try {
+      const result = await getPersonalizedTutorExplanation({
+        questionId: item.questionId,
+        modeId: item.modeId,
+        prompt: item.prompt,
+        choices: item.choices,
+        answer: item.answer,
+        explanation: item.explanation,
+        choiceInsights: item.choiceInsights,
+        reviewNote: item.reviewNote,
+        tags: item.tags,
+        source: item.source,
+        wrongCount: item.wrongCount,
+        selectedChoice: tutorSelectedChoice,
+        weaknessType: context.weaknessType,
+        recentSimilarWrongCount: context.recentSimilarWrongCount,
+        recentSimilarPointIds: context.recentSimilarPointIds,
+      });
+      const cachedResult = withTutorCacheMetadata(result, context.contextVersion);
+      savePersonalizedTutor(
+        getTutorCacheKey(item.questionId, context.contextVersion),
+        cachedResult,
+      );
+      setPersonalizedTutor(result);
+    } catch (err) {
+      if (__DEV__) console.warn('[AI Tutor]', err);
+      setTutorError('个性化 AI 辅导暂时不可用，知识库事实讲解仍然有效。');
+    } finally {
+      setTutorLoading(false);
+    }
+  };
+
+  const handleTransferCheck = () => {
+    if (!personalizedTutor || transferSelectedChoice === null || transferChecked) return;
+    const context = buildTutorLearningContext(state, item, getTutorSelectedChoice());
+    setTransferChecked(true);
+    saveTransferResult({
+      questionId: item.questionId,
+      contextVersion: context.contextVersion,
+      selectedChoice: transferSelectedChoice,
+      correct: transferSelectedChoice === personalizedTutor.transferQuestion.answer,
+      answeredAt: new Date().toISOString(),
+    });
   };
 
   return (
@@ -456,13 +555,13 @@ export function WrongReviewScreen({
                     <View style={styles.aiBlock}>
                       <View style={styles.aiTitleRow}>
                         <Text style={styles.aiBlockTitle}>RAG 错题讲解</Text>
-                        <Text style={styles.aiModeBadge}>
-                          {aiExplanation.generationMode === 'ai_service'
-                            ? 'AI 服务'
-                            : aiExplanation.generationMode === 'local_knowledge'
+                        {aiExplanation.generationMode !== 'ai_service' ? (
+                          <Text style={styles.aiModeBadge}>
+                            {aiExplanation.generationMode === 'local_knowledge'
                               ? '本地知识库'
                               : '历史缓存'}
-                        </Text>
+                          </Text>
+                        ) : null}
                       </View>
                       <View style={styles.aiRow}>
                         <Text style={styles.aiRowLabel}>本题考点</Text>
@@ -528,6 +627,170 @@ export function WrongReviewScreen({
                   {aiError ? (
                     <Text style={styles.aiError}>{aiError}</Text>
                   ) : null}
+
+                  {personalizedTutor ? (
+                    <View style={styles.tutorBlock}>
+                      <View style={styles.aiTitleRow}>
+                        <Text style={styles.tutorBlockTitle}>AI 个性化辅导</Text>
+                        <Text style={styles.tutorModeBadge}>智能辅导</Text>
+                      </View>
+
+                      <View style={styles.tutorEvidenceRow}>
+                        <View style={styles.tutorEvidenceItem}>
+                          <Text style={styles.tutorEvidenceLabel}>本次误选</Text>
+                          <Text style={styles.tutorEvidenceValue}>
+                            {personalizedTutor.personalizationEvidence.selectedChoice}
+                          </Text>
+                        </View>
+                        <View style={styles.tutorEvidenceItem}>
+                          <Text style={styles.tutorEvidenceLabel}>累计错误</Text>
+                          <Text style={styles.tutorEvidenceValue}>
+                            {personalizedTutor.personalizationEvidence.wrongCount} 次
+                          </Text>
+                        </View>
+                        <View style={styles.tutorEvidenceItem}>
+                          <Text style={styles.tutorEvidenceLabel}>同类错题</Text>
+                          <Text style={styles.tutorEvidenceValue}>
+                            {personalizedTutor.personalizationEvidence.recentSimilarWrongCount} 题
+                          </Text>
+                        </View>
+                      </View>
+
+                      <View style={styles.tutorSection}>
+                        <Text style={styles.tutorSectionLabel}>你的错误类型</Text>
+                        <Text style={styles.tutorSectionTitle}>
+                          {personalizedTutor.personalizationEvidence.weaknessType}
+                        </Text>
+                        <Text style={styles.tutorSectionBody}>
+                          {personalizedTutor.diagnosisSummary}
+                        </Text>
+                      </View>
+
+                      <View style={styles.tutorSection}>
+                        <Text style={styles.tutorSectionLabel}>为什么你会选它</Text>
+                        <Text style={styles.tutorSectionBody}>{personalizedTutor.whyYouChoseIt}</Text>
+                      </View>
+
+                      <View style={styles.tutorSection}>
+                        <Text style={styles.tutorSectionLabel}>下次照着走的三步判断</Text>
+                        {personalizedTutor.reasoningSteps.map((step, index) => (
+                          <View key={`${index}-${step}`} style={styles.tutorStepRow}>
+                            <Text style={styles.tutorStepNumber}>{index + 1}</Text>
+                            <Text style={styles.tutorStepBody}>{step}</Text>
+                          </View>
+                        ))}
+                      </View>
+
+                      <View style={styles.tutorComparison}>
+                        <Text style={styles.tutorSectionLabel}>易混点对比</Text>
+                        <Text style={styles.tutorComparisonTerms}>
+                          {personalizedTutor.confusionComparison.correctPoint} /{' '}
+                          {personalizedTutor.confusionComparison.confusedPoint}
+                        </Text>
+                        <Text style={styles.tutorSectionBody}>
+                          {personalizedTutor.confusionComparison.decisiveDifference}
+                        </Text>
+                      </View>
+
+                      <View style={styles.tutorSection}>
+                        <Text style={styles.tutorSectionLabel}>针对你的复习动作</Text>
+                        {personalizedTutor.reviewPlan.map((plan) => (
+                          <View key={`${plan.timing}-${plan.action}`} style={styles.tutorPlanRow}>
+                            <Text style={styles.tutorPlanTiming}>
+                              {plan.timing === 'now'
+                                ? '现在'
+                                : plan.timing === 'tomorrow'
+                                  ? '明天'
+                                  : '三天后'}
+                            </Text>
+                            <Text style={styles.tutorStepBody}>{plan.action}</Text>
+                          </View>
+                        ))}
+                      </View>
+
+                      <View style={styles.transferBlock}>
+                        <Text style={styles.transferEyebrow}>立即验证</Text>
+                        <Text style={styles.transferTitle}>
+                          {personalizedTutor.transferQuestion.prompt}
+                        </Text>
+                        <View style={styles.transferChoiceList}>
+                          {personalizedTutor.transferQuestion.choices.map((choice, index) => {
+                            const selected = transferSelectedChoice === index;
+                            const correct = personalizedTutor.transferQuestion.answer === index;
+                            return (
+                              <Pressable
+                                key={`${index}-${choice}`}
+                                testID={`tutor-transfer-choice-${index}`}
+                                disabled={transferChecked}
+                                onPress={() => setTransferSelectedChoice(index)}
+                                style={[
+                                  styles.transferChoice,
+                                  selected && styles.transferChoiceSelected,
+                                  transferChecked && correct && styles.transferChoiceCorrect,
+                                  transferChecked && selected && !correct && styles.transferChoiceWrong,
+                                ]}
+                              >
+                                <Text style={styles.transferChoiceText}>{index + 1}. {choice}</Text>
+                              </Pressable>
+                            );
+                          })}
+                        </View>
+                        <Pressable
+                          testID="tutor-transfer-submit"
+                          onPress={handleTransferCheck}
+                          disabled={transferSelectedChoice === null || transferChecked}
+                          style={[
+                            styles.transferSubmit,
+                            (transferSelectedChoice === null || transferChecked) && styles.disabledButton,
+                          ]}
+                        >
+                          <Text style={styles.aiButtonText}>
+                            {transferChecked ? '已完成迁移验证' : '提交迁移题'}
+                          </Text>
+                        </Pressable>
+                        {transferChecked ? (
+                          <View
+                            style={
+                              transferSelectedChoice === personalizedTutor.transferQuestion.answer
+                                ? styles.transferResultSuccess
+                                : styles.transferResultWarning
+                            }
+                          >
+                            <Text style={styles.transferResultTitle}>
+                              {transferSelectedChoice === personalizedTutor.transferQuestion.answer
+                                ? '迁移成功：你已经能在新语境中应用这个判断。'
+                                : '还未迁移成功：按三步判断路径再走一遍。'}
+                            </Text>
+                            <Text style={styles.tutorSectionBody}>
+                              {personalizedTutor.transferQuestion.explanation}
+                            </Text>
+                          </View>
+                        ) : null}
+                      </View>
+
+                      <Pressable
+                        style={styles.tutorRefreshButton}
+                        onPress={() => { void handlePersonalizedTutor(true); }}
+                        disabled={tutorLoading}
+                      >
+                        <Text style={styles.tutorRefreshButtonText}>根据当前记录重新生成</Text>
+                      </Pressable>
+                    </View>
+                  ) : (
+                    <Pressable
+                      testID="personalized-tutor-button"
+                      style={styles.tutorButton}
+                      onPress={() => { void handlePersonalizedTutor(); }}
+                      disabled={tutorLoading}
+                    >
+                      {tutorLoading ? (
+                        <ActivityIndicator color="#FFFFFF" />
+                      ) : (
+                        <Text style={styles.aiButtonText}>生成个性化 AI 辅导</Text>
+                      )}
+                    </Pressable>
+                  )}
+                  {tutorError ? <Text style={styles.aiError}>{tutorError}</Text> : null}
                 </>
               ) : null}
             </View>
