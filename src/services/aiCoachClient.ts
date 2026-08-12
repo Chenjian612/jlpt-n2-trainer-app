@@ -59,7 +59,7 @@ const requestFastApiExplanation = async (
   params: WrongAnswerExplanationParams,
 ): Promise<WrongAnswerExplanation> => {
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 20_000);
+  const timeout = setTimeout(() => controller.abort(), 55_000);
   try {
     const response = await fetch(`${APP_CONFIG.AI_SERVICE_URL}/explain-wrong-answer`, {
       method: 'POST',
@@ -87,11 +87,12 @@ const requestProxyExplanation = async (
   wrongCount: number,
 ): Promise<WrongAnswerExplanation> => {
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 20_000);
+  const timeout = setTimeout(() => controller.abort(), 55_000);
   const prompt =
     '你是面向中国学习者的 JLPT N2 错题教练。只能依据下面 JSON 证据改写讲解，' +
     '不得改变答案、考点、选项事实或来源。只返回 mistakePattern、whyCorrect、' +
-    'whyUserWrong、whyDistractorFooled、watchNextTime 五个字符串字段的 JSON。' +
+    'whyUserWrong、whyDistractorFooled、watchNextTime 五个字符串字段的 JSON，' +
+    '每个字段控制在 60-120 个汉字。' +
     `学生累计答错 ${wrongCount} 次。证据：${JSON.stringify(explanation)}`;
   try {
     const response = await fetch(`${APP_CONFIG.DEEPSEEK_PROXY_URL}/v1/chat/completions`, {
@@ -104,7 +105,7 @@ const requestProxyExplanation = async (
       body: JSON.stringify({
         model: 'deepseek-chat',
         temperature: 0.1,
-        max_tokens: 600,
+        max_tokens: 900,
         messages: [
           { role: 'system', content: '严格基于证据回答；证据不足时不要编造。' },
           { role: 'user', content: prompt },

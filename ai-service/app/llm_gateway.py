@@ -40,7 +40,7 @@ def _build_request(base_url: str, api_key: str, payload: dict) -> urlrequest.Req
     )
 
 
-def _send_request(req: urlrequest.Request, timeout: int = 15) -> dict:
+def _send_request(req: urlrequest.Request, timeout: int = 45) -> dict:
     ssl_context = ssl.create_default_context(cafile=certifi.where())
     with urlrequest.urlopen(req, timeout=timeout, context=ssl_context) as response:
         return json.loads(response.read().decode("utf-8"))
@@ -104,7 +104,7 @@ def enrich_with_llm(
         "不得改变答案、考点、选项事实或来源。讲解要具体指出本题判断线索，避免空泛鼓励。"
         f"学生累计答错 {wrong_count} 次；如果重复出错，要在 mistakePattern 和 watchNextTime 中给出针对性强化建议。"
         "只返回包含 mistakePattern、whyCorrect、whyUserWrong、whyDistractorFooled、"
-        "watchNextTime 五个字符串字段的 JSON，每个字段不超过 160 个汉字。\n证据："
+        "watchNextTime 五个字符串字段的 JSON，每个字段控制在 60-120 个汉字。\n证据："
         + json.dumps(evidence, ensure_ascii=False)
     )
     req = _build_request(
@@ -113,7 +113,7 @@ def enrich_with_llm(
         {
             "model": model,
             "temperature": 0.1,
-            "max_tokens": 600,
+            "max_tokens": 900,
             "messages": [
                 {"role": "system", "content": "严格基于证据回答；证据不足时不要编造。"},
                 {"role": "user", "content": prompt},
