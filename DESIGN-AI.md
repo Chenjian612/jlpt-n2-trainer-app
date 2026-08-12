@@ -1,6 +1,6 @@
 # Design: AI 错题解释 + 学习计划数据结构
 
-> 状态更新（2026-08-06）：本文保留为早期 AI 方案记录。当前推荐方案已调整为“轻量 RAG 智能错题讲解系统”，不再优先采用客户端直接调用 AI API 的方式。新的执行基线见 [AI-RAG-LEARNING-PLAN.md](./AI-RAG-LEARNING-PLAN.md)。
+> 状态更新（2026-08-12）：本文保留为早期 AI 方案记录。当前总体基线见 [AI-RAG-LEARNING-PLAN.md](./AI-RAG-LEARNING-PLAN.md)；从“受控润色”升级到“个性化诊断 + 迁移验证”的下一阶段设计见 [AI-PERSONALIZED-TUTOR-DESIGN.md](./AI-PERSONALIZED-TUTOR-DESIGN.md)。本文中的客户端直调和三字段讲解不再作为实现依据。
 
 ## 2026-08 推荐方向摘要
 

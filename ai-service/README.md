@@ -20,9 +20,11 @@ EXPO_PUBLIC_AI_SERVICE_URL=http://localhost:8000
 
 未配置服务地址或服务暂时不可用时，App 会使用相同规则从本地知识库生成讲解。
 
-## 可选模型润色
+## 当前能力：可选模型润色
 
 服务默认不依赖模型也能工作。配置以下环境变量后，会调用 OpenAI-compatible API；模型只能润色检索结果中的讲解字段，答案、考点和来源仍由本地知识库锁定。
+
+当前实现属于受控润色，不等同于完整的个性化 AI 辅导。下一阶段将新增独立的个性化接口，结合误选项、累计错误和近期同类错误，生成诊断、三步判断路径、复习动作和迁移题。设计见 [个性化 AI 错题辅导设计](../AI-PERSONALIZED-TUTOR-DESIGN.md)。
 
 ```bash
 AI_LLM_BASE_URL=https://api.deepseek.com/v1
