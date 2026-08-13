@@ -2,6 +2,8 @@
 
 一个面向 JLPT N2 备考的 Expo / React Native 应用，提供文法、词汇、读解、听力、错题回收与官方词卡记忆等训练模式。
 
+当前规划方向是在现有训练闭环上扩展轻量级 AI RAG 能力：知识库负责锁定答案、考点和来源，AI 层逐步从受控讲解润色升级为基于误选项、错误历史和迁移验证的个性化辅导。总体方案见 [AI RAG 学习平台方案](./AI-RAG-LEARNING-PLAN.md)，下一阶段见 [个性化 AI 错题辅导设计](./AI-PERSONALIZED-TUTOR-DESIGN.md)。
+
 ## 主要功能
 
 - 文法刷题与学习包
@@ -10,6 +12,9 @@
 - 听力训练与弱点回收
 - 错题复习与 AI 讲解
 - 首页根据薄弱点推荐下一步训练
+- 已完成 AI-M0：文法/词汇题目精确映射、结构化错题讲解、来源引用、缓存与资料不足拒答
+- 已完成 AI-M1 与基础 AI-M2：个性化错误诊断、三步判断路径、易混点对比、复习动作和 AI 迁移题记录
+- 后续 AI RAG 增强：混合检索、Rerank、读解/听力增强与受控 Web RAG
 
 ## 技术栈
 
@@ -47,6 +52,24 @@
 
 ## 维护说明
 
+常用验证和 AI 服务命令：
+
+```bash
+npm test
+npm run test:ai
+npm run ai:dev
+```
+
+错题讲解默认使用 App 内置的本地结构化知识库，不配置 API Key 也能运行。需要通过 FastAPI 服务调用时，在 `.env.local` 中设置：
+
+```bash
+EXPO_PUBLIC_AI_SERVICE_URL=http://localhost:8000
+```
+
+服务端模型配置见 [AI Service README](./ai-service/README.md)。现有错题页将知识库事实讲解与 AI 个性化辅导分开：知识库锁定答案、考点和来源，AI 根据误选项、错误次数和近期同类错误生成诊断、三步判断路径、复习动作与迁移题；迁移结果会写入本地进度并触发上下文缓存换版。
+
+页面展示约定：模型讲解成功时不显示额外来源徽标；降级时显示“本地知识库”或“历史缓存”；个性化模块使用“智能辅导”标识。技术枚举 `ai_service` 和英文 `AI TUTOR` 不直接作为用户标题。
+
 - 只修改 `src/data/seed/*.json`，不要直接改对应的 `.ts` 加载文件。
 - 更新 seed 后，要检查 JSON 是否能正常解析。
 - 注意总数、重复 `id`、题目数量、选项数量等基础校验。
@@ -63,4 +86,6 @@
 - [内容进度](./CONTENT-PROGRESS.md)
 - [项目历史](./PROJECT_HISTORY.md)
 - [路线图](./ROADMAP.md)
+- [AI RAG 学习平台方案](./AI-RAG-LEARNING-PLAN.md)
+- [个性化 AI 错题辅导设计](./AI-PERSONALIZED-TUTOR-DESIGN.md)
 - [AI 说明](./DESIGN-AI.md)

@@ -26,4 +26,6 @@ export const APP_CONFIG = {
   // AI Coach
   AI_PROVIDER: (process.env.EXPO_PUBLIC_AI_PROVIDER ?? 'openai') as 'claude' | 'deepseek' | 'openai',
   AI_API_KEY: process.env.EXPO_PUBLIC_AI_API_KEY ?? '',
+  AI_SERVICE_URL: (process.env.EXPO_PUBLIC_AI_SERVICE_URL ?? '').replace(/\/$/, ''),
+  DEEPSEEK_PROXY_URL: (process.env.EXPO_PUBLIC_DEEPSEEK_PROXY_URL ?? '').replace(/\/$/, ''),
 };

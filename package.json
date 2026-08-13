@@ -11,6 +11,8 @@
     "ios": "expo run:ios",
     "web": "expo start --web",
     "test": "node tests/run-tests.js",
+    "ai:dev": "cd ai-service && .venv/bin/python -m uvicorn app.main:app --reload --port 8000 --env-file ../.env.local",
+    "test:ai": "cd ai-service && .venv/bin/python -m unittest discover -s tests -v",
     "test:web:components": "node tests/web/component-flows.js",
     "test:web:e2e": "node tests/web/dashboard-e2e.js",
     "test:web:listening": "node tests/web/listening-flow.js"

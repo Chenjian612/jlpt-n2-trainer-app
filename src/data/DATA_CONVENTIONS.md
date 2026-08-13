@@ -17,6 +17,8 @@
 | `seed/official_vocab_decks.json` | `seed/officialVocabDecks.ts` | 官方样题词卡 deck |
 | `seed/grammar_study_items.json` | `seed/studyPacks.ts` | 文法学习包条目 |
 
+> AI RAG 扩展说明：现有 seed 数据继续作为训练内容来源。后续若增加结构化 AI 知识库，建议优先新增独立 JSON 文件，例如 `ai_grammar_knowledge.json`、`ai_vocab_knowledge.json`、`ai_question_mappings.json`，不要把 RAG 专用字段直接散落到多个 TS 文件中。总体方案见仓库根目录的 `AI-RAG-LEARNING-PLAN.md`。
+
 ---
 
 ## 新增内容时的操作步骤
@@ -132,3 +134,26 @@ const DATA: SomeType[] = [
 | 听力案例 | `ListeningCase`（JSON 用 `ListeningCaseRaw`） |
 | 官方词卡 | `OfficialVocabDeck` |
 | 学习包条目 | `StudyPackItem` |
+
+## AI RAG 数据约定
+
+`AI-M0` 复用 `drill_questions.json` 中已经校对的 `explanation`、`choiceInsights`、`reviewNote`、`tags` 和 `source` 字段，由 `seed/aiKnowledge.ts` 生成以下结构：
+
+```text
+questionId -> testedPointId -> AiKnowledgeEntry
+```
+
+当前映射覆盖 300 道文法题和 500 道词汇题。维护题目时必须保证：
+
+- `id` 全局唯一，作为错题和知识映射的稳定主键。
+- `tags[1]` 是本题主要考点，例如语法表达或目标词汇。
+- `explanation` 和每一项 `choiceInsights` 能独立说明判断依据。
+- `source` 必须填写可展示给用户的来源标签。
+
+进入 `AI-M1` 后，如需补充跨题知识、相似表达和评估数据，再新增独立 JSON：
+
+| 计划 JSON 文件 | 内容说明 |
+|---|---|
+| `seed/ai_grammar_knowledge.json` | 跨题语法知识、接续、例句和相似表达 |
+| `seed/ai_vocab_knowledge.json` | 跨题词汇释义、搭配和近义词 |
+| `seed/ai_eval_cases.json` | 验证检索命中与讲解质量的固定评估集 |

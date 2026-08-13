@@ -11,6 +11,10 @@ import {
 import { progressRepository } from '../../data/repositories/progressRepository';
 import type { AiWrongAnswerExplanation, ProgressState } from '../../domain/models/progress';
 import type {
+  CachedPersonalizedTutorExplanation,
+  TransferResult,
+} from '../../domain/models/personalizedTutor';
+import type {
   StudyWeaknessDraft,
   WeaknessSignalDraft,
   WrongAnswerDraft,
@@ -25,6 +29,7 @@ import type {
 } from '../../domain/models/training';
 import {
   cacheAiExplanation,
+  cachePersonalizedTutor,
   clampWeeklyGoal,
   clearDay,
   createTrainingSession,
@@ -32,6 +37,7 @@ import {
   recordDrillSessionResult,
   recordStudySessionResult,
   recordTrainingSession,
+  recordTransferResult,
   recordWeaknessSignals,
   recordWrongReviewSession,
   removeLatestSessionForMode,
@@ -66,6 +72,11 @@ type ProgressContextValue = {
     questionId: string,
     explanation: AiWrongAnswerExplanation,
   ) => void;
+  savePersonalizedTutor: (
+    cacheKey: string,
+    explanation: CachedPersonalizedTutorExplanation,
+  ) => void;
+  saveTransferResult: (result: TransferResult) => void;
 };
 
 const ProgressContext = createContext<ProgressContextValue | null>(null);
@@ -176,6 +187,14 @@ export function ProgressProvider({ children }: ProgressProviderProps) {
         setState((current) =>
           cacheAiExplanation(current, questionId, explanation),
         );
+      },
+      savePersonalizedTutor: (cacheKey, explanation) => {
+        setState((current) =>
+          cachePersonalizedTutor(current, cacheKey, explanation),
+        );
+      },
+      saveTransferResult: (result) => {
+        setState((current) => recordTransferResult(current, result));
       },
     }),
     [isHydrated, state, todayKey],

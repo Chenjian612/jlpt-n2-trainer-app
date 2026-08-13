@@ -9,6 +9,7 @@ const {
   createTrainingSession,
   getActiveStudyWeaknesses,
   getCompletedModeIdsForDay,
+  getDayKey,
   getModeSessionCountForDay,
   getPrioritizedWrongAnswersForMode,
   getWrongAnswerPriorityLabel,
@@ -22,6 +23,18 @@ const {
   recordWrongReviewSession,
   removeLatestSessionForMode,
 } = require('../src/domain/services/progressService.ts');
+
+const TEST_NOW = new Date();
+const TEST_DAY = getDayKey(TEST_NOW);
+const PREVIOUS_TEST_DAY = getDayKey(
+  new Date(TEST_NOW.getFullYear(), TEST_NOW.getMonth(), TEST_NOW.getDate() - 1),
+);
+const atHour = (dayKey, hour) => `${dayKey}T${String(hour).padStart(2, '0')}:00:00.000Z`;
+const addUtcDays = (dayKey, days) => {
+  const date = new Date(`${dayKey}T00:00:00.000Z`);
+  date.setUTCDate(date.getUTCDate() + days);
+  return date.toISOString().slice(0, 10);
+};
 
 const buildStudyDraft = (overrides = {}) => ({
   item: {
@@ -91,15 +104,15 @@ module.exports = {
         const raw = JSON.stringify({
           weeklyGoal: 100,
           completedByDay: {
-            '2026-03-19': ['grammar_drill', 'review_wrong', 'bad_mode'],
+            [TEST_DAY]: ['grammar_drill', 'review_wrong', 'bad_mode'],
           },
         });
 
         const state = normalizeProgressState(raw);
 
         assert.equal(state.weeklyGoal, 28);
-        assert.equal(state.sessionsByDay['2026-03-19'].length, 2);
-        assert.deepEqual(getCompletedModeIdsForDay(state, '2026-03-19'), ['grammar_drill', 'review_wrong']);
+        assert.equal(state.sessionsByDay[TEST_DAY].length, 2);
+        assert.deepEqual(getCompletedModeIdsForDay(state, TEST_DAY), ['grammar_drill', 'review_wrong']);
       },
     },
     {
@@ -144,6 +157,29 @@ module.exports = {
         assert.equal(state.weaknessSignals.length, 1);
         assert.deepEqual(state.weaknessSignals[0].errorTypes, ['reading_evidence']);
         assert.equal(state.studyWeaknesses.length, 1);
+      },
+    },
+    {
+      name: 'normalizeProgressState always restores the AI explanation cache field',
+      run() {
+        const withoutCache = normalizeProgressState(JSON.stringify({ weeklyGoal: 14 }));
+        const withCache = normalizeProgressState(
+          JSON.stringify({
+            aiExplanationCache: {
+              'grammar-001': {
+                mistakePattern: 'mistake',
+                whyDistractorFooled: 'distractor',
+                watchNextTime: 'watch',
+                generatedAt: '2026-08-12T00:00:00.000Z',
+              },
+            },
+          }),
+        );
+
+        assert.deepEqual(withoutCache.aiExplanationCache, {});
+        assert.deepEqual(withoutCache.personalizedTutorCache, {});
+        assert.deepEqual(withoutCache.transferResults, []);
+        assert.equal(withCache.aiExplanationCache['grammar-001'].generationMode, 'legacy');
       },
     },
     {
@@ -326,14 +362,14 @@ module.exports = {
       run() {
         const next = recordDrillSessionResult(
           createDefaultProgressState(),
-          '2026-03-19',
+          TEST_DAY,
           'grammar_drill',
           'drill',
           [buildWrongAnswerDraft()],
-          new Date('2026-03-19T09:00:00.000Z'),
+          new Date(atHour(TEST_DAY, 9)),
         );
 
-        assert.equal(getModeSessionCountForDay(next, '2026-03-19', 'grammar_drill'), 1);
+        assert.equal(getModeSessionCountForDay(next, TEST_DAY, 'grammar_drill'), 1);
         assert.equal(next.wrongAnswers.length, 1);
       },
     },
@@ -343,54 +379,53 @@ module.exports = {
         const wrongState = recordWrongAnswers(
           createDefaultProgressState(),
           [buildWrongAnswerDraft()],
-          new Date('2026-03-19T09:00:00.000Z'),
+          new Date(atHour(TEST_DAY, 9)),
         );
 
         const reviewedState = recordWrongReviewSession(
           wrongState,
-          '2026-03-19',
+          TEST_DAY,
           'review_wrong',
           [{ questionId: 'grammar-q1', selectedChoice: 2, mastered: true }],
-          new Date('2026-03-19T10:00:00.000Z'),
+          new Date(atHour(TEST_DAY, 10)),
         );
 
         // Leitner: answering correctly advances box (1→2), not immediately mastered.
         // mastered only becomes true when box reaches 5.
         assert.equal(reviewedState.wrongAnswers[0].mastered, false);
         assert.equal(reviewedState.wrongAnswers[0].leitnerBox, 2);
-        assert.equal(reviewedState.wrongAnswers[0].nextReviewAt, '2026-03-21'); // box 2 = +2 days
+        assert.equal(reviewedState.wrongAnswers[0].nextReviewAt, addUtcDays(TEST_DAY, 2)); // box 2 = +2 days
         assert.equal(reviewedState.wrongAnswers[0].lastUserChoice, 2);
-        assert.equal(reviewedState.wrongAnswers[0].lastReviewedAt, '2026-03-19T10:00:00.000Z');
-        assert.equal(reviewedState.sessionsByDay['2026-03-19'].length, 1);
+        assert.equal(reviewedState.wrongAnswers[0].lastReviewedAt, atHour(TEST_DAY, 10));
+        assert.equal(reviewedState.sessionsByDay[TEST_DAY].length, 1);
       },
     },
     {
       name: 'removeLatestSessionForMode removes only the latest matching record',
       run() {
         let state = createDefaultProgressState();
-        state = recordTrainingSession(state, '2026-03-19', createTrainingSession('2026-03-19', 'grammar_drill', 'drill', new Date('2026-03-19T09:00:00.000Z')));
-        state = recordTrainingSession(state, '2026-03-19', createTrainingSession('2026-03-19', 'vocab_drill', 'drill', new Date('2026-03-19T10:00:00.000Z')));
-        state = recordTrainingSession(state, '2026-03-19', createTrainingSession('2026-03-19', 'grammar_drill', 'drill', new Date('2026-03-19T11:00:00.000Z')));
+        state = recordTrainingSession(state, TEST_DAY, createTrainingSession(TEST_DAY, 'grammar_drill', 'drill', new Date(atHour(TEST_DAY, 9))));
+        state = recordTrainingSession(state, TEST_DAY, createTrainingSession(TEST_DAY, 'vocab_drill', 'drill', new Date(atHour(TEST_DAY, 10))));
+        state = recordTrainingSession(state, TEST_DAY, createTrainingSession(TEST_DAY, 'grammar_drill', 'drill', new Date(atHour(TEST_DAY, 11))));
 
-        const next = removeLatestSessionForMode(state, '2026-03-19', 'grammar_drill');
+        const next = removeLatestSessionForMode(state, TEST_DAY, 'grammar_drill');
 
-        assert.equal(getModeSessionCountForDay(next, '2026-03-19', 'grammar_drill'), 1);
-        assert.equal(getModeSessionCountForDay(next, '2026-03-19', 'vocab_drill'), 1);
+        assert.equal(getModeSessionCountForDay(next, TEST_DAY, 'grammar_drill'), 1);
+        assert.equal(getModeSessionCountForDay(next, TEST_DAY, 'vocab_drill'), 1);
       },
     },
     {
       name: 'clearDay removes sessions for the target day only',
       run() {
         let state = createDefaultProgressState();
-        state = recordTrainingSession(state, '2026-03-18', createTrainingSession('2026-03-18', 'grammar_drill', 'drill', new Date('2026-03-18T09:00:00.000Z')));
-        state = recordTrainingSession(state, '2026-03-19', createTrainingSession('2026-03-19', 'vocab_drill', 'drill', new Date('2026-03-19T09:00:00.000Z')));
+        state = recordTrainingSession(state, PREVIOUS_TEST_DAY, createTrainingSession(PREVIOUS_TEST_DAY, 'grammar_drill', 'drill', new Date(atHour(PREVIOUS_TEST_DAY, 9))));
+        state = recordTrainingSession(state, TEST_DAY, createTrainingSession(TEST_DAY, 'vocab_drill', 'drill', new Date(atHour(TEST_DAY, 9))));
 
-        const next = clearDay(state, '2026-03-19');
+        const next = clearDay(state, TEST_DAY);
 
-        assert.equal(next.sessionsByDay['2026-03-19'], undefined);
-        assert.equal(next.sessionsByDay['2026-03-18'].length, 1);
+        assert.equal(next.sessionsByDay[TEST_DAY], undefined);
+        assert.equal(next.sessionsByDay[PREVIOUS_TEST_DAY].length, 1);
       },
     },
   ],
 };
-

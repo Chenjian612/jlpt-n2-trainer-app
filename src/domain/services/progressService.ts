@@ -5,6 +5,10 @@ import type {
   TrainingSessionRecord,
 } from '../models/progress';
 import type {
+  CachedPersonalizedTutorExplanation,
+  TransferResult,
+} from '../models/personalizedTutor';
+import type {
   StudyWeaknessDraft,
   StudyWeaknessItem,
   WeaknessErrorType,
@@ -109,6 +113,8 @@ export const createDefaultProgressState = (): ProgressState => ({
   weaknessSignals: [],
   studyWeaknesses: [],
   aiExplanationCache: {},
+  personalizedTutorCache: {},
+  transferResults: [],
 });
 
 export const clampWeeklyGoal = (goal: number): number =>
@@ -440,15 +446,94 @@ const normalizeAiExplanationCache = (
       typeof e.watchNextTime === 'string' &&
       typeof e.generatedAt === 'string'
     ) {
+      const choiceAnalysis = Array.isArray(e.choiceAnalysis)
+        ? e.choiceAnalysis.filter(
+            (item) =>
+              item &&
+              typeof item.choice === 'string' &&
+              typeof item.reason === 'string' &&
+              ['correct', 'selected_wrong', 'other'].includes(item.status),
+          )
+        : [];
+      const sources = Array.isArray(e.sources)
+        ? e.sources.filter(
+            (source) =>
+              source &&
+              typeof source.id === 'string' &&
+              typeof source.title === 'string' &&
+              typeof source.snippet === 'string' &&
+              typeof source.sourceLabel === 'string' &&
+              source.sourceType === 'local_knowledge',
+          )
+        : [];
       next[key] = {
+        testedPoint: typeof e.testedPoint === 'string' ? e.testedPoint : '历史讲解',
         mistakePattern: e.mistakePattern,
+        whyCorrect: typeof e.whyCorrect === 'string' ? e.whyCorrect : '',
+        whyUserWrong:
+          typeof e.whyUserWrong === 'string'
+            ? e.whyUserWrong
+            : e.whyDistractorFooled,
         whyDistractorFooled: e.whyDistractorFooled,
         watchNextTime: e.watchNextTime,
+        choiceAnalysis,
+        sources,
+        confidence:
+          e.confidence === 'high' || e.confidence === 'medium' || e.confidence === 'low'
+            ? e.confidence
+            : 'low',
+        generationMode:
+          e.generationMode === 'ai_service' || e.generationMode === 'local_knowledge'
+            ? e.generationMode
+            : 'legacy',
         generatedAt: e.generatedAt,
       };
     }
   }
   return next;
+};
+
+const normalizePersonalizedTutorCache = (
+  value: unknown,
+): Record<string, CachedPersonalizedTutorExplanation> => {
+  if (!value || typeof value !== 'object') return {};
+  const next: Record<string, CachedPersonalizedTutorExplanation> = {};
+  for (const [key, entry] of Object.entries(value)) {
+    if (!entry || typeof entry !== 'object') continue;
+    const parsed = entry as Partial<CachedPersonalizedTutorExplanation>;
+    if (
+      typeof parsed.diagnosisSummary !== 'string' ||
+      typeof parsed.whyYouChoseIt !== 'string' ||
+      !Array.isArray(parsed.reasoningSteps) ||
+      parsed.reasoningSteps.length !== 3 ||
+      !parsed.confusionComparison ||
+      !parsed.personalizationEvidence ||
+      !parsed.transferQuestion ||
+      typeof parsed.contextVersion !== 'string' ||
+      typeof parsed.generatedAt !== 'string'
+    ) {
+      continue;
+    }
+    next[key] = parsed as CachedPersonalizedTutorExplanation;
+  }
+  return next;
+};
+
+const normalizeTransferResults = (value: unknown): TransferResult[] => {
+  if (!Array.isArray(value)) return [];
+  return value
+    .filter((entry): entry is TransferResult => {
+      if (!entry || typeof entry !== 'object') return false;
+      const parsed = entry as Partial<TransferResult>;
+      return (
+        typeof parsed.questionId === 'string' &&
+        typeof parsed.contextVersion === 'string' &&
+        typeof parsed.selectedChoice === 'number' &&
+        typeof parsed.correct === 'boolean' &&
+        typeof parsed.answeredAt === 'string'
+      );
+    })
+    .slice(-100);
 };
 
 export const normalizeProgressState = (raw: string | null): ProgressState => {
@@ -465,6 +550,8 @@ export const normalizeProgressState = (raw: string | null): ProgressState => {
       weaknessSignals: normalizeWeaknessSignals(parsed.weaknessSignals),
       studyWeaknesses: normalizeStudyWeaknesses(parsed.studyWeaknesses),
       aiExplanationCache: normalizeAiExplanationCache(parsed.aiExplanationCache),
+      personalizedTutorCache: normalizePersonalizedTutorCache(parsed.personalizedTutorCache),
+      transferResults: normalizeTransferResults(parsed.transferResults),
     };
   } catch {
     return createDefaultProgressState();
@@ -688,7 +775,7 @@ export const recordWrongReviewSession = (state: ProgressState, dayKey: string, m
   const masteredIds = new Set(
     decisions.filter((d) => d.mastered).map((d) => d.questionId),
   );
-  const nextCache = { ...recordedState.aiExplanationCache };
+  const nextCache = { ...(recordedState.aiExplanationCache ?? {}) };
   for (const id of masteredIds) {
     delete nextCache[id];
   }
@@ -707,9 +794,29 @@ export const cacheAiExplanation = (
 ): ProgressState => ({
   ...state,
   aiExplanationCache: {
-    ...state.aiExplanationCache,
+    ...(state.aiExplanationCache ?? {}),
     [questionId]: explanation,
   },
+});
+
+export const cachePersonalizedTutor = (
+  state: ProgressState,
+  cacheKey: string,
+  explanation: CachedPersonalizedTutorExplanation,
+): ProgressState => ({
+  ...state,
+  personalizedTutorCache: {
+    ...state.personalizedTutorCache,
+    [cacheKey]: explanation,
+  },
+});
+
+export const recordTransferResult = (
+  state: ProgressState,
+  result: TransferResult,
+): ProgressState => ({
+  ...state,
+  transferResults: [...state.transferResults, result].slice(-100),
 });
 
 export const removeLatestSessionForMode = (state: ProgressState, dayKey: string, modeId: TrainingModeId): ProgressState => {

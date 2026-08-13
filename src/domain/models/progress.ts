@@ -1,9 +1,12 @@
 ﻿import type { TrainingModeId, TrainingSessionKind } from './training';
 
-export type AiWrongAnswerExplanation = {
-  mistakePattern: string;
-  whyDistractorFooled: string;
-  watchNextTime: string;
+import type { WrongAnswerExplanation } from './aiExplanation';
+import type {
+  CachedPersonalizedTutorExplanation,
+  TransferResult,
+} from './personalizedTutor';
+
+export type AiWrongAnswerExplanation = WrongAnswerExplanation & {
   generatedAt: string; // ISO 8601
 };
 
@@ -43,6 +46,8 @@ export type ProgressState = {
   weaknessSignals: WeaknessSignalItem[];
   studyWeaknesses: StudyWeaknessItem[];
   aiExplanationCache: Record<string, AiWrongAnswerExplanation>; // key: WrongAnswerItem.questionId
+  personalizedTutorCache: Record<string, CachedPersonalizedTutorExplanation>;
+  transferResults: TransferResult[];
 };
 
 export type CapabilityDistribution = {

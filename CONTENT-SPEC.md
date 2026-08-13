@@ -47,6 +47,38 @@
 }
 ```
 
+## AI RAG 扩展字段建议
+
+为支持 [AI-RAG-LEARNING-PLAN.md](./AI-RAG-LEARNING-PLAN.md) 中的可追溯错题讲解，后续题库可以逐步补充知识点映射字段。第一阶段不要强制要求所有旧题一次性补齐，优先给 AI MVP 选中的 30-50 道题补。
+
+建议字段：
+
+```jsonc
+{
+  "testedPointId": "grammar_n2_001",        // 本题核心考点，对应结构化语法/词汇知识库
+  "distractorPointIds": [                   // 可选，干扰项对应的易混知识点
+    "grammar_n2_002",
+    "grammar_n2_003"
+  ],
+  "evidenceRefs": [                         // 可选，读解/听力题的原文依据
+    {
+      "sourceId": "reading_001",
+      "paragraphIndex": 1,
+      "note": "定位到转折后的结论句"
+    }
+  ],
+  "aiReady": true                           // 可选，标记该题是否已完成 AI 讲解所需元数据
+}
+```
+
+字段使用原则：
+
+- `testedPointId` 用于稳定找到考点，避免让 AI 猜题目考什么。
+- `distractorPointIds` 用于生成“错误选项为什么错”和“相似语法/词汇辨析”。
+- `evidenceRefs` 优先服务读解和听力，帮助 AI 定位原文依据。
+- `aiReady` 只表示元数据准备程度，不代表题目质量高低。
+- 旧题不要求一次性全量补字段；先围绕文法和词汇错题讲解 MVP 补一小批高质量样本。
+
 ---
 
 ## 内容质量要求
