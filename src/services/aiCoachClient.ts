@@ -147,7 +147,7 @@ export const getWrongAnswerExplanation = async (
     }
   }
 
-  if (APP_CONFIG.AI_PROVIDER === 'deepseek' && APP_CONFIG.DEEPSEEK_PROXY_URL) {
+  if (APP_CONFIG.DEEPSEEK_PROXY_URL) {
     try {
       return await requestProxyExplanation(localExplanation, params.wrongCount);
     } catch (err) {
@@ -321,7 +321,7 @@ export const getPersonalizedTutorExplanation = async (
     }
   }
 
-  if (APP_CONFIG.AI_PROVIDER === 'deepseek' && APP_CONFIG.DEEPSEEK_PROXY_URL) {
+  if (APP_CONFIG.DEEPSEEK_PROXY_URL) {
     const generated = await requestProxyTutor(params, localExplanation);
     return mergePersonalizedTutorResponse(generated, localExplanation, params);
   }

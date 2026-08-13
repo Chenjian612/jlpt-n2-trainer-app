@@ -162,11 +162,26 @@ export default {
 
 推荐做法：
 
-1. Pages 只负责静态文件
-2. Worker 只负责模型转发
-3. 构建时把 `EXPO_PUBLIC_DEEPSEEK_PROXY_URL` 指到 Worker 地址
+1. Pages 只托管静态文件
+2. AI 请求使用现有 Worker：`https://jlpt-ai-proxy.08075921888chenjian.workers.dev`
+3. Worker 必须允许 Pages 站点的 `POST` 和 `OPTIONS` 跨域请求，并允许 `content-type`、`authorization` 请求头
+4. Web 端已内置该 Worker 地址；也可以用 `EXPO_PUBLIC_DEEPSEEK_PROXY_URL` 覆盖
 
-这样职责最清楚，也最不容易把前端和密钥混在一起。
+可选变量：
+
+- Worker Secret：模型 API Key（名称必须与 Worker 代码读取的 binding 一致）
+- Worker 上游地址：`https://api.deepseek.com/v1/chat/completions`
+- 前端请求地址：`https://jlpt-ai-proxy.08075921888chenjian.workers.dev/v1/chat/completions`
+
+部署后先验证代理配置是否生效。未配置密钥时接口会返回 503（不会泄露配置细节）：
+
+```bash
+curl -i -X POST https://jlpt-ai-proxy.08075921888chenjian.workers.dev/v1/chat/completions \
+  -H 'content-type: application/json' \
+  --data '{"messages":[{"role":"user","content":"Reply with only: ok"}]}'
+```
+
+这样 Pages 不接触密钥，Worker 统一负责 CORS、鉴权和模型转发。
 
 ## 可选方案：EAS Hosting
 

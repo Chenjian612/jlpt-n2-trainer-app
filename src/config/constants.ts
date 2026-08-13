@@ -1,3 +1,8 @@
+const defaultWebAiProxyUrl =
+  typeof window !== 'undefined' && window.location?.origin
+    ? 'https://jlpt-ai-proxy.08075921888chenjian.workers.dev'
+    : '';
+
 export const APP_CONFIG = {
   // Progress & History
   MAX_HISTORY_DAYS: 45,
@@ -27,5 +32,7 @@ export const APP_CONFIG = {
   AI_PROVIDER: (process.env.EXPO_PUBLIC_AI_PROVIDER ?? 'openai') as 'claude' | 'deepseek' | 'openai',
   AI_API_KEY: process.env.EXPO_PUBLIC_AI_API_KEY ?? '',
   AI_SERVICE_URL: (process.env.EXPO_PUBLIC_AI_SERVICE_URL ?? '').replace(/\/$/, ''),
-  DEEPSEEK_PROXY_URL: (process.env.EXPO_PUBLIC_DEEPSEEK_PROXY_URL ?? '').replace(/\/$/, ''),
+  DEEPSEEK_PROXY_URL: (
+    process.env.EXPO_PUBLIC_DEEPSEEK_PROXY_URL ?? defaultWebAiProxyUrl
+  ).replace(/\/$/, ''),
 };
