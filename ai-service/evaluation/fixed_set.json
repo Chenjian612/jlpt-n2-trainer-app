@@ -1,0 +1,622 @@
+[
+  {
+    "id": "grammar-001-first",
+    "questionId": "grammar-001",
+    "contextGroup": "first_error",
+    "selectedChoice": 1,
+    "wrongCount": 1,
+    "weaknessType": "近义句型辨析",
+    "recentSimilarWrongCount": 0,
+    "recentSimilarPointIds": [],
+    "expectedTestedPoint": "わけにはいかない",
+    "qualityAnchors": [
+      "わけにはいかない"
+    ]
+  },
+  {
+    "id": "grammar-001-repeat",
+    "questionId": "grammar-001",
+    "contextGroup": "repeated_error",
+    "selectedChoice": 1,
+    "wrongCount": 4,
+    "weaknessType": "近义句型辨析",
+    "recentSimilarWrongCount": 3,
+    "recentSimilarPointIds": [
+      "similar-a",
+      "similar-b"
+    ],
+    "expectedTestedPoint": "わけにはいかない",
+    "qualityAnchors": [
+      "わけにはいかない"
+    ]
+  },
+  {
+    "id": "grammar-002-first",
+    "questionId": "grammar-002",
+    "contextGroup": "first_error",
+    "selectedChoice": 1,
+    "wrongCount": 1,
+    "weaknessType": "近义句型辨析",
+    "recentSimilarWrongCount": 0,
+    "recentSimilarPointIds": [],
+    "expectedTestedPoint": "しかない",
+    "qualityAnchors": [
+      "しかない"
+    ]
+  },
+  {
+    "id": "grammar-002-repeat",
+    "questionId": "grammar-002",
+    "contextGroup": "repeated_error",
+    "selectedChoice": 1,
+    "wrongCount": 4,
+    "weaknessType": "近义句型辨析",
+    "recentSimilarWrongCount": 3,
+    "recentSimilarPointIds": [
+      "similar-a",
+      "similar-b"
+    ],
+    "expectedTestedPoint": "しかない",
+    "qualityAnchors": [
+      "しかない"
+    ]
+  },
+  {
+    "id": "grammar-003-first",
+    "questionId": "grammar-003",
+    "contextGroup": "first_error",
+    "selectedChoice": 1,
+    "wrongCount": 1,
+    "weaknessType": "近义句型辨析",
+    "recentSimilarWrongCount": 0,
+    "recentSimilarPointIds": [],
+    "expectedTestedPoint": "わけだ",
+    "qualityAnchors": [
+      "わけだ"
+    ]
+  },
+  {
+    "id": "grammar-003-repeat",
+    "questionId": "grammar-003",
+    "contextGroup": "repeated_error",
+    "selectedChoice": 1,
+    "wrongCount": 4,
+    "weaknessType": "近义句型辨析",
+    "recentSimilarWrongCount": 3,
+    "recentSimilarPointIds": [
+      "similar-a",
+      "similar-b"
+    ],
+    "expectedTestedPoint": "わけだ",
+    "qualityAnchors": [
+      "わけだ"
+    ]
+  },
+  {
+    "id": "grammar-004-first",
+    "questionId": "grammar-004",
+    "contextGroup": "first_error",
+    "selectedChoice": 0,
+    "wrongCount": 1,
+    "weaknessType": "近义句型辨析",
+    "recentSimilarWrongCount": 0,
+    "recentSimilarPointIds": [],
+    "expectedTestedPoint": "とともに",
+    "qualityAnchors": [
+      "とともに"
+    ]
+  },
+  {
+    "id": "grammar-004-repeat",
+    "questionId": "grammar-004",
+    "contextGroup": "repeated_error",
+    "selectedChoice": 0,
+    "wrongCount": 4,
+    "weaknessType": "近义句型辨析",
+    "recentSimilarWrongCount": 3,
+    "recentSimilarPointIds": [
+      "similar-a",
+      "similar-b"
+    ],
+    "expectedTestedPoint": "とともに",
+    "qualityAnchors": [
+      "とともに"
+    ]
+  },
+  {
+    "id": "grammar-005-first",
+    "questionId": "grammar-005",
+    "contextGroup": "first_error",
+    "selectedChoice": 1,
+    "wrongCount": 1,
+    "weaknessType": "近义句型辨析",
+    "recentSimilarWrongCount": 0,
+    "recentSimilarPointIds": [],
+    "expectedTestedPoint": "にしても",
+    "qualityAnchors": [
+      "にしても"
+    ]
+  },
+  {
+    "id": "grammar-005-repeat",
+    "questionId": "grammar-005",
+    "contextGroup": "repeated_error",
+    "selectedChoice": 1,
+    "wrongCount": 4,
+    "weaknessType": "近义句型辨析",
+    "recentSimilarWrongCount": 3,
+    "recentSimilarPointIds": [
+      "similar-a",
+      "similar-b"
+    ],
+    "expectedTestedPoint": "にしても",
+    "qualityAnchors": [
+      "にしても"
+    ]
+  },
+  {
+    "id": "grammar-006-first",
+    "questionId": "grammar-006",
+    "contextGroup": "first_error",
+    "selectedChoice": 1,
+    "wrongCount": 1,
+    "weaknessType": "近义句型辨析",
+    "recentSimilarWrongCount": 0,
+    "recentSimilarPointIds": [],
+    "expectedTestedPoint": "に限らず",
+    "qualityAnchors": [
+      "に限らず"
+    ]
+  },
+  {
+    "id": "grammar-006-repeat",
+    "questionId": "grammar-006",
+    "contextGroup": "repeated_error",
+    "selectedChoice": 1,
+    "wrongCount": 4,
+    "weaknessType": "近义句型辨析",
+    "recentSimilarWrongCount": 3,
+    "recentSimilarPointIds": [
+      "similar-a",
+      "similar-b"
+    ],
+    "expectedTestedPoint": "に限らず",
+    "qualityAnchors": [
+      "に限らず"
+    ]
+  },
+  {
+    "id": "grammar-007-first",
+    "questionId": "grammar-007",
+    "contextGroup": "first_error",
+    "selectedChoice": 1,
+    "wrongCount": 1,
+    "weaknessType": "近义句型辨析",
+    "recentSimilarWrongCount": 0,
+    "recentSimilarPointIds": [],
+    "expectedTestedPoint": "に際して",
+    "qualityAnchors": [
+      "に際して"
+    ]
+  },
+  {
+    "id": "grammar-007-repeat",
+    "questionId": "grammar-007",
+    "contextGroup": "repeated_error",
+    "selectedChoice": 1,
+    "wrongCount": 4,
+    "weaknessType": "近义句型辨析",
+    "recentSimilarWrongCount": 3,
+    "recentSimilarPointIds": [
+      "similar-a",
+      "similar-b"
+    ],
+    "expectedTestedPoint": "に際して",
+    "qualityAnchors": [
+      "に際して"
+    ]
+  },
+  {
+    "id": "grammar-008-first",
+    "questionId": "grammar-008",
+    "contextGroup": "first_error",
+    "selectedChoice": 1,
+    "wrongCount": 1,
+    "weaknessType": "近义句型辨析",
+    "recentSimilarWrongCount": 0,
+    "recentSimilarPointIds": [],
+    "expectedTestedPoint": "に基づいて",
+    "qualityAnchors": [
+      "に基づいて"
+    ]
+  },
+  {
+    "id": "grammar-008-repeat",
+    "questionId": "grammar-008",
+    "contextGroup": "repeated_error",
+    "selectedChoice": 1,
+    "wrongCount": 4,
+    "weaknessType": "近义句型辨析",
+    "recentSimilarWrongCount": 3,
+    "recentSimilarPointIds": [
+      "similar-a",
+      "similar-b"
+    ],
+    "expectedTestedPoint": "に基づいて",
+    "qualityAnchors": [
+      "に基づいて"
+    ]
+  },
+  {
+    "id": "grammar-009-first",
+    "questionId": "grammar-009",
+    "contextGroup": "first_error",
+    "selectedChoice": 1,
+    "wrongCount": 1,
+    "weaknessType": "近义句型辨析",
+    "recentSimilarWrongCount": 0,
+    "recentSimilarPointIds": [],
+    "expectedTestedPoint": "おそれがある",
+    "qualityAnchors": [
+      "おそれがある"
+    ]
+  },
+  {
+    "id": "grammar-009-repeat",
+    "questionId": "grammar-009",
+    "contextGroup": "repeated_error",
+    "selectedChoice": 1,
+    "wrongCount": 4,
+    "weaknessType": "近义句型辨析",
+    "recentSimilarWrongCount": 3,
+    "recentSimilarPointIds": [
+      "similar-a",
+      "similar-b"
+    ],
+    "expectedTestedPoint": "おそれがある",
+    "qualityAnchors": [
+      "おそれがある"
+    ]
+  },
+  {
+    "id": "grammar-010-first",
+    "questionId": "grammar-010",
+    "contextGroup": "first_error",
+    "selectedChoice": 1,
+    "wrongCount": 1,
+    "weaknessType": "近义句型辨析",
+    "recentSimilarWrongCount": 0,
+    "recentSimilarPointIds": [],
+    "expectedTestedPoint": "ものがある",
+    "qualityAnchors": [
+      "ものがある"
+    ]
+  },
+  {
+    "id": "grammar-010-repeat",
+    "questionId": "grammar-010",
+    "contextGroup": "repeated_error",
+    "selectedChoice": 1,
+    "wrongCount": 4,
+    "weaknessType": "近义句型辨析",
+    "recentSimilarWrongCount": 3,
+    "recentSimilarPointIds": [
+      "similar-a",
+      "similar-b"
+    ],
+    "expectedTestedPoint": "ものがある",
+    "qualityAnchors": [
+      "ものがある"
+    ]
+  },
+  {
+    "id": "vocab-001-first",
+    "questionId": "vocab-001",
+    "contextGroup": "first_error",
+    "selectedChoice": 1,
+    "wrongCount": 1,
+    "weaknessType": "近义词语感辨析",
+    "recentSimilarWrongCount": 0,
+    "recentSimilarPointIds": [],
+    "expectedTestedPoint": "分担",
+    "qualityAnchors": [
+      "分担"
+    ]
+  },
+  {
+    "id": "vocab-001-repeat",
+    "questionId": "vocab-001",
+    "contextGroup": "repeated_error",
+    "selectedChoice": 1,
+    "wrongCount": 4,
+    "weaknessType": "近义词语感辨析",
+    "recentSimilarWrongCount": 3,
+    "recentSimilarPointIds": [
+      "similar-a",
+      "similar-b"
+    ],
+    "expectedTestedPoint": "分担",
+    "qualityAnchors": [
+      "分担"
+    ]
+  },
+  {
+    "id": "vocab-002-first",
+    "questionId": "vocab-002",
+    "contextGroup": "first_error",
+    "selectedChoice": 1,
+    "wrongCount": 1,
+    "weaknessType": "近义词语感辨析",
+    "recentSimilarWrongCount": 0,
+    "recentSimilarPointIds": [],
+    "expectedTestedPoint": "節約",
+    "qualityAnchors": [
+      "節約"
+    ]
+  },
+  {
+    "id": "vocab-002-repeat",
+    "questionId": "vocab-002",
+    "contextGroup": "repeated_error",
+    "selectedChoice": 1,
+    "wrongCount": 4,
+    "weaknessType": "近义词语感辨析",
+    "recentSimilarWrongCount": 3,
+    "recentSimilarPointIds": [
+      "similar-a",
+      "similar-b"
+    ],
+    "expectedTestedPoint": "節約",
+    "qualityAnchors": [
+      "節約"
+    ]
+  },
+  {
+    "id": "vocab-003-first",
+    "questionId": "vocab-003",
+    "contextGroup": "first_error",
+    "selectedChoice": 1,
+    "wrongCount": 1,
+    "weaknessType": "近义词语感辨析",
+    "recentSimilarWrongCount": 0,
+    "recentSimilarPointIds": [],
+    "expectedTestedPoint": "あいまい",
+    "qualityAnchors": [
+      "あいまい"
+    ]
+  },
+  {
+    "id": "vocab-003-repeat",
+    "questionId": "vocab-003",
+    "contextGroup": "repeated_error",
+    "selectedChoice": 1,
+    "wrongCount": 4,
+    "weaknessType": "近义词语感辨析",
+    "recentSimilarWrongCount": 3,
+    "recentSimilarPointIds": [
+      "similar-a",
+      "similar-b"
+    ],
+    "expectedTestedPoint": "あいまい",
+    "qualityAnchors": [
+      "あいまい"
+    ]
+  },
+  {
+    "id": "vocab-004-first",
+    "questionId": "vocab-004",
+    "contextGroup": "first_error",
+    "selectedChoice": 1,
+    "wrongCount": 1,
+    "weaknessType": "近义词语感辨析",
+    "recentSimilarWrongCount": 0,
+    "recentSimilarPointIds": [],
+    "expectedTestedPoint": "溶け込む",
+    "qualityAnchors": [
+      "溶け込む"
+    ]
+  },
+  {
+    "id": "vocab-004-repeat",
+    "questionId": "vocab-004",
+    "contextGroup": "repeated_error",
+    "selectedChoice": 1,
+    "wrongCount": 4,
+    "weaknessType": "近义词语感辨析",
+    "recentSimilarWrongCount": 3,
+    "recentSimilarPointIds": [
+      "similar-a",
+      "similar-b"
+    ],
+    "expectedTestedPoint": "溶け込む",
+    "qualityAnchors": [
+      "溶け込む"
+    ]
+  },
+  {
+    "id": "vocab-005-first",
+    "questionId": "vocab-005",
+    "contextGroup": "first_error",
+    "selectedChoice": 1,
+    "wrongCount": 1,
+    "weaknessType": "近义词语感辨析",
+    "recentSimilarWrongCount": 0,
+    "recentSimilarPointIds": [],
+    "expectedTestedPoint": "把握する",
+    "qualityAnchors": [
+      "把握する"
+    ]
+  },
+  {
+    "id": "vocab-005-repeat",
+    "questionId": "vocab-005",
+    "contextGroup": "repeated_error",
+    "selectedChoice": 1,
+    "wrongCount": 4,
+    "weaknessType": "近义词语感辨析",
+    "recentSimilarWrongCount": 3,
+    "recentSimilarPointIds": [
+      "similar-a",
+      "similar-b"
+    ],
+    "expectedTestedPoint": "把握する",
+    "qualityAnchors": [
+      "把握する"
+    ]
+  },
+  {
+    "id": "vocab-006-first",
+    "questionId": "vocab-006",
+    "contextGroup": "first_error",
+    "selectedChoice": 1,
+    "wrongCount": 1,
+    "weaknessType": "近义词语感辨析",
+    "recentSimilarWrongCount": 0,
+    "recentSimilarPointIds": [],
+    "expectedTestedPoint": "分析",
+    "qualityAnchors": [
+      "分析"
+    ]
+  },
+  {
+    "id": "vocab-006-repeat",
+    "questionId": "vocab-006",
+    "contextGroup": "repeated_error",
+    "selectedChoice": 1,
+    "wrongCount": 4,
+    "weaknessType": "近义词语感辨析",
+    "recentSimilarWrongCount": 3,
+    "recentSimilarPointIds": [
+      "similar-a",
+      "similar-b"
+    ],
+    "expectedTestedPoint": "分析",
+    "qualityAnchors": [
+      "分析"
+    ]
+  },
+  {
+    "id": "vocab-007-first",
+    "questionId": "vocab-007",
+    "contextGroup": "first_error",
+    "selectedChoice": 1,
+    "wrongCount": 1,
+    "weaknessType": "近义词语感辨析",
+    "recentSimilarWrongCount": 0,
+    "recentSimilarPointIds": [],
+    "expectedTestedPoint": "柔軟",
+    "qualityAnchors": [
+      "柔軟"
+    ]
+  },
+  {
+    "id": "vocab-007-repeat",
+    "questionId": "vocab-007",
+    "contextGroup": "repeated_error",
+    "selectedChoice": 1,
+    "wrongCount": 4,
+    "weaknessType": "近义词语感辨析",
+    "recentSimilarWrongCount": 3,
+    "recentSimilarPointIds": [
+      "similar-a",
+      "similar-b"
+    ],
+    "expectedTestedPoint": "柔軟",
+    "qualityAnchors": [
+      "柔軟"
+    ]
+  },
+  {
+    "id": "vocab-008-first",
+    "questionId": "vocab-008",
+    "contextGroup": "first_error",
+    "selectedChoice": 1,
+    "wrongCount": 1,
+    "weaknessType": "近义词语感辨析",
+    "recentSimilarWrongCount": 0,
+    "recentSimilarPointIds": [],
+    "expectedTestedPoint": "深刻",
+    "qualityAnchors": [
+      "深刻"
+    ]
+  },
+  {
+    "id": "vocab-008-repeat",
+    "questionId": "vocab-008",
+    "contextGroup": "repeated_error",
+    "selectedChoice": 1,
+    "wrongCount": 4,
+    "weaknessType": "近义词语感辨析",
+    "recentSimilarWrongCount": 3,
+    "recentSimilarPointIds": [
+      "similar-a",
+      "similar-b"
+    ],
+    "expectedTestedPoint": "深刻",
+    "qualityAnchors": [
+      "深刻"
+    ]
+  },
+  {
+    "id": "vocab-009-first",
+    "questionId": "vocab-009",
+    "contextGroup": "first_error",
+    "selectedChoice": 1,
+    "wrongCount": 1,
+    "weaknessType": "近义词语感辨析",
+    "recentSimilarWrongCount": 0,
+    "recentSimilarPointIds": [],
+    "expectedTestedPoint": "克服",
+    "qualityAnchors": [
+      "克服"
+    ]
+  },
+  {
+    "id": "vocab-009-repeat",
+    "questionId": "vocab-009",
+    "contextGroup": "repeated_error",
+    "selectedChoice": 1,
+    "wrongCount": 4,
+    "weaknessType": "近义词语感辨析",
+    "recentSimilarWrongCount": 3,
+    "recentSimilarPointIds": [
+      "similar-a",
+      "similar-b"
+    ],
+    "expectedTestedPoint": "克服",
+    "qualityAnchors": [
+      "克服"
+    ]
+  },
+  {
+    "id": "vocab-010-first",
+    "questionId": "vocab-010",
+    "contextGroup": "first_error",
+    "selectedChoice": 1,
+    "wrongCount": 1,
+    "weaknessType": "近义词语感辨析",
+    "recentSimilarWrongCount": 0,
+    "recentSimilarPointIds": [],
+    "expectedTestedPoint": "催促",
+    "qualityAnchors": [
+      "催促"
+    ]
+  },
+  {
+    "id": "vocab-010-repeat",
+    "questionId": "vocab-010",
+    "contextGroup": "repeated_error",
+    "selectedChoice": 1,
+    "wrongCount": 4,
+    "weaknessType": "近义词语感辨析",
+    "recentSimilarWrongCount": 3,
+    "recentSimilarPointIds": [
+      "similar-a",
+      "similar-b"
+    ],
+    "expectedTestedPoint": "催促",
+    "qualityAnchors": [
+      "催促"
+    ]
+  }
+]

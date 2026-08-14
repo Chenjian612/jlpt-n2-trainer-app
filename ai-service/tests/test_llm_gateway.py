@@ -3,7 +3,12 @@ import os
 import unittest
 from unittest.mock import patch
 
-from app.llm_gateway import enrich_with_llm, generate_personalized_tutor, probe_llm
+from app.llm_gateway import (
+    enrich_with_llm,
+    generate_personalized_tutor,
+    generate_personalized_tutor_with_metrics,
+    probe_llm,
+)
 from app.schemas import ExplanationSource, TutorWrongAnswerRequest, WrongAnswerExplanation
 
 
@@ -28,7 +33,10 @@ class FakeResponse:
             ensure_ascii=False,
         )
         return json.dumps(
-            {"choices": [{"message": {"content": content}}]},
+            {
+                "choices": [{"message": {"content": content}}],
+                "usage": {"prompt_tokens": 120, "completion_tokens": 80},
+            },
             ensure_ascii=False,
         ).encode("utf-8")
 
@@ -76,7 +84,10 @@ class FakeTutorResponse(FakeResponse):
             ensure_ascii=False,
         )
         return json.dumps(
-            {"choices": [{"message": {"content": content}}]},
+            {
+                "choices": [{"message": {"content": content}}],
+                "usage": {"prompt_tokens": 120, "completion_tokens": 80},
+            },
             ensure_ascii=False,
         ).encode("utf-8")
 
@@ -178,6 +189,32 @@ class LlmGatewayTest(unittest.TestCase):
         self.assertEqual(result.personalizationEvidence.weaknessType, "近义句型辨析")
         self.assertEqual(result.transferQuestion.testedPoint, "わけにはいかない")
         self.assertEqual(len(result.reasoningSteps), 3)
+
+    @patch.dict(
+        os.environ,
+        {
+            "AI_LLM_BASE_URL": "https://example.invalid/v1",
+            "AI_LLM_API_KEY": "test-key",
+            "AI_LLM_MODEL": "test-model",
+        },
+        clear=False,
+    )
+    @patch("app.llm_gateway.urlrequest.urlopen")
+    def test_personalized_tutor_records_model_usage(self, mock_urlopen) -> None:
+        mock_urlopen.return_value = FakeTutorResponse()
+        request = TutorWrongAnswerRequest(
+            questionId="grammar-001",
+            selectedChoice=1,
+            wrongCount=1,
+            weaknessType="近义句型辨析",
+        )
+
+        attempt = generate_personalized_tutor_with_metrics(request, build_explanation())
+
+        self.assertIsNotNone(attempt.explanation)
+        self.assertEqual(attempt.promptTokens, 120)
+        self.assertEqual(attempt.completionTokens, 80)
+        self.assertGreater(attempt.latencyMs, 0)
 
 
 if __name__ == "__main__":
