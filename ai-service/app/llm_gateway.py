@@ -1,6 +1,8 @@
 import json
 import os
 import ssl
+import time
+from dataclasses import dataclass
 from urllib.error import HTTPError
 from urllib import request as urlrequest
 
@@ -24,6 +26,29 @@ TEXT_FIELDS = (
     "whyDistractorFooled",
     "watchNextTime",
 )
+
+
+@dataclass
+class TutorGenerationAttempt:
+    explanation: PersonalizedTutorExplanation | None = None
+    failureReason: str | None = None
+    latencyMs: float = 0.0
+    promptTokens: int = 0
+    completionTokens: int = 0
+
+
+def _failed_tutor_attempt(
+    started: float,
+    reason: str,
+    prompt_tokens: int = 0,
+    completion_tokens: int = 0,
+) -> TutorGenerationAttempt:
+    return TutorGenerationAttempt(
+        failureReason=reason,
+        latencyMs=(time.perf_counter() - started) * 1000,
+        promptTokens=prompt_tokens,
+        completionTokens=completion_tokens,
+    )
 
 
 def get_llm_config() -> tuple[str, str, str]:
@@ -149,9 +174,17 @@ def generate_personalized_tutor(
     request: TutorWrongAnswerRequest,
     explanation: WrongAnswerExplanation,
 ) -> PersonalizedTutorExplanation | None:
+    return generate_personalized_tutor_with_metrics(request, explanation).explanation
+
+
+def generate_personalized_tutor_with_metrics(
+    request: TutorWrongAnswerRequest,
+    explanation: WrongAnswerExplanation,
+) -> TutorGenerationAttempt:
+    started = time.perf_counter()
     base_url, api_key, model = get_llm_config()
     if not base_url or not api_key or not model:
-        return None
+        return _failed_tutor_attempt(started, "not_configured")
 
     selected = next(
         (item.choice for item in explanation.choiceAnalysis if item.status == "selected_wrong"),
@@ -188,21 +221,26 @@ def generate_personalized_tutor(
         },
     )
 
+    prompt_tokens = 0
+    completion_tokens = 0
     try:
         raw = _send_request(req)
+        usage = raw.get("usage") if isinstance(raw, dict) else None
+        prompt_tokens = usage.get("prompt_tokens", 0) if isinstance(usage, dict) else 0
+        completion_tokens = usage.get("completion_tokens", 0) if isinstance(usage, dict) else 0
         generated = json.loads(_strip_json_fence(raw["choices"][0]["message"]["content"]))
         steps = generated.get("reasoningSteps")
         comparison = generated.get("confusionComparison")
         review_plan = generated.get("reviewPlan")
         transfer = generated.get("transferQuestion")
         if not isinstance(steps, list) or len(steps) != 3 or not all(isinstance(step, str) and step.strip() for step in steps):
-            return None
+            return _failed_tutor_attempt(started, "validation_failed", prompt_tokens, completion_tokens)
         if not isinstance(comparison, dict) or not isinstance(comparison.get("decisiveDifference"), str):
-            return None
+            return _failed_tutor_attempt(started, "validation_failed", prompt_tokens, completion_tokens)
         if not isinstance(review_plan, list) or not 1 <= len(review_plan) <= 3:
-            return None
+            return _failed_tutor_attempt(started, "validation_failed", prompt_tokens, completion_tokens)
         if not isinstance(transfer, dict):
-            return None
+            return _failed_tutor_attempt(started, "validation_failed", prompt_tokens, completion_tokens)
         choices = transfer.get("choices")
         answer = transfer.get("answer")
         if (
@@ -211,10 +249,11 @@ def generate_personalized_tutor(
             or not all(isinstance(choice, str) and choice.strip() for choice in choices)
             or not isinstance(answer, int)
             or not 0 <= answer < len(choices)
+            or len(set(choices)) != len(choices)
         ):
-            return None
+            return _failed_tutor_attempt(started, "validation_failed", prompt_tokens, completion_tokens)
 
-        return PersonalizedTutorExplanation(
+        tutor = PersonalizedTutorExplanation(
             diagnosisSummary=generated["diagnosisSummary"],
             whyYouChoseIt=generated["whyYouChoseIt"],
             reasoningSteps=tuple(steps),
@@ -238,10 +277,23 @@ def generate_personalized_tutor(
                 explanation=transfer["explanation"],
             ),
         )
+        return TutorGenerationAttempt(
+            explanation=tutor,
+            latencyMs=(time.perf_counter() - started) * 1000,
+            promptTokens=prompt_tokens,
+            completionTokens=completion_tokens,
+        )
     except HTTPError as error:
         detail = error.read().decode("utf-8", errors="replace")[:300]
         print(f"[llm_gateway] tutor HTTP {error.code}: {detail}")
-        return None
+        return _failed_tutor_attempt(started, "request_failed", prompt_tokens, completion_tokens)
     except (KeyError, TypeError, ValueError, OSError, json.JSONDecodeError) as error:
         print(f"[llm_gateway] tutor failed: {type(error).__name__}: {error}")
-        return None
+        return _failed_tutor_attempt(
+            started,
+            "validation_failed"
+            if isinstance(error, (KeyError, TypeError, ValueError, json.JSONDecodeError))
+            else "request_failed",
+            prompt_tokens,
+            completion_tokens,
+        )

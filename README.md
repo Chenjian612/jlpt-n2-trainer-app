@@ -57,6 +57,7 @@
 ```bash
 npm test
 npm run test:ai
+npm run ai:evaluate
 npm run ai:dev
 ```
 
