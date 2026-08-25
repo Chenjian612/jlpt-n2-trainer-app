@@ -88,6 +88,8 @@ class KnowledgeSearchRequest(BaseModel):
         "grammar_drill", "vocab_drill", "reading_drill", "listening_analyze"
     ] | None = None
     limit: int = Field(default=5, ge=1, le=20)
+    allowWeb: bool = False
+    webLimit: int = Field(default=3, ge=1, le=5)
 
 
 class EvidenceLocation(BaseModel):
@@ -122,6 +124,19 @@ class ListeningEvidence(BaseModel):
     listenChecklist: list[str]
 
 
+class WebEvidenceSource(BaseModel):
+    id: str
+    title: str
+    url: str
+    snippet: str
+    sourceType: Literal["official", "authorized"]
+    fetchedAt: str
+    contentHash: str
+    score: float
+    usagePolicy: Literal["supplemental_only"] = "supplemental_only"
+    canOverrideLocalFacts: Literal[False] = False
+
+
 class KnowledgeSearchHit(BaseModel):
     questionId: str
     modeId: Literal[
@@ -148,3 +163,34 @@ class KnowledgeSearchResponse(BaseModel):
     ] = "hybrid_tfidf_rerank"
     totalCandidates: int
     hits: list[KnowledgeSearchHit]
+    webMode: Literal["disabled", "controlled_cache"] = "disabled"
+    webFallbackReason: Literal[
+        "local_sufficient",
+        "not_requested",
+        "web_disabled",
+        "no_cached_sources",
+        "no_web_match",
+        "local_evidence_insufficient",
+    ]
+    webSources: list[WebEvidenceSource] = Field(default_factory=list)
+
+
+class ResearchSource(BaseModel):
+    id: str
+    title: str
+    snippet: str
+    sourceType: Literal["local_knowledge", "official", "authorized"]
+    url: str | None = None
+    fetchedAt: str | None = None
+    contentHash: str | None = None
+    canOverrideLocalFacts: Literal[False] = False
+
+
+class KnowledgeResearchAnswer(BaseModel):
+    query: str
+    answer: str
+    citedSourceIds: list[str]
+    sources: list[ResearchSource]
+    evidenceMode: Literal["local_only", "web_supplemented"]
+    generationMode: Literal["local_extract", "ai_service"]
+    fallbackReason: str | None = None

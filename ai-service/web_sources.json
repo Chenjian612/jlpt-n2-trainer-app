@@ -1,0 +1,30 @@
+[
+  {
+    "id": "jlpt-official-practice-workbook",
+    "title": "JLPT Official Practice Workbook",
+    "url": "https://www.jlpt.jp/e/samples/sampleindex.html",
+    "sourceType": "official",
+    "enabled": true
+  },
+  {
+    "id": "jlpt-sample-questions",
+    "title": "JLPT Sample Questions for Examinees",
+    "url": "https://www.jlpt.jp/e/samples/forlearners.html",
+    "sourceType": "official",
+    "enabled": true
+  },
+  {
+    "id": "jlpt-teacher-materials",
+    "title": "JLPT Explanatory Materials for Teachers",
+    "url": "https://www.jlpt.jp/e/samples/forteachers.html",
+    "sourceType": "official",
+    "enabled": true
+  },
+  {
+    "id": "jlpt-official-faq",
+    "title": "JLPT Official FAQ",
+    "url": "https://www.jlpt.jp/e/faq/",
+    "sourceType": "official",
+    "enabled": true
+  }
+]

@@ -8,6 +8,7 @@ from app.llm_gateway import (
     generate_personalized_tutor,
     generate_personalized_tutor_with_metrics,
     probe_llm,
+    generate_grounded_research,
 )
 from app.schemas import ExplanationSource, TutorWrongAnswerRequest, WrongAnswerExplanation
 
@@ -92,6 +93,31 @@ class FakeTutorResponse(FakeResponse):
         ).encode("utf-8")
 
 
+class FakeResearchResponse(FakeResponse):
+    def read(self) -> bytes:
+        content = json.dumps(
+            {
+                "answer": "根据官方资料，N2 包含语言知识与读解测试。",
+                "citedSourceIds": ["official-faq"],
+            },
+            ensure_ascii=False,
+        )
+        return json.dumps(
+            {"choices": [{"message": {"content": content}}]}, ensure_ascii=False
+        ).encode("utf-8")
+
+
+class FakeInvalidResearchResponse(FakeResponse):
+    def read(self) -> bytes:
+        content = json.dumps(
+            {"answer": "伪造引用", "citedSourceIds": ["unapproved-source"]},
+            ensure_ascii=False,
+        )
+        return json.dumps(
+            {"choices": [{"message": {"content": content}}]}, ensure_ascii=False
+        ).encode("utf-8")
+
+
 def build_explanation() -> WrongAnswerExplanation:
     return WrongAnswerExplanation(
         testedPoint="わけにはいかない",
@@ -115,6 +141,63 @@ def build_explanation() -> WrongAnswerExplanation:
 
 
 class LlmGatewayTest(unittest.TestCase):
+    @patch.dict(
+        os.environ,
+        {
+            "AI_LLM_BASE_URL": "https://example.invalid/v1",
+            "AI_LLM_API_KEY": "test-key",
+            "AI_LLM_MODEL": "test-model",
+        },
+        clear=False,
+    )
+    @patch("app.llm_gateway.urlrequest.urlopen")
+    def test_grounded_research_accepts_only_locked_source_ids(self, mock_urlopen) -> None:
+        mock_urlopen.return_value = FakeResearchResponse()
+        evidence = [
+            {
+                "id": "official-faq",
+                "title": "Official FAQ",
+                "snippet": "N2 guidance",
+                "sourceType": "official",
+            }
+        ]
+
+        result = generate_grounded_research("N2 考什么", evidence)
+
+        self.assertEqual(
+            result,
+            ("根据官方资料，N2 包含语言知识与读解测试。", ["official-faq"]),
+        )
+
+    @patch.dict(
+        os.environ,
+        {
+            "AI_LLM_BASE_URL": "https://example.invalid/v1",
+            "AI_LLM_API_KEY": "test-key",
+            "AI_LLM_MODEL": "test-model",
+        },
+        clear=False,
+    )
+    @patch("app.llm_gateway.urlrequest.urlopen")
+    def test_grounded_research_rejects_unapproved_citation_ids(
+        self, mock_urlopen
+    ) -> None:
+        mock_urlopen.return_value = FakeInvalidResearchResponse()
+
+        result = generate_grounded_research(
+            "N2 考什么",
+            [
+                {
+                    "id": "official-faq",
+                    "title": "Official FAQ",
+                    "snippet": "N2 guidance",
+                    "sourceType": "official",
+                }
+            ],
+        )
+
+        self.assertIsNone(result)
+
     @patch.dict(
         os.environ,
         {

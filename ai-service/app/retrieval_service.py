@@ -1,5 +1,6 @@
 import math
 import json
+import os
 import re
 from collections import Counter
 from dataclasses import dataclass
@@ -8,6 +9,11 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
+from .controlled_web_service import (
+    get_web_rag_config,
+    load_web_cache,
+    search_web_cache,
+)
 from .embedding_service import semantic_scores
 from .knowledge_service import load_question_index
 from .schemas import (
@@ -327,6 +333,11 @@ def search_knowledge(request: KnowledgeSearchRequest) -> KnowledgeSearchResponse
     query_tokens = tokenize(request.query)
     query_vector, query_norm = _query_vector(query_tokens, index)
     semantic_score_map = semantic_scores(request.query, get_embedding_documents())
+    try:
+        semantic_min_score = float(os.getenv("AI_EMBEDDING_MIN_SCORE", "0.35"))
+    except ValueError:
+        semantic_min_score = 0.35
+    semantic_min_score = max(0.0, min(semantic_min_score, 1.0))
     raw_candidates: list[
         tuple[float, float, float, float, IndexedDocument, list[str]]
     ] = []
@@ -337,7 +348,10 @@ def search_knowledge(request: KnowledgeSearchRequest) -> KnowledgeSearchResponse
             continue
         bm25_score = _bm25_score(query_tokens, document, index)
         vector_score = _cosine_similarity(query_vector, query_norm, document)
-        semantic_score = max(semantic_score_map.get(question["id"], 0.0), 0.0)
+        raw_semantic_score = max(semantic_score_map.get(question["id"], 0.0), 0.0)
+        semantic_score = (
+            raw_semantic_score if raw_semantic_score >= semantic_min_score else 0.0
+        )
         if bm25_score <= 0 and vector_score <= 0 and semantic_score <= 0:
             continue
         bonus, reasons = _rerank_bonus(request.query, query_tokens, document)
@@ -414,6 +428,45 @@ def search_knowledge(request: KnowledgeSearchRequest) -> KnowledgeSearchResponse
             : request.limit
         ]
     ]
+    web_config = get_web_rag_config()
+    web_sources = []
+    web_mode = "disabled"
+    local_sufficient = False
+    if candidates:
+        top_candidate = candidates[0]
+        top_document = top_candidate[5]
+        unique_query_tokens = set(query_tokens)
+        lexical_coverage = (
+            sum(
+                1
+                for token in unique_query_tokens
+                if token in top_document.term_counts
+            )
+            / max(len(unique_query_tokens), 1)
+        )
+        local_sufficient = (
+            lexical_coverage >= 0.35
+            or top_candidate[3] >= semantic_min_score
+            or "考点命中" in top_candidate[6]
+        )
+
+    if local_sufficient:
+        web_fallback_reason = "local_sufficient"
+    elif not request.allowWeb:
+        web_fallback_reason = "not_requested"
+    elif not web_config.enabled:
+        web_fallback_reason = "web_disabled"
+    elif not load_web_cache(web_config):
+        web_fallback_reason = "no_cached_sources"
+    else:
+        web_mode = "controlled_cache"
+        web_sources = search_web_cache(
+            request.query, web_config, limit=request.webLimit
+        )
+        web_fallback_reason = (
+            "local_evidence_insufficient" if web_sources else "no_web_match"
+        )
+
     return KnowledgeSearchResponse(
         query=request.query,
         retrievalMode=(
@@ -423,4 +476,7 @@ def search_knowledge(request: KnowledgeSearchRequest) -> KnowledgeSearchResponse
         ),
         totalCandidates=len(candidates),
         hits=hits,
+        webMode=web_mode,
+        webFallbackReason=web_fallback_reason,
+        webSources=web_sources,
     )

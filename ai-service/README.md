@@ -81,6 +81,41 @@ npm run ai:embeddings
 
 `/health` 的 `embeddingConfigured` 与 `embeddingIndexReady` 分别表示配置是否完整、缓存是否可用；`retrievalMode` 显示当前实际模式。语义模式的 `scores.semantic` 和“语义 Embedding 相似”命中原因可用于解释排序。
 
+## AI-M4 受控 Web RAG
+
+Web RAG 默认关闭，不使用开放搜索引擎，也不会在用户请求期间临时爬网。仓库内的 `web_sources.json` 是审批来源目录，默认只包含 JLPT 官方普通 HTML 页面。同步器拒绝 HTTP、带凭据 URL、非白名单主机、私网解析地址、跨白名单重定向、非 HTML 内容和超过 1 MB 的响应；脚本、样式及常见提示注入文本会在入库前清除。
+
+启用并显式同步：
+
+```bash
+AI_WEB_RAG_ENABLED=true
+AI_WEB_RAG_ALLOWED_HOSTS=jlpt.jp,www.jlpt.jp,samplequestions.jlpt.jp,jpf.go.jp,www.jpf.go.jp
+npm run ai:web-sync
+```
+
+同步结果写入被 Git 忽略的 `ai-service/.cache/web-sources.json`，包含 URL、UTC 访问时间和内容哈希。默认有效期为 168 小时，可通过 `AI_WEB_RAG_MAX_AGE_HOURS` 调整。来源从审批目录移除、URL 改变、内容哈希不符或缓存过期后，缓存会被拒绝使用。
+
+出于版权边界，同步器只读取审批页面的 HTML 说明文本，不自动下载或解析官方页面链接的 PDF、ZIP、PPT、MP3，也不把网页缓存提交到仓库。JLPT 官方页面提示部分 N2 读解题和听力音频包含第三方著作权内容，使用者仍需遵守页面版权说明。
+
+`POST /knowledge/search` 只有同时满足以下条件才返回网络补充：
+
+1. 请求显式传入 `allowWeb: true`；
+2. 本地 BM25、TF-IDF 或语义证据未达到充分阈值；
+3. Web RAG 已启用且存在未过期的审批缓存；
+4. 查询与缓存内容确有匹配。
+
+网络结果单独位于 `webSources`，不会混入本地 `hits`。每条来源包含 `sourceType`、URL、访问时间、内容哈希，并固定返回 `usagePolicy: supplemental_only` 与 `canOverrideLocalFacts: false`。`webFallbackReason` 会区分本地证据充分、未请求、功能关闭、无缓存、无匹配和本地证据不足。
+
+`POST /knowledge/research` 在同一检索边界上提供受控回答。模型只能返回服务端锁定的来源 ID；伪造引用、结构错误或模型不可用时，会降级为摘录式回答。若本地与受控网络缓存都没有证据，接口返回 404，不让模型自行补全。
+
+```bash
+curl -X POST http://127.0.0.1:8000/knowledge/research \
+  -H 'Content-Type: application/json' \
+  -d '{"query":"N2 各题型主要考查什么","allowWeb":true,"webLimit":3}'
+```
+
+`/health` 通过 `webRagEnabled` 与 `webCacheEntries` 显示受控 Web RAG 的运行状态。同步失败不会清空仍然有效的旧缓存，普通检索也始终保留纯本地回退。
+
 `generationMode` 是客户端判断缓存和降级状态的接口字段，不是页面标题。前端在 `ai_service` 成功时不显示额外徽标，在 `local_knowledge` 或旧缓存状态下分别显示“本地知识库”或“历史缓存”；个性化辅导使用“智能辅导”。
 
 Codex 不能在没有逐项授权目标和数据的情况下，代替用户把本地真实题目发送给第三方模型。这是开发工具的数据外发安全限制，不是 App 的运行限制。展示前先用 `/health/ai` 验证网络和模型，再由使用者在 App 中点击“使用 AI 重新讲解”完成真实业务验证。

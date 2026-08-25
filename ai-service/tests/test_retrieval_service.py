@@ -8,6 +8,7 @@ from app.retrieval_service import (
     tokenize,
 )
 from app.schemas import KnowledgeSearchRequest
+from app.schemas import WebEvidenceSource
 
 
 class RetrievalServiceTest(unittest.TestCase):
@@ -178,6 +179,49 @@ class RetrievalServiceTest(unittest.TestCase):
 
         self.assertEqual(result.totalCandidates, 0)
         self.assertEqual(result.hits, [])
+        self.assertEqual(result.webFallbackReason, "not_requested")
+
+    @patch("app.retrieval_service.search_web_cache")
+    @patch("app.retrieval_service.load_web_cache", return_value=[object()])
+    @patch("app.retrieval_service.get_web_rag_config")
+    def test_uses_controlled_web_cache_only_after_local_miss(
+        self, mock_config, _mock_cache, mock_search
+    ) -> None:
+        mock_config.return_value.enabled = True
+        mock_search.return_value = [
+            WebEvidenceSource(
+                id="official-faq",
+                title="JLPT Official FAQ",
+                url="https://www.jlpt.jp/e/faq/",
+                snippet="Official N2 guidance",
+                sourceType="official",
+                fetchedAt="2026-08-25T00:00:00+00:00",
+                contentHash="a" * 64,
+                score=0.8,
+            )
+        ]
+
+        result = search_knowledge(
+            KnowledgeSearchRequest(
+                query="zzzzwebfallback", allowWeb=True, webLimit=2
+            )
+        )
+
+        self.assertEqual(result.hits, [])
+        self.assertEqual(result.webMode, "controlled_cache")
+        self.assertEqual(result.webFallbackReason, "local_evidence_insufficient")
+        self.assertEqual(result.webSources[0].sourceType, "official")
+        mock_search.assert_called_once()
+
+    @patch("app.retrieval_service.search_web_cache")
+    def test_local_evidence_prevents_web_lookup(self, mock_search) -> None:
+        result = search_knowledge(
+            KnowledgeSearchRequest(query="わけにはいかない", allowWeb=True)
+        )
+
+        self.assertTrue(result.hits)
+        self.assertEqual(result.webFallbackReason, "local_sufficient")
+        mock_search.assert_not_called()
 
     @patch("app.retrieval_service.semantic_scores")
     def test_semantic_embedding_can_recall_without_keyword_overlap(

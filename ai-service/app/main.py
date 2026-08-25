@@ -2,6 +2,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
 from .embedding_service import get_embedding_config, load_semantic_index
+from .controlled_web_service import get_web_rag_config, load_web_cache
 from .knowledge_service import build_grounded_explanation, load_question_index
 from .llm_gateway import enrich_with_llm, generate_personalized_tutor, get_llm_config, probe_llm
 from .retrieval_service import (
@@ -9,10 +10,12 @@ from .retrieval_service import (
     get_embedding_documents,
     search_knowledge,
 )
+from .research_service import research_knowledge
 from .schemas import (
     ExplainWrongAnswerRequest,
     KnowledgeSearchRequest,
     KnowledgeSearchResponse,
+    KnowledgeResearchAnswer,
     PersonalizedTutorExplanation,
     TutorWrongAnswerRequest,
     WrongAnswerExplanation,
@@ -36,6 +39,8 @@ def health() -> dict[str, int | str | bool]:
     base_url, api_key, model = get_llm_config()
     embedding_config = get_embedding_config()
     embedding_index = load_semantic_index(get_embedding_documents(), embedding_config)
+    web_config = get_web_rag_config()
+    web_cache = load_web_cache(web_config)
     return {
         "status": "ok",
         "knowledgeEntries": len(load_question_index()),
@@ -48,6 +53,8 @@ def health() -> dict[str, int | str | bool]:
         "embeddingConfigured": embedding_config.configured,
         "embeddingIndexReady": embedding_index is not None,
         "embeddingModel": embedding_config.model or "not-configured",
+        "webRagEnabled": web_config.enabled,
+        "webCacheEntries": len(web_cache),
         "llmConfigured": bool(base_url and api_key and model),
         "llmModel": model or "not-configured",
     }
@@ -104,3 +111,14 @@ def tutor_wrong_answer(
 @app.post("/knowledge/search", response_model=KnowledgeSearchResponse)
 def knowledge_search(request: KnowledgeSearchRequest) -> KnowledgeSearchResponse:
     return search_knowledge(request)
+
+
+@app.post("/knowledge/research", response_model=KnowledgeResearchAnswer)
+def knowledge_research(request: KnowledgeSearchRequest) -> KnowledgeResearchAnswer:
+    result = research_knowledge(request)
+    if result is None:
+        raise HTTPException(
+            status_code=404,
+            detail="本地知识库与受控网络缓存都没有足够证据。",
+        )
+    return result
