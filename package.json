@@ -14,6 +14,7 @@
     "ai:dev": "cd ai-service && .venv/bin/python -m uvicorn app.main:app --reload --port 8000 --env-file ../.env.local",
     "test:ai": "cd ai-service && .venv/bin/python -m unittest discover -s tests -v",
     "ai:evaluate": "cd ai-service && .venv/bin/python scripts/run_evaluation.py",
+    "ai:embeddings": "cd ai-service && .venv/bin/python scripts/build_embedding_index.py",
     "test:web:components": "node tests/web/component-flows.js",
     "test:web:e2e": "node tests/web/dashboard-e2e.js",
     "test:web:listening": "node tests/web/listening-flow.js"

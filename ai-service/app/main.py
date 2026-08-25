@@ -1,10 +1,18 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
+from .embedding_service import get_embedding_config, load_semantic_index
 from .knowledge_service import build_grounded_explanation, load_question_index
 from .llm_gateway import enrich_with_llm, generate_personalized_tutor, get_llm_config, probe_llm
+from .retrieval_service import (
+    build_retrieval_index,
+    get_embedding_documents,
+    search_knowledge,
+)
 from .schemas import (
     ExplainWrongAnswerRequest,
+    KnowledgeSearchRequest,
+    KnowledgeSearchResponse,
     PersonalizedTutorExplanation,
     TutorWrongAnswerRequest,
     WrongAnswerExplanation,
@@ -26,9 +34,20 @@ app.add_middleware(
 @app.get("/health")
 def health() -> dict[str, int | str | bool]:
     base_url, api_key, model = get_llm_config()
+    embedding_config = get_embedding_config()
+    embedding_index = load_semantic_index(get_embedding_documents(), embedding_config)
     return {
         "status": "ok",
         "knowledgeEntries": len(load_question_index()),
+        "searchEntries": len(build_retrieval_index().documents),
+        "retrievalMode": (
+            "hybrid_semantic_rerank"
+            if embedding_index is not None
+            else "hybrid_tfidf_rerank"
+        ),
+        "embeddingConfigured": embedding_config.configured,
+        "embeddingIndexReady": embedding_index is not None,
+        "embeddingModel": embedding_config.model or "not-configured",
         "llmConfigured": bool(base_url and api_key and model),
         "llmModel": model or "not-configured",
     }
@@ -80,3 +99,8 @@ def tutor_wrong_answer(
             detail="个性化 AI 辅导暂时不可用，请保留知识库讲解。",
         )
     return result
+
+
+@app.post("/knowledge/search", response_model=KnowledgeSearchResponse)
+def knowledge_search(request: KnowledgeSearchRequest) -> KnowledgeSearchResponse:
+    return search_knowledge(request)

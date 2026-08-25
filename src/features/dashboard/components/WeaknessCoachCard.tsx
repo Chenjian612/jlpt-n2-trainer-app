@@ -10,6 +10,12 @@ const TREND_CONFIG: Record<WeaknessTrend, { label: string; color: string }> = {
   worsening: { label: '↑ 恶化', color: colors.copper },
 };
 
+const MODULE_STATUS_LABEL = {
+  clear: '清晰',
+  watch: '留意',
+  priority: '优先补',
+} as const;
+
 type WeaknessCoachCardProps = {
   snapshot: DashboardWeaknessSnapshot;
   recommendedMode: TrainingMode | null;
@@ -39,6 +45,50 @@ export function WeaknessCoachCard({
           <Text style={styles.summaryEyebrow}>本地教练判断</Text>
           <Text style={styles.summaryTitle}>{snapshot.headline}</Text>
           <Text style={styles.summaryBody}>{snapshot.body}</Text>
+        </View>
+
+        <View style={styles.moduleSummary}>
+          <View style={styles.moduleSummaryHeader}>
+            <View style={styles.moduleSummaryCopy}>
+              <Text style={styles.moduleSummaryTitle}>四项能力分布</Text>
+              <Text style={styles.moduleSummaryCaption}>
+                {snapshot.crossModuleSummary.activeModuleCount} 个模块 ·{' '}
+                {snapshot.crossModuleSummary.activeItemCount} 项未稳 · 累计暴露{' '}
+                {snapshot.crossModuleSummary.exposureCount} 次
+              </Text>
+            </View>
+            {snapshot.crossModuleSummary.transferVerification.attempts > 0 ? (
+              <Text style={styles.transferBadge}>
+                迁移正确率{' '}
+                {Math.round(
+                  (snapshot.crossModuleSummary.transferVerification.accuracy ?? 0) * 100,
+                )}
+                %
+              </Text>
+            ) : null}
+          </View>
+          <View style={styles.moduleList}>
+            {snapshot.crossModuleSummary.modules.map((module) => (
+              <View key={module.id} style={styles.moduleItem}>
+                <Text style={styles.moduleLabel}>{module.label}</Text>
+                <Text style={styles.moduleCount}>{module.activeItems} 项</Text>
+                <Text
+                  style={[
+                    styles.moduleStatus,
+                    module.status === 'priority' ? styles.moduleStatusPriority : null,
+                  ]}
+                >
+                  {MODULE_STATUS_LABEL[module.status]}
+                </Text>
+              </View>
+            ))}
+          </View>
+          {snapshot.crossModuleSummary.transferVerification.retryQuestionCount > 0 ? (
+            <Text style={styles.transferHint}>
+              有 {snapshot.crossModuleSummary.transferVerification.retryQuestionCount}{' '}
+              个考点最近一次迁移验证未通过，仍需保留在回收计划中。
+            </Text>
+          ) : null}
         </View>
 
         {snapshot.focusItems.length > 0 ? (
@@ -165,6 +215,78 @@ const styles = StyleSheet.create({
     color: colors.inkBody,
     fontSize: 14,
     lineHeight: 21,
+    fontFamily: fonts.body,
+  },
+  moduleSummary: {
+    borderRadius: radii.md,
+    backgroundColor: colors.slateSoft,
+    padding: 14,
+    gap: 12,
+  },
+  moduleSummaryHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    gap: 10,
+  },
+  moduleSummaryCopy: {
+    flex: 1,
+  },
+  moduleSummaryTitle: {
+    color: colors.inkStrong,
+    fontSize: 16,
+    fontWeight: '800',
+    fontFamily: fonts.title,
+  },
+  moduleSummaryCaption: {
+    color: colors.inkMuted,
+    fontSize: 12,
+    lineHeight: 18,
+    fontFamily: fonts.body,
+  },
+  transferBadge: {
+    color: colors.teal,
+    fontSize: 12,
+    fontWeight: '800',
+    fontFamily: fonts.body,
+  },
+  moduleList: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  moduleItem: {
+    flex: 1,
+    borderRadius: radii.sm,
+    backgroundColor: colors.backgroundCard,
+    paddingVertical: 10,
+    paddingHorizontal: 8,
+    alignItems: 'center',
+    gap: 3,
+  },
+  moduleLabel: {
+    color: colors.inkStrong,
+    fontSize: 13,
+    fontWeight: '800',
+    fontFamily: fonts.body,
+  },
+  moduleCount: {
+    color: colors.inkMuted,
+    fontSize: 12,
+    fontFamily: fonts.body,
+  },
+  moduleStatus: {
+    color: colors.teal,
+    fontSize: 11,
+    fontWeight: '700',
+    fontFamily: fonts.body,
+  },
+  moduleStatusPriority: {
+    color: colors.copper,
+  },
+  transferHint: {
+    color: colors.inkBody,
+    fontSize: 12,
+    lineHeight: 18,
     fontFamily: fonts.body,
   },
   focusList: {

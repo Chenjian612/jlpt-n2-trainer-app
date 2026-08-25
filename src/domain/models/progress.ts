@@ -109,10 +109,36 @@ export type CoachPlanStep = {
   recommendedModeId?: TrainingModeId;
 };
 
+export type WeaknessModuleId = 'grammar' | 'vocab' | 'reading' | 'listening';
+
+export type WeaknessModuleSummary = {
+  id: WeaknessModuleId;
+  label: string;
+  activeItems: number;
+  exposureCount: number;
+  status: 'clear' | 'watch' | 'priority';
+};
+
+export type TransferVerificationSummary = {
+  attempts: number;
+  correctCount: number;
+  accuracy: number | null;
+  retryQuestionCount: number;
+};
+
+export type CrossModuleWeaknessSummary = {
+  activeModuleCount: number;
+  activeItemCount: number;
+  exposureCount: number;
+  modules: WeaknessModuleSummary[];
+  transferVerification: TransferVerificationSummary;
+};
+
 export type DashboardWeaknessSnapshot = {
   headline: string;
   body: string;
   focusItems: WeaknessFocusItem[];
   planSteps: CoachPlanStep[];
+  crossModuleSummary: CrossModuleWeaknessSummary;
   recommendedModeId?: TrainingModeId;
 };

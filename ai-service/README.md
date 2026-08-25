@@ -1,6 +1,6 @@
 # AI Service
 
-第一阶段的 FastAPI 错题讲解服务。服务按 `questionId` 精确检索本地文法/词汇知识，返回带来源的结构化讲解；未命中时返回 404，不让模型猜答案。
+FastAPI 错题讲解与轻量 RAG 检索服务。讲解链路按 `questionId` 精确读取本地文法/词汇知识，返回带来源的结构化证据；自然语言检索链路使用 BM25 + 本地 TF-IDF 向量混合召回和规则重排。两条链路都不会让模型改写答案或来源。
 
 ## 启动
 
@@ -43,6 +43,43 @@ curl http://127.0.0.1:8000/health/ai
 - `/health/ai` 会向模型发送固定的 `Reply with only: ok` 探针，不包含题库、错题或学习记录。`reachable: true` 才表示外部模型真实可访问。
 - `/explain-wrong-answer` 响应中的 `generationMode` 为 `ai_service` 表示模型润色成功；为 `local_knowledge` 表示模型调用失败，服务已自动回退到本地知识库讲解。
 - `/tutor/wrong-answer` 只在模型成功且结构校验通过时返回 `generationMode: ai_tutor`；模型不可用或迁移题结构无效时返回 503，前端继续保留知识库事实讲解。
+
+## AI-M3 轻量知识检索
+
+`POST /knowledge/search` 支持按中文学习意图、日语考点、题目线索、读解原文或听力信号检索 886 条知识文档，包括 800 道文法/词汇题、60 道读解题和 26 道听力题。服务使用适合中日混合文本的字符二元分词，同时执行 BM25 召回和本地稀疏 TF-IDF 向量召回，再按完整短语、考点和标签命中进行确定性重排，不依赖外部模型。
+
+```bash
+curl -X POST http://127.0.0.1:8000/knowledge/search \
+  -H 'Content-Type: application/json' \
+  -d '{"query":"表示不能或不可以做某事","modeId":"grammar_drill","limit":5}'
+```
+
+响应中的 `score` 是归一化后的混合排序分数，`scores` 分别保留 BM25、TF-IDF、可选语义 Embedding 和规则重排分数；`matchReasons` 解释命中依据，`sourceLabel` 保留原始资料来源。纯本地模式没有任何词项命中时返回空 `hits`，不会调用模型补写结果；显式启用且缓存有效时，语义召回可以补充关键词不重合的候选。
+
+读解结果的 `contentType` 为 `reading_question`，并额外返回 `evidenceLocation`：文章 ID、标题、1 开始的段落编号、真实段落原文、题库证据引用和引用片段。定位以引用内容反查原文为主，不只相信人工填写的段号；当前 60 道读解题均通过可追溯性测试。
+
+听力结果的 `contentType` 为 `listening_question`，并返回 `listeningEvidence`：案例、场景、对话、作答依据、关键信号、陷阱和听题清单。`evidenceType` 明确区分 `audio_transcript`（官方音频转写片段）、`dialogue_quote`（文字对话原句）、`stimulus_response`（即时应答刺激与回应）和 `pedagogical_summary`（教学性中日转换依据），不会把模拟对话或翻译依据标成逐字音频转写。
+
+### 可选语义 Embedding
+
+语义召回默认关闭，未配置时接口保持 `hybrid_tfidf_rerank`。如需启用 OpenAI-compatible Embedding 服务，使用独立的服务端环境变量：
+
+```bash
+AI_EMBEDDING_ENABLED=true
+AI_EMBEDDING_BASE_URL=https://api.openai.com/v1
+AI_EMBEDDING_API_KEY=your_server_side_key
+AI_EMBEDDING_MODEL=text-embedding-3-small
+```
+
+配置后显式构建索引：
+
+```bash
+npm run ai:embeddings
+```
+
+该命令会把 886 条题库检索文本发送给所配置的第三方 Embedding 服务，并将向量写入被 Git 忽略的 `ai-service/.cache/embedding-index.json`。仅在确认服务条款、数据授权和费用后运行。普通搜索不会自动批量外发题库；缓存存在且题库指纹、模型完全匹配时，才会发送单条查询文本并启用 `hybrid_semantic_rerank`。缓存失效、服务超时或响应异常时自动回退到本地 BM25 + TF-IDF 检索。
+
+`/health` 的 `embeddingConfigured` 与 `embeddingIndexReady` 分别表示配置是否完整、缓存是否可用；`retrievalMode` 显示当前实际模式。语义模式的 `scores.semantic` 和“语义 Embedding 相似”命中原因可用于解释排序。
 
 `generationMode` 是客户端判断缓存和降级状态的接口字段，不是页面标题。前端在 `ai_service` 成功时不显示额外徽标，在 `local_knowledge` 或旧缓存状态下分别显示“本地知识库”或“历史缓存”；个性化辅导使用“智能辅导”。
 

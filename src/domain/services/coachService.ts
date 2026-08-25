@@ -1,11 +1,13 @@
 ﻿import type {
   CoachPlanStep,
+  CrossModuleWeaknessSummary,
   DailyStudyItem,
   DashboardWeaknessSnapshot,
   GeneratedDailyPlan,
   ProgressState,
   WeaknessFocusItem,
   WeaknessTrend,
+  WeaknessModuleId,
 } from '../models/progress';
 import type { TrainingModeId } from '../models/training';
 import type {
@@ -33,6 +35,87 @@ const REVIEW_MODE_LABEL: Record<TrainingModeId, string> = {
   review_wrong: '文法错题回收',
   vocab_review_wrong: '词汇错题回收',
   grammar_200: 'N2 文法 200 条特训',
+};
+
+const WEAKNESS_MODULE_LABEL: Record<WeaknessModuleId, string> = {
+  grammar: '文法',
+  vocab: '词汇',
+  reading: '读解',
+  listening: '听力',
+};
+
+const resolveModuleStatus = (
+  activeItems: number,
+  exposureCount: number,
+): 'clear' | 'watch' | 'priority' => {
+  if (activeItems === 0) return 'clear';
+  if (activeItems >= 3 || exposureCount >= 6) return 'priority';
+  return 'watch';
+};
+
+export const getCrossModuleWeaknessSummary = (
+  state: ProgressState,
+): CrossModuleWeaknessSummary => {
+  const counters: Record<WeaknessModuleId, { activeItems: number; exposureCount: number }> = {
+    grammar: { activeItems: 0, exposureCount: 0 },
+    vocab: { activeItems: 0, exposureCount: 0 },
+    reading: { activeItems: 0, exposureCount: 0 },
+    listening: { activeItems: 0, exposureCount: 0 },
+  };
+
+  state.wrongAnswers
+    .filter((item) => !item.mastered)
+    .forEach((item) => {
+      const moduleId = item.modeId === 'grammar_drill' ? 'grammar' : 'vocab';
+      counters[moduleId].activeItems += 1;
+      counters[moduleId].exposureCount += item.wrongCount;
+    });
+
+  state.weaknessSignals
+    .filter((item) => item.active)
+    .forEach((item) => {
+      const moduleId = item.modeId === 'reading_drill' ? 'reading' : 'listening';
+      counters[moduleId].activeItems += 1;
+      counters[moduleId].exposureCount += item.wrongCount;
+    });
+
+  state.studyWeaknesses
+    .filter((item) => item.active)
+    .forEach((item) => {
+      const moduleId = item.modeId === 'grammar_study' ? 'grammar' : 'vocab';
+      counters[moduleId].activeItems += 1;
+      counters[moduleId].exposureCount += item.unstableCount;
+    });
+
+  const modules = (Object.keys(counters) as WeaknessModuleId[]).map((id) => ({
+    id,
+    label: WEAKNESS_MODULE_LABEL[id],
+    ...counters[id],
+    status: resolveModuleStatus(counters[id].activeItems, counters[id].exposureCount),
+  }));
+  const latestTransferByQuestion = new Map<string, boolean>();
+  state.transferResults.forEach((result) => {
+    latestTransferByQuestion.set(result.questionId, result.correct);
+  });
+  const correctCount = state.transferResults.filter((result) => result.correct).length;
+
+  return {
+    activeModuleCount: modules.filter((item) => item.activeItems > 0).length,
+    activeItemCount: modules.reduce((total, item) => total + item.activeItems, 0),
+    exposureCount: modules.reduce((total, item) => total + item.exposureCount, 0),
+    modules,
+    transferVerification: {
+      attempts: state.transferResults.length,
+      correctCount,
+      accuracy:
+        state.transferResults.length > 0
+          ? correctCount / state.transferResults.length
+          : null,
+      retryQuestionCount: [...latestTransferByQuestion.values()].filter(
+        (correct) => !correct,
+      ).length,
+    },
+  };
 };
 
 const resolveStatusLabel = (questionCount: number, wrongCount: number): string => {
@@ -357,6 +440,7 @@ export const getDashboardWeaknessSnapshot = (
     state.weaknessSignals,
     state.studyWeaknesses,
   );
+  const crossModuleSummary = getCrossModuleWeaknessSummary(state);
 
   if (focusItems.length === 0) {
     return {
@@ -364,6 +448,7 @@ export const getDashboardWeaknessSnapshot = (
       body: '错题队列和训练弱项都比较干净，现在更适合继续推新内容；等出现重复错误后，再按类型集中回收。',
       focusItems: [],
       planSteps: buildNeutralPlan(),
+      crossModuleSummary,
     };
   }
 
@@ -387,6 +472,7 @@ export const getDashboardWeaknessSnapshot = (
     body: `${primary.label} 相关的未稳项有 ${primary.questionCount} 项，主要集中在 ${sourceModeTitle}。先把这一类压回去，比继续推新内容更划算。`,
     focusItems: focusItemsWithTrend,
     planSteps: buildPlanSteps(focusItemsWithTrend),
+    crossModuleSummary,
     recommendedModeId: primary.recommendedModeId,
   };
 };

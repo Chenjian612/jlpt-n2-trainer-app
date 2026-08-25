@@ -80,3 +80,71 @@ class PersonalizedTutorExplanation(BaseModel):
     personalizationEvidence: PersonalizationEvidence
     transferQuestion: TransferQuestion
     generationMode: Literal["ai_tutor"] = "ai_tutor"
+
+
+class KnowledgeSearchRequest(BaseModel):
+    query: str = Field(min_length=2, max_length=200)
+    modeId: Literal[
+        "grammar_drill", "vocab_drill", "reading_drill", "listening_analyze"
+    ] | None = None
+    limit: int = Field(default=5, ge=1, le=20)
+
+
+class EvidenceLocation(BaseModel):
+    passageId: str
+    passageTitle: str
+    paragraphNumbers: list[int]
+    paragraphTexts: list[str]
+    quotes: list[str]
+    evidence: str
+
+
+class ListeningDialogueLine(BaseModel):
+    speaker: str
+    text: str
+
+
+class ListeningEvidence(BaseModel):
+    caseId: str
+    caseTitle: str
+    audioKey: str
+    evidenceType: Literal[
+        "audio_transcript",
+        "stimulus_response",
+        "dialogue_quote",
+        "pedagogical_summary",
+    ]
+    scene: str
+    dialogue: list[ListeningDialogueLine]
+    basisLine: str
+    keySignal: str
+    trapPoint: str
+    listenChecklist: list[str]
+
+
+class KnowledgeSearchHit(BaseModel):
+    questionId: str
+    modeId: Literal[
+        "grammar_drill", "vocab_drill", "reading_drill", "listening_analyze"
+    ]
+    contentType: Literal[
+        "drill_question", "reading_question", "listening_question"
+    ]
+    testedPoint: str
+    prompt: str
+    snippet: str
+    sourceLabel: str
+    score: float
+    scores: dict[Literal["bm25", "vector", "semantic", "rerankBonus"], float]
+    matchReasons: list[str]
+    evidenceLocation: EvidenceLocation | None = None
+    listeningEvidence: ListeningEvidence | None = None
+
+
+class KnowledgeSearchResponse(BaseModel):
+    query: str
+    retrievalMode: Literal[
+        "hybrid_tfidf_rerank", "hybrid_semantic_rerank"
+    ] = "hybrid_tfidf_rerank"
+    totalCandidates: int
+    hits: list[KnowledgeSearchHit]
