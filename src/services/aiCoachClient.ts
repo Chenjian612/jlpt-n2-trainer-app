@@ -99,7 +99,8 @@ const requestProxyExplanation = async (
     '你是面向中国学习者的 JLPT N2 错题教练。只能依据下面 JSON 证据改写讲解，' +
     '不得改变答案、考点、选项事实或来源。只返回 mistakePattern、whyCorrect、' +
     'whyUserWrong、whyDistractorFooled、watchNextTime 五个字符串字段的 JSON，' +
-    '每个字段控制在 60-120 个汉字。' +
+    '每个字段控制在 60-120 个汉字。所有讲解必须以简明中文为主；日语只保留题目原文、' +
+    '语法形式或短例句，并在同一句紧跟中文释义，禁止用整段日语解释。' +
     `学生累计答错 ${wrongCount} 次。证据：${JSON.stringify(explanation)}`;
   try {
     const response = await fetch(`${APP_CONFIG.DEEPSEEK_PROXY_URL}/v1/chat/completions`, {
@@ -279,6 +280,7 @@ const requestProxyTutor = async (
   };
   const prompt =
     '你是 JLPT N2 个性化错题教练。事实只能来自 evidence。不要重复知识库定义，重点诊断学生为何误选。' +
+    '所有讲解必须以简明中文为主；日语只保留题目原文、语法形式或短例句，并紧跟中文释义。' +
     '只返回 JSON：diagnosisSummary, whyYouChoseIt, reasoningSteps(正好3项), ' +
     'confusionComparison{decisiveDifference}, reviewPlan(1-3项，timing 为 now/tomorrow/three_days), ' +
     'transferQuestion{prompt,choices(2-4项),answer(0开始),explanation}。迁移题必须考查同一考点。\n' +

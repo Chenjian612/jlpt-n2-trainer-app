@@ -135,6 +135,7 @@ def enrich_with_llm(
     prompt = (
         "你是面向中国学习者的 JLPT N2 错题教练。只能依据下面 JSON 证据改写讲解，"
         "不得改变答案、考点、选项事实或来源。讲解要具体指出本题判断线索，避免空泛鼓励。"
+        "所有讲解必须以简明中文为主；日语只保留题目原文、语法形式或短例句，并在同一句紧跟中文释义，禁止用整段日语解释。"
         f"学生累计答错 {wrong_count} 次；如果重复出错，要在 mistakePattern 和 watchNextTime 中给出针对性强化建议。"
         "只返回包含 mistakePattern、whyCorrect、whyUserWrong、whyDistractorFooled、"
         "watchNextTime 五个字符串字段的 JSON，每个字段控制在 60-120 个汉字。\n证据："
@@ -197,6 +198,7 @@ def generate_personalized_tutor_with_metrics(
     prompt = (
         "你是 JLPT N2 个性化错题教练。事实只能来自 evidence，不得修改正确考点、误选项、"
         "错误次数或来源。不要重复普通知识库定义，重点诊断这个学生为何误选，并给出可复用步骤。"
+        "所有讲解必须以简明中文为主；日语只保留题目原文、语法形式或短例句，并紧跟中文释义。"
         "生成一道全新但考查同一 testedPoint 的迁移选择题。只返回 JSON，字段必须是："
         "diagnosisSummary(string), whyYouChoseIt(string), reasoningSteps(正好3个string), "
         "confusionComparison{decisiveDifference}, reviewPlan(1-3项，每项 timing 只能是 now/tomorrow/three_days, action), "
