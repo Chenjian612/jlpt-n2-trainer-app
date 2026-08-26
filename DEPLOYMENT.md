@@ -9,11 +9,11 @@
 1. 把 Expo Web 导出成静态文件
 2. 部署 `dist/` 到静态托管平台
 3. 不把真实模型 API Key 暴露到前端
-4. 如果要保留 AI 错题分析功能，用 Worker / 服务端代理保管密钥
+4. AI 错题辅导可部署现有 FastAPI `ai-service`；若只使用外部模型润色，也可继续用 Worker 代理保管密钥
 
 原因很直接：
 
-- 当前项目没有后端服务
+- 当前仓库包含可选的 FastAPI AI 服务，但训练主流程仍是本地优先，未启动 AI 服务也能使用本地结构化讲解
 - 当前 Web 产物可以导出为静态站点
 - 当前 AI 功能如果直接使用 `EXPO_PUBLIC_AI_API_KEY`，密钥会进入前端构建产物
 
@@ -31,9 +31,22 @@
 
 ## 推荐方案
 
-### 方案 A：静态托管 + AI 代理
+### 方案 A：静态托管 + FastAPI AI 服务（功能最完整）
 
-适合当前仓库，复杂度最低。
+适合需要保留混合检索、个性化辅导、质量遥测和受控 Web RAG 的部署。
+
+```text
+浏览器
+  -> 静态站点（Cloudflare Pages / Netlify / Vercel）
+  -> FastAPI ai-service
+  -> 本地知识库 / 可选 Embedding / 可选模型 API / 受控 Web 缓存
+```
+
+前端通过 `EXPO_PUBLIC_AI_SERVICE_URL` 指向服务地址。模型密钥、Embedding 配置和 Web RAG 缓存均留在服务端，具体变量与启动方式见 [AI Service README](./ai-service/README.md)。
+
+### 方案 B：静态托管 + 模型代理
+
+适合只需要静态应用和基础模型润色的轻量部署，复杂度最低，但不包含完整 FastAPI RAG 能力。
 
 部署结构：
 

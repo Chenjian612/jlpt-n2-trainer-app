@@ -1,5 +1,7 @@
 # JLPT N2 Trainer App 项目总结与修改建议
 
+> 历史评审：本文基于早期代码与内容规模，部分问题已经解决。当前完成度、数据规模和剩余事项以 [STATUS-2026-08-27.md](./STATUS-2026-08-27.md) 与 [ROADMAP.md](./ROADMAP.md) 为准。
+
 ## 项目总结
 
 这个项目当前不是“JLPT N2 题库 App”那么简单，而是一个本地优先的 N2 训练工作台。它的核心价值在于把“训练 -> 记录 -> 识别弱点 -> 推荐下一轮训练”做成了闭环，而不是只提供静态题目。入口和主状态都比较集中，应用从 [AppRoot.tsx](./src/app/AppRoot.tsx) 启动，通过 [ProgressProvider.tsx](./src/app/providers/ProgressProvider.tsx) 管理全局进度，再由 [AppNavigator.tsx](./src/app/navigation/AppNavigator.tsx) 用轻量自定义路由切换各训练页面。
