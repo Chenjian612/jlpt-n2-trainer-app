@@ -84,6 +84,7 @@ EXPO_PUBLIC_AI_SERVICE_URL=http://localhost:8000
 
 ## 相关文档
 
+- [AI 功能说明与面试指南](./AI-INTERVIEW-GUIDE.md)
 - [开发启动](./DEV_STARTUP.md)
 - [CLI 代理启动](./CLI_PROXY_STARTUP.md)
 - [部署说明](./DEPLOYMENT.md)
