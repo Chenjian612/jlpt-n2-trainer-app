@@ -1,9 +1,11 @@
+import hashlib
 import json
 import socket
 import tempfile
 import unittest
 from datetime import datetime, timezone
 from pathlib import Path
+from unittest.mock import patch
 
 from app.controlled_web_service import (
     CachedWebSource,
@@ -22,6 +24,13 @@ def public_resolver(*_args, **_kwargs):
     return [(socket.AF_INET, socket.SOCK_STREAM, 6, "", ("93.184.216.34", 443))]
 
 
+class FixedDatetime(datetime):
+    @classmethod
+    def now(cls, tz=None):
+        return cls(2026, 8, 25, tzinfo=timezone.utc).astimezone(tz)
+
+
+@patch("app.controlled_web_service.datetime", FixedDatetime)
 class ControlledWebServiceTest(unittest.TestCase):
     def test_bundled_registry_contains_only_approved_https_sources(self) -> None:
         config = WebRagConfig(
@@ -189,10 +198,24 @@ class ControlledWebServiceTest(unittest.TestCase):
 
             cached = load_web_cache(
                 config,
-                now=lambda: datetime(2026, 8, 25, tzinfo=timezone.utc),
+                now=lambda: datetime(2026, 8, 1, tzinfo=timezone.utc),
             )
 
             self.assertEqual(cached, [])
+
+            # Test expiration independently of integrity: a valid hash must not
+            # make stale evidence usable. Keep the clock explicit at boundaries.
+            payload = json.loads(cache.read_text(encoding="utf-8"))
+            item = payload["sources"][0]
+            item["contentHash"] = hashlib.sha256(item["content"].encode("utf-8")).hexdigest()
+            cache.write_text(json.dumps(payload), encoding="utf-8")
+            for at, count in [
+                (datetime(2026, 8, 2, tzinfo=timezone.utc), 1),
+                (datetime(2026, 8, 2, 0, 0, 1, tzinfo=timezone.utc), 0),
+                (datetime(2030, 1, 1, tzinfo=timezone.utc), 0),
+            ]:
+                with self.subTest(at=at):
+                    self.assertEqual(len(load_web_cache(config, now=lambda: at)), count)
 
 
 if __name__ == "__main__":

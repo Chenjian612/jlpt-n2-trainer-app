@@ -35,6 +35,18 @@ module.exports = {
   name: 'contentSeeds',
   tests: [
     {
+      name: 'every listening choice has a nonempty explanation and valid answer',
+      run() {
+        for (const item of listeningCases) {
+          for (const question of item.questions) {
+            assert.equal(question.choiceInsights.length, question.choices.length, question.id);
+            assert.ok(Number.isInteger(question.answer) && question.answer >= 0 && question.answer < question.choices.length, question.id);
+            question.choiceInsights.forEach((text) => assert.ok(typeof text === 'string' && text.trim(), question.id));
+          }
+        }
+      },
+    },
+    {
       name: 'late-added grammar reading and listening sets use Chinese teaching prose',
       run() {
         DRILL_QUESTIONS.filter((question) => {

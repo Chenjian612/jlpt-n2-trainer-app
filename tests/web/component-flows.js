@@ -24,7 +24,7 @@ async function main() {
       await page.waitForSelector('[data-testid^="official-open-deck-"]');
 
       assert.equal(await page.locator('[data-testid="official-filter-reading"]').count(), 1);
-      assert.equal(await page.locator('[data-testid^="official-open-deck-"]').count(), 3);
+      assert.equal(await page.locator('[data-testid^="official-open-deck-"]').count(), 6);
 
       const firstDeck = page.locator('[data-testid^="official-open-deck-"]').first();
       await firstDeck.click();

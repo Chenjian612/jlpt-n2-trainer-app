@@ -4,7 +4,7 @@ async function main() {
   await runCase('dashboard-review-e2e', async () => {
     await withPage(
       'dashboard-review-e2e',
-      buildState({ wrongAnswers: [buildWrongAnswerItem({ wrongCount: 3 })] }),
+      buildState({ wrongAnswers: [buildWrongAnswerItem({ wrongCount: 3, leitnerBox: 4 })] }),
       async (page, assert) => {
         const beforeHeadline = await page.locator('[data-testid="dashboard-hero-headline"]').textContent();
         const beforeBody = await page.locator('[data-testid="dashboard-hero-body"]').textContent();
@@ -27,6 +27,11 @@ async function main() {
         assert.equal((afterHeadline || '').includes('2'), true);
         assert.equal(afterHeadline === beforeHeadline, false);
         assert.equal((afterBody || '').length > 0, true);
+        await page.waitForFunction(() => {
+          const state = JSON.parse(localStorage.getItem('jlpt-n2-trainer-state-v1'));
+          const item = state?.wrongAnswers.find((entry) => entry.questionId === 'grammar-q1');
+          return item?.leitnerBox === 5 && item.mastered === true;
+        });
       },
     );
   });

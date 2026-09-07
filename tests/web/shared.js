@@ -46,13 +46,21 @@ async function runCase(name, fn) {
 }
 
 async function withPage(name, state, fn) {
-  const { browser, page } = await createPage(state);
+  const { browser, context, page } = await createPage(state);
+  const diagnostics = [];
+  page.on('pageerror', (error) => diagnostics.push(error.stack || error.message));
+  page.on('console', (message) => {
+    if (message.type() === 'error') diagnostics.push(message.text());
+  });
+  await context.tracing.start({ screenshots: true, snapshots: true });
   try {
     await openApp(page);
     await fn(page, assert);
   } catch (error) {
     const file = path.join(ARTIFACT_DIR, `${name}.png`);
     await page.screenshot({ path: file, fullPage: true }).catch(() => {});
+    fs.writeFileSync(path.join(ARTIFACT_DIR, `${name}.log`), [error.stack, ...diagnostics].join('\n'));
+    await context.tracing.stop({ path: path.join(ARTIFACT_DIR, `${name}.zip`) }).catch(() => {});
     throw error;
   } finally {
     await browser.close();
@@ -76,6 +84,8 @@ function buildWrongAnswerItem(overrides = {}) {
     lastWrongAt: '2026-03-19T09:00:00.000Z',
     lastUserChoice: 1,
     mastered: false,
+    leitnerBox: 1,
+    nextReviewAt: '2026-03-19',
     errorTypes: ['grammar_constraint'],
     ...overrides,
   };

@@ -224,7 +224,7 @@ export function ListeningSessionScreen({
   };
 
   const handleSubmit = () => {
-    if (selectedChoice === null || submitted || !hasPlayedCurrent) {
+    if (selectedChoice === null || submitted || submitDisabled) {
       return;
     }
 
@@ -726,7 +726,7 @@ export function ListeningSessionScreen({
                     ? currentIndex === listeningItems.length - 1
                       ? '完成并记录'
                       : '下一题'
-                    : hasPlayedCurrent
+                    : isInstantReply || hasPlayedCurrent
                       ? '提交答案'
                       : '请先播放音频'}
                 </Text>
@@ -1350,7 +1350,6 @@ const styles = StyleSheet.create({
     fontFamily: fonts.body,
   },
 });
-
 
 
 

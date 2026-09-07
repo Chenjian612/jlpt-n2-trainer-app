@@ -52,7 +52,7 @@
 - 听力案例：23 条，共 26 题，其中 5 条配有本地官方 MP3
 - 官方词卡：120 张
 
-截至 2026-08-27，项目整体约完成 85%，`M0：可用`、`M1：有效` 已完成，`M2：可信` 正在进行真实使用与发布前验收。最新状态见 [开发现状报告](./STATUS-2026-08-27.md)。
+截至 2026-09-07，`M0：可用`、`M1：有效` 已完成，`M2：可信` 正在进行真实使用与发布前验收。文法/词汇错题已具备基础 Leitner 间隔复习，跨模式统一调度待完善。最新状态见 [开发现状报告](./STATUS-2026-09-07.md)。
 
 ## 维护说明
 
@@ -60,10 +60,24 @@
 
 ```bash
 npm test
+npm run typecheck
 npm run test:ai
 npm run ai:evaluate
 npm run ai:dev
 ```
+
+GitHub Actions 配置见 [CI 工作流](./.github/workflows/ci.yml)，在 push、pull request 和手动触发时运行 Node/TypeScript、Python、Chromium 三个检查。无需模型密钥。远端首轮结果需在推送后确认。
+
+本地复现浏览器 CI：
+
+```bash
+npm ci
+npx playwright install chromium
+npm run build:web:test
+npm run test:web
+```
+
+测试构建禁用 `.env.local` 加载，输出到 `output/web-ci/`。浏览器 runner 自动启动本地服务器、运行三组脚本并关闭服务器；失败截图、日志和 trace 保存在 `output/playwright/`，CI 会上传供排查。Linux 安装浏览器时使用 `npx playwright install --with-deps chromium`。
 
 错题讲解默认使用 App 内置的本地结构化知识库，不配置 API Key 也能运行。需要通过 FastAPI 服务调用时，在 `.env.local` 中设置：
 
@@ -90,7 +104,7 @@ EXPO_PUBLIC_AI_SERVICE_URL=http://localhost:8000
 - [部署说明](./DEPLOYMENT.md)
 - [Codex 指令](./CODEX-INSTRUCTIONS.md)
 - [内容进度](./CONTENT-PROGRESS.md)
-- [最新开发现状](./STATUS-2026-08-27.md)
+- [最新开发现状](./STATUS-2026-09-07.md)
 - [项目历史](./PROJECT_HISTORY.md)
 - [路线图](./ROADMAP.md)
 - [AI RAG 学习平台方案](./AI-RAG-LEARNING-PLAN.md)
