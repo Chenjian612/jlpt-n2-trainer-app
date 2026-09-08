@@ -1,10 +1,11 @@
 ﻿import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import type { DashboardMetrics, RecentDay } from '../../../domain/models/progress';
+import type { DashboardMetrics, LearningEffectivenessSnapshot, RecentDay } from '../../../domain/models/progress';
 import { colors, fonts, radii, shadows } from '../../../theme/tokens';
 
 type WeeklyRhythmCardProps = {
   metrics: DashboardMetrics;
+  effectiveness: LearningEffectivenessSnapshot;
   weeklyGoal: number;
   weeklyProgress: number;
   recentWeek: RecentDay[];
@@ -15,6 +16,7 @@ type WeeklyRhythmCardProps = {
 
 export function WeeklyRhythmCard({
   metrics,
+  effectiveness,
   weeklyGoal,
   weeklyProgress,
   recentWeek,
@@ -136,9 +138,26 @@ export function WeeklyRhythmCard({
             />
           </View>
         </View>
+
+        <View testID="learning-effectiveness" style={styles.effectivenessSection}>
+          <Text style={styles.distTitle}>学习效果信号</Text>
+          <Text style={styles.effectivenessCaption}>
+            用错误是否重复、复习是否晋级来判断训练有没有产生效果。
+          </Text>
+          <View style={styles.effectivenessGrid}>
+            <EffectivenessMetric label="待复习" value={`${effectiveness.dueReviewCount}`} />
+            <EffectivenessMetric label="重复错误" value={`${effectiveness.repeatErrorCount}`} />
+            <EffectivenessMetric label="已晋级" value={`${effectiveness.spacedProgressCount}`} />
+            <EffectivenessMetric label="迁移正确率" value={effectiveness.transferAccuracy === null ? '—' : `${Math.round(effectiveness.transferAccuracy * 100)}%`} />
+          </View>
+        </View>
       </View>
     </View>
   );
+}
+
+function EffectivenessMetric({ label, value }: { label: string; value: string }) {
+  return <View style={styles.effectivenessMetric}><Text style={styles.effectivenessLabel}>{label}</Text><Text style={styles.effectivenessValue}>{value}</Text></View>;
 }
 
 function DistRow({
@@ -371,6 +390,44 @@ const styles = StyleSheet.create({
     textAlign: 'right',
     fontSize: 13,
     color: colors.inkStrong,
+    fontWeight: '800',
+    fontFamily: fonts.title,
+  },
+  effectivenessSection: {
+    gap: 8,
+    borderTopWidth: 1,
+    borderTopColor: colors.lineSoft,
+    paddingTop: 16,
+  },
+  effectivenessCaption: {
+    color: colors.inkMuted,
+    fontSize: 13,
+    lineHeight: 19,
+    fontFamily: fonts.body,
+  },
+  effectivenessGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  effectivenessMetric: {
+    minWidth: '22%',
+    flex: 1,
+    borderRadius: radii.md,
+    backgroundColor: colors.mist,
+    paddingHorizontal: 10,
+    paddingVertical: 10,
+    gap: 4,
+  },
+  effectivenessLabel: {
+    color: colors.inkMuted,
+    fontSize: 11,
+    fontWeight: '700',
+    fontFamily: fonts.body,
+  },
+  effectivenessValue: {
+    color: colors.inkStrong,
+    fontSize: 16,
     fontWeight: '800',
     fontFamily: fonts.title,
   },

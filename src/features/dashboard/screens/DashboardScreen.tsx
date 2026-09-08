@@ -58,6 +58,7 @@ export function DashboardScreen({
     recentWeek,
     todayPlan,
     reviewTasks,
+    effectiveness,
     todayCompletedModeIds,
     todaySessionCounts,
     reviewBacklogCounts,
@@ -179,6 +180,7 @@ export function DashboardScreen({
             <Animated.View style={createEntranceStyle(weekEntrance)}>
               <WeeklyRhythmCard
                 metrics={metrics}
+                effectiveness={effectiveness}
                 weeklyGoal={weeklyGoal}
                 weeklyProgress={weeklyProgress}
                 recentWeek={recentWeek}

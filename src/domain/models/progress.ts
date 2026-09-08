@@ -142,3 +142,13 @@ export type DashboardWeaknessSnapshot = {
   crossModuleSummary: CrossModuleWeaknessSummary;
   recommendedModeId?: TrainingModeId;
 };
+
+export type LearningEffectivenessSnapshot = {
+  dueReviewCount: number;
+  repeatErrorCount: number;
+  spacedProgressCount: number;
+  transferAttempts: number;
+  transferAccuracy: number | null;
+  sessionsLast7Days: number;
+  activeDaysLast7Days: number;
+};

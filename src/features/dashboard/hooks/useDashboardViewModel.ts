@@ -18,6 +18,7 @@ import {
 } from '../../../domain/services/progressService';
 import { APP_CONFIG } from '../../../config/constants';
 import { getReviewTasks } from '../../../domain/services/reviewScheduleService';
+import { getLearningEffectiveness } from '../../../domain/services/effectivenessService';
 
 export function useDashboardViewModel() {
   const { state, todayKey, clearToday, setWeeklyGoal } = useProgressStore();
@@ -28,6 +29,7 @@ export function useDashboardViewModel() {
   const metrics = getDashboardMetrics(state, todayKey);
   const now = new Date();
   const reviewTasks = getReviewTasks(state, now);
+  const effectiveness = getLearningEffectiveness(state, todayKey, now);
   const todayPlan = getTodayPlan(TRAINING_MODES, state, todayKey, now);
   const recentWeek = buildRecentWeek(state, todayKey);
 
@@ -58,6 +60,7 @@ export function useDashboardViewModel() {
     recentWeek,
     todayPlan,
     reviewTasks,
+    effectiveness,
     todayCompletedModeIds,
     todaySessionCounts,
     reviewBacklogCounts,
