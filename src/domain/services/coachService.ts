@@ -23,6 +23,7 @@ import {
 } from './progressService';
 import { WEAKNESS_ERROR_META } from './wrongAnswerClassifier';
 import { APP_CONFIG } from '../../config/constants';
+import { getReviewTasks } from './reviewScheduleService';
 
 const REVIEW_MODE_LABEL: Record<TrainingModeId, string> = {
   grammar_drill: '文法闯关',
@@ -274,105 +275,20 @@ const buildPlanSteps = (focusItems: WeaknessFocusItem[]): CoachPlanStep[] => {
 };
 
 export const getGeneratedDailyPlan = (
-  state: ProgressState,
-  date: string,
+  state: ProgressState, date: string, now: Date = new Date(),
 ): GeneratedDailyPlan => {
-  const items: DailyStudyItem[] = [];
-
-  const grammarBacklog = state.wrongAnswers.filter(
-    (w) => !w.mastered && w.modeId === 'grammar_drill',
-  );
-  const vocabBacklog = state.wrongAnswers.filter(
-    (w) => !w.mastered && w.modeId === 'vocab_drill',
-  );
-  const activeSignals = state.weaknessSignals.filter((s) => s.active);
-  const activeStudyWeaknesses = state.studyWeaknesses.filter((s) => s.active);
-
-  if (grammarBacklog.length > 0) {
-    items.push({
-      modeId: 'review_wrong',
-      reason: `文法错题队列有 ${grammarBacklog.length} 题待回收`,
-      priority: grammarBacklog.length >= APP_CONFIG.REVIEW_BATCH_SIZE ? 'urgent' : 'normal',
-      estimatedMinutes: 10,
-    });
-  }
-
-  if (vocabBacklog.length > 0) {
-    items.push({
-      modeId: 'vocab_review_wrong',
-      reason: `词汇错题队列有 ${vocabBacklog.length} 题待回收`,
-      priority: vocabBacklog.length >= APP_CONFIG.REVIEW_BATCH_SIZE ? 'urgent' : 'normal',
-      estimatedMinutes: 10,
-    });
-  }
-
-  if (activeSignals.length > 0) {
-    const readingSignals = activeSignals.filter((s) => s.modeId === 'reading_drill');
-    const listeningSignals = activeSignals.filter((s) => s.modeId === 'listening_analyze');
-
-    if (readingSignals.length > 0) {
-      items.push({
-        modeId: 'reading_drill',
-        reason: `读解弱项 ${readingSignals.length} 个待巩固`,
-        priority: 'normal',
-        estimatedMinutes: 20,
-      });
-    }
-
-    if (listeningSignals.length > 0) {
-      items.push({
-        modeId: 'listening_analyze',
-        reason: `听力弱项 ${listeningSignals.length} 个待巩固`,
-        priority: 'normal',
-        estimatedMinutes: 20,
-      });
-    }
-  }
-
-  if (activeStudyWeaknesses.length > 0) {
-    const grammarStudyWeak = activeStudyWeaknesses.filter(
-      (s) => s.modeId === 'grammar_study',
-    );
-    const vocabStudyWeak = activeStudyWeaknesses.filter(
-      (s) => s.modeId === 'vocab_study',
-    );
-
-    if (grammarStudyWeak.length > 0) {
-      items.push({
-        modeId: 'grammar_study',
-        reason: `文法记忆包有 ${grammarStudyWeak.length} 个不稳定项`,
-        priority: 'normal',
-        estimatedMinutes: 10,
-      });
-    }
-
-    if (vocabStudyWeak.length > 0) {
-      items.push({
-        modeId: 'vocab_study',
-        reason: `词汇记忆包有 ${vocabStudyWeak.length} 个不稳定项`,
-        priority: 'normal',
-        estimatedMinutes: 10,
-      });
-    }
-  }
-
+  const items: DailyStudyItem[] = getReviewTasks(state, now).map((task) => ({
+    modeId: task.modeId,
+    reason: task.reason,
+    priority: task.overdueCount > 0 ? 'urgent' : 'normal',
+    estimatedMinutes: task.modeId === 'reading_drill' || task.modeId === 'listening_analyze' ? 20 : 10,
+  }));
   if (items.length === 0) {
     items.push(
-      {
-        modeId: 'grammar_drill',
-        reason: '文法题库还有未刷完的内容',
-        priority: 'normal',
-        estimatedMinutes: 15,
-      },
-      {
-        modeId: 'vocab_drill',
-        reason: '词汇题库还有未刷完的内容',
-        priority: 'normal',
-        estimatedMinutes: 15,
-      },
+      { modeId: 'grammar_drill', reason: '当前没有到期弱项，继续一轮文法训练', priority: 'normal', estimatedMinutes: 15 },
+      { modeId: 'vocab_drill', reason: '当前没有到期弱项，继续一轮词汇训练', priority: 'normal', estimatedMinutes: 15 },
     );
   }
-
   return { date, items, generatedBy: 'local' };
 };
 
@@ -434,18 +350,23 @@ const computeTrendsForTypes = (
 export const getDashboardWeaknessSnapshot = (
   state: ProgressState,
   todayKey: string,
+  now: Date = new Date(),
 ): DashboardWeaknessSnapshot => {
+  const tasks = getReviewTasks(state, now);
+  const dueIds = new Set(tasks.flatMap((task) => task.itemIds));
   const focusItems = aggregateWeaknesses(
-    state.wrongAnswers,
-    state.weaknessSignals,
-    state.studyWeaknesses,
+    state.wrongAnswers.filter((item) => dueIds.has(item.questionId)),
+    state.weaknessSignals.filter((item) => dueIds.has(item.questionId)),
+    state.studyWeaknesses.filter((item) => dueIds.has(item.id)),
   );
   const crossModuleSummary = getCrossModuleWeaknessSummary(state);
 
   if (focusItems.length === 0) {
     return {
-      headline: '当前没有积压的高频错误',
-      body: '错题队列和训练弱项都比较干净，现在更适合继续推新内容；等出现重复错误后，再按类型集中回收。',
+      headline: '当前没有到期的复习弱项',
+      body: crossModuleSummary.activeItemCount > 0
+        ? '仍有未稳项正在等待复习日期或冷却结束，当前可以继续新训练。'
+        : '当前没有待回收弱项，可以继续新训练。',
       focusItems: [],
       planSteps: buildNeutralPlan(),
       crossModuleSummary,

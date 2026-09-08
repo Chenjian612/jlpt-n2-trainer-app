@@ -2,10 +2,12 @@
 
 import type { DashboardInsight } from '../../../domain/models/progress';
 import type { TrainingMode } from '../../../domain/models/training';
+import type { ReviewTask } from '../../../domain/services/reviewScheduleService';
 import { colors, fonts, radii, shadows } from '../../../theme/tokens';
 
 type TodayPlanCardProps = {
   todayPlan: TrainingMode[];
+  reviewTasks: ReviewTask[];
   recommendedMode: TrainingMode | null;
   insight: DashboardInsight;
   onOpenMode: (mode: TrainingMode) => void;
@@ -14,6 +16,7 @@ type TodayPlanCardProps = {
 
 export function TodayPlanCard({
   todayPlan,
+  reviewTasks,
   recommendedMode,
   insight,
   onOpenMode,
@@ -24,7 +27,11 @@ export function TodayPlanCard({
       <View style={styles.sectionHeader}>
         <View style={styles.sectionTitleBlock}>
           <Text style={styles.sectionTitle}>今日计划</Text>
-          <Text style={styles.sectionCaption}>把今天最值得做的三轮先排清楚。</Text>
+          <Text testID="today-review-count" style={styles.sectionCaption}>
+            {reviewTasks.length > 0
+              ? `当前 ${reviewTasks.reduce((sum, task) => sum + task.count, 0)} 项待复习，优先处理等待最久的弱项。`
+              : '当前没有到期弱项，按顺序安排新的训练。'}
+          </Text>
         </View>
         <View style={styles.headerMetaRow}>
           <View style={styles.headerPill}>
@@ -47,14 +54,14 @@ export function TodayPlanCard({
               <Text style={styles.recommendMode}>{recommendedMode.title}</Text>
             </View>
             <Text style={styles.recommendBody}>{insight.body}</Text>
-            <Text style={styles.recommendAction}>进入这一模式</Text>
+            <Text style={styles.recommendAction}>开始这一轮</Text>
           </Pressable>
         ) : null}
 
         <Text style={styles.planLead}>
           {todayPlan.length === 0
-            ? '今天的推荐已经完成。现在最适合转去错题回收，或者补一轮听力、读解来扩大收益。'
-            : '先按推荐顺序推进，优先完成最短、最稳、最容易拿到反馈的几轮训练。'}
+            ? '今天的推荐已经完成，可以休息，也可以自由选择训练。'
+            : '先处理待复习内容，再补新训练；完成一轮后，计划会根据剩余弱项更新。'}
         </Text>
 
         {todayPlan.length === 0 ? (
@@ -65,6 +72,7 @@ export function TodayPlanCard({
           todayPlan.map((mode, index) => (
             <Pressable
               key={mode.id}
+              testID={`today-plan-start-${mode.id}`}
               onPress={() => onOpenMode(mode)}
               style={styles.planRow}
             >
@@ -76,11 +84,11 @@ export function TodayPlanCard({
               <View style={styles.planCopy}>
                 <Text style={styles.planTitle}>{mode.title}</Text>
                 <Text style={styles.planMeta}>
-                  {mode.durationLabel} · {mode.focus}
+                  {reviewTasks.find((task) => task.modeId === mode.id)?.reason ?? `${mode.durationLabel} · ${mode.focus}`}
                 </Text>
               </View>
               <View style={styles.planActionPill}>
-                <Text style={styles.planAction}>查看</Text>
+                <Text style={styles.planAction}>开始</Text>
               </View>
             </Pressable>
           ))

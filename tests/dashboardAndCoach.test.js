@@ -155,7 +155,7 @@ module.exports = {
           ],
         };
 
-        const insight = getDashboardInsight(state, '2026-03-19', 14, TRAINING_MODES);
+        const insight = getDashboardInsight(state, '2026-03-19', 14, getTodayPlan(TRAINING_MODES, state, '2026-03-19'));
         assert.equal(insight.battleState, 'recovering');
         assert.equal(insight.tone, 'review');
       },

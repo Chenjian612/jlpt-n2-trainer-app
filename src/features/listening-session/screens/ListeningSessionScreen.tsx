@@ -15,6 +15,7 @@ import { getListeningCasesByMode } from '../../../data/seed/listeningCases';
 import { getTrainingModeById } from '../../../data/seed/trainingModes';
 import type { ListeningModeId } from '../../../domain/models/training';
 import { getModeSessionCountForDay } from '../../../domain/services/progressService';
+import { prioritizeListeningReviewCases } from '../../../domain/services/reviewScheduleService';
 import { inferListeningWeaknessErrorTypes, WEAKNESS_ERROR_META } from '../../../domain/services/wrongAnswerClassifier';
 import { colors, fonts, radii, shadows } from '../../../theme/tokens';
 import { withKana } from '../../../utils/withKana';
@@ -50,7 +51,7 @@ export function ListeningSessionScreen({
   const { width } = useWindowDimensions();
   const isWideLayout = width >= 1040;
   const mode = getTrainingModeById(modeId);
-  const cases = getListeningCasesByMode(modeId);
+  const [cases] = useState(() => prioritizeListeningReviewCases(getListeningCasesByMode(modeId), state));
 
   if (!mode || cases.length === 0) {
     return (
@@ -1350,7 +1351,6 @@ const styles = StyleSheet.create({
     fontFamily: fonts.body,
   },
 });
-
 
 
 

@@ -57,6 +57,7 @@ export function DashboardScreen({
     metrics,
     recentWeek,
     todayPlan,
+    reviewTasks,
     todayCompletedModeIds,
     todaySessionCounts,
     reviewBacklogCounts,
@@ -156,9 +157,10 @@ export function DashboardScreen({
             <Animated.View style={createEntranceStyle(planEntrance)}>
               <TodayPlanCard
                 todayPlan={todayPlan}
+                reviewTasks={reviewTasks}
                 recommendedMode={recommendedMode}
                 insight={insight}
-                onOpenMode={onOpenMode}
+                onOpenMode={onStartMode}
                 onClearToday={clearToday}
               />
             </Animated.View>

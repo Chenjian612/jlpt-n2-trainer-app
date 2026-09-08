@@ -17,6 +17,7 @@ import {
 import { getTrainingModeById } from '../../../data/seed/trainingModes';
 import type { ReadingModeId } from '../../../domain/models/training';
 import { getModeSessionCountForDay } from '../../../domain/services/progressService';
+import { selectReadingReviewPassage } from '../../../domain/services/reviewScheduleService';
 import { inferReadingWeaknessErrorTypes, WEAKNESS_ERROR_META } from '../../../domain/services/wrongAnswerClassifier';
 import { colors, fonts, radii, shadows } from '../../../theme/tokens';
 import { withKana } from '../../../utils/withKana';
@@ -40,7 +41,9 @@ export function ReadingSessionScreen({
   const mode = getTrainingModeById(modeId);
   const initialSessionCount = getModeSessionCountForDay(state, todayKey, modeId);
   const readingPassages = getReadingPassagesByMode(modeId);
-  const passage = getReadingPassageForSession(modeId, initialSessionCount);
+  const [passage] = useState(() => selectReadingReviewPassage(
+    readingPassages, state, getReadingPassageForSession(modeId, initialSessionCount),
+  ));
 
   if (!mode || !passage || passage.questions.length === 0) {
     return (
@@ -213,7 +216,7 @@ export function ReadingSessionScreen({
 
         {result ? (
           <View style={[styles.sectionCard, styles.resultCard, shadows.card]}>
-            <Text style={styles.sectionTitle}>本轮读解完成</Text>
+            <Text testID="reading-result-title" style={styles.sectionTitle}>本轮读解完成</Text>
             <Text style={styles.sectionBody}>
               本轮结果已经写入今日进度。你共答对 {result.correctCount} 题，答错 {result.wrongCount} 题；今天这个模式累计完成 {result.recordedSessionCount} 轮。
             </Text>
@@ -250,6 +253,7 @@ export function ReadingSessionScreen({
             </View>
 
             <Pressable
+              testID="reading-back-dashboard"
               onPress={onBackToDashboard}
               style={[styles.primaryButton, { backgroundColor: mode.accent }]}
             >
@@ -263,7 +267,7 @@ export function ReadingSessionScreen({
         ) : (
           <>
             <View style={styles.passagesCard}>
-              <Text style={styles.sectionTitle}>{passage.title}</Text>
+              <Text testID="reading-passage-title" style={styles.sectionTitle}>{passage.title}</Text>
               <Text style={styles.leadText}>{passage.lead}</Text>
 
               <View style={styles.passageList}>
@@ -312,6 +316,7 @@ export function ReadingSessionScreen({
                     <Pressable
                       key={choice}
                       onPress={() => !submitted && setSelectedChoice(index)}
+                      testID={`reading-choice-${index}`}
                       style={[
                         styles.choiceButton,
                         isSelected && styles.choiceButtonSelected,
@@ -415,6 +420,7 @@ export function ReadingSessionScreen({
               <View style={styles.footerActions}>
               <Pressable
                 onPress={submitted ? handleNext : handleSubmit}
+                testID={submitted ? 'reading-next' : 'reading-submit'}
                 disabled={!submitted && selectedChoice === null}
                 style={[
                   styles.primaryButton,
@@ -835,7 +841,5 @@ const styles = StyleSheet.create({
     fontFamily: fonts.body,
   },
 });
-
-
 
 

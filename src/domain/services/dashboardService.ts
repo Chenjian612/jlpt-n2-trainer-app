@@ -13,6 +13,7 @@ import {
   getWrongReviewBacklogCount,
 } from './progressService';
 import { APP_CONFIG } from '../../config/constants';
+import { getReviewTasks } from './reviewScheduleService';
 import { addDays, diffInDays, getDayKey, parseDayKey } from '../../utils/dateUtils';
 
 export const WEEKLY_GOAL_OPTIONS = [10, APP_CONFIG.DEFAULT_WEEKLY_GOAL, 18] as const;
@@ -65,55 +66,26 @@ export const getRecommendedModes = (
   trainingModes: TrainingMode[],
   state: ProgressState,
   todayKey: string,
+  now: Date = new Date(),
 ): TrainingMode[] => {
-  const completedModeIds = new Set(getCompletedModeIdsForDay(state, todayKey));
-  const reviewBacklogCounts = getReviewBacklogCounts(state);
-  const studyBacklogCounts = getStudyBacklogCounts(state);
-
-  const getRecommendationBucket = (modeId: TrainingModeId): number => {
-    if (REVIEW_MODE_IDS.includes(modeId as ReviewModeId)) {
-      return reviewBacklogCounts[modeId as ReviewModeId] > 0 ? 0 : 2;
-    }
-
-    if (modeId === 'grammar_study' || modeId === 'vocab_study') {
-      return studyBacklogCounts[modeId as StudyModeId] > 0 ? 0 : 1;
-    }
-
-    return 1;
-  };
-
+  const completed = new Set(getCompletedModeIdsForDay(state, todayKey));
+  const tasks = getReviewTasks(state, now);
+  const rank = new Map(tasks.map((task, index) => [task.modeId, index]));
   return [...trainingModes]
-    .filter((mode) => !completedModeIds.has(mode.id))
-    .sort((left, right) => {
-      const bucketGap = getRecommendationBucket(left.id) - getRecommendationBucket(right.id);
-      if (bucketGap !== 0) {
-        return bucketGap;
-      }
-
-      const leftBacklog = REVIEW_MODE_IDS.includes(left.id as ReviewModeId)
-        ? reviewBacklogCounts[left.id as ReviewModeId]
-        : (left.id === 'grammar_study' || left.id === 'vocab_study')
-          ? studyBacklogCounts[left.id as StudyModeId]
-          : 0;
-      const rightBacklog = REVIEW_MODE_IDS.includes(right.id as ReviewModeId)
-        ? reviewBacklogCounts[right.id as ReviewModeId]
-        : (right.id === 'grammar_study' || right.id === 'vocab_study')
-          ? studyBacklogCounts[right.id as StudyModeId]
-          : 0;
-
-      if (leftBacklog !== rightBacklog) {
-        return rightBacklog - leftBacklog;
-      }
-
-      return getModeOrderIndex(left.id) - getModeOrderIndex(right.id);
+    // Remaining review work stays available even after a round in that mode.
+    .filter((mode) => rank.has(mode.id) || !completed.has(mode.id))
+    .sort((a, b) => {
+      const aRank = rank.get(a.id);
+      const bRank = rank.get(b.id);
+      if (aRank !== undefined || bRank !== undefined) return (aRank ?? Infinity) - (bRank ?? Infinity);
+      const emptyReviewGap = Number(REVIEW_MODE_IDS.includes(a.id as ReviewModeId)) - Number(REVIEW_MODE_IDS.includes(b.id as ReviewModeId));
+      return emptyReviewGap || getModeOrderIndex(a.id) - getModeOrderIndex(b.id);
     });
 };
 
 export const getTodayPlan = (
-  trainingModes: TrainingMode[],
-  state: ProgressState,
-  todayKey: string,
-): TrainingMode[] => getRecommendedModes(trainingModes, state, todayKey).slice(0, APP_CONFIG.DAILY_RECOMMENDATION_LIMIT);
+  trainingModes: TrainingMode[], state: ProgressState, todayKey: string, now: Date = new Date(),
+): TrainingMode[] => getRecommendedModes(trainingModes, state, todayKey, now).slice(0, APP_CONFIG.DAILY_RECOMMENDATION_LIMIT);
 
 const getActiveDayKeys = (state: ProgressState): string[] =>
   Object.keys(state.sessionsByDay)
@@ -227,6 +199,7 @@ export const getDashboardInsight = (
   todayKey: string,
   weeklyGoal: number,
   todayPlan: TrainingMode[],
+  now: Date = new Date(),
 ): DashboardInsight => {
   const metrics = getDashboardMetrics(state, todayKey);
   const reviewBacklogCounts = getReviewBacklogCounts(state);
@@ -234,11 +207,21 @@ export const getDashboardInsight = (
   const totalReviewBacklog = reviewBacklogCounts.review_wrong + reviewBacklogCounts.vocab_review_wrong;
   const totalStudyBacklog = studyBacklogCounts.grammar_study + studyBacklogCounts.vocab_study;
   const recommendedMode = todayPlan[0] ?? null;
+  const task = getReviewTasks(state, now).find((item) => item.modeId === recommendedMode?.id);
 
-  if (totalReviewBacklog > 0 && recommendedMode) {
+  if (task && (task.modeId === 'reading_drill' || task.modeId === 'listening_analyze')) {
+    return {
+      headline: '先巩固待复习的读解与听力',
+      body: `${task.reason}。进入后优先练习这些弱项对应的材料。`,
+      recommendedModeId: task.modeId,
+      tone: 'review', battleState: 'recovering',
+    };
+  }
+
+  if (totalReviewBacklog > 0 && recommendedMode && task && REVIEW_MODE_IDS.includes(task.modeId as ReviewModeId)) {
     return {
       headline: '先回收错题，再推新内容',
-      body: `当前还有 ${totalReviewBacklog} 题待回收，优先清掉重复错误，再继续做新的训练更划算。`,
+      body: `${task.reason}，先完成这一轮回收，再继续新的训练。`,
       recommendedModeId: recommendedMode.id,
       tone: 'review',
       battleState: 'recovering',
@@ -248,7 +231,7 @@ export const getDashboardInsight = (
   if (totalStudyBacklog > 0 && recommendedMode && (recommendedMode.id === 'grammar_study' || recommendedMode.id === 'vocab_study')) {
     return {
       headline: '重点攻克不稳的记忆项',
-      body: `学习包里还有 ${totalStudyBacklog} 个标记为“不稳”的项，建议先回看这些项，再开启新阶段。`,
+      body: `${task?.reason ?? `学习包里还有 ${totalStudyBacklog} 个不稳项`}，先回看这些项，再开启新阶段。`,
       recommendedModeId: recommendedMode.id,
       tone: 'review',
       battleState: 'recovering',
@@ -315,5 +298,3 @@ export const buildRecentWeek = (
     };
   });
 };
-
-

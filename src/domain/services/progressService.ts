@@ -89,13 +89,13 @@ function advanceLeitner(item: WrongAnswerItem, correct: boolean, now: Date): Wro
     const nextReviewAt =
       intervalDays === Infinity
         ? '9999-12-31'
-        : addDays(now, intervalDays).toISOString().slice(0, 10);
+        : getDayKey(addDays(now, intervalDays));
     return { ...item, leitnerBox: nextBox, nextReviewAt, mastered: nextBox === 5 };
   } else {
     return {
       ...item,
       leitnerBox: 1,
-      nextReviewAt: addDays(now, 1).toISOString().slice(0, 10),
+      nextReviewAt: getDayKey(addDays(now, 1)),
       mastered: false,
     };
   }
@@ -305,7 +305,7 @@ const normalizeWrongAnswer = (value: unknown): WrongAnswerItem | null => {
     mastered: Boolean(parsed.mastered),
     errorTypes: normalizeWrongAnswerErrorTypes(parsed.errorTypes, parsed.modeId as DrillModeId, tags),
     leitnerBox: typeof parsed.leitnerBox === 'number' && parsed.leitnerBox >= 1 && parsed.leitnerBox <= 5 ? Math.round(parsed.leitnerBox) : 1,
-    nextReviewAt: typeof parsed.nextReviewAt === 'string' && parsed.nextReviewAt.length > 0 ? parsed.nextReviewAt : new Date().toISOString().slice(0, 10),
+    nextReviewAt: typeof parsed.nextReviewAt === 'string' && parsed.nextReviewAt.length > 0 ? parsed.nextReviewAt.slice(0, 10) : getDayKey(),
   };
 };
 
@@ -582,12 +582,12 @@ export const getActiveWrongAnswersForMode = (state: ProgressState, modeId: Drill
   sortWrongAnswers(state.wrongAnswers.filter((item) => item.modeId === modeId && !item.mastered));
 
 export const getDueWrongAnswersForMode = (state: ProgressState, modeId: DrillModeId, referenceDate: Date = new Date()): WrongAnswerItem[] => {
-  const todayKey = referenceDate.toISOString().slice(0, 10);
+  const todayKey = getDayKey(referenceDate);
   return sortWrongAnswers(
     state.wrongAnswers.filter(
       (item) => {
         const nextReviewAt = typeof item.nextReviewAt === 'string' && item.nextReviewAt.length > 0
-          ? item.nextReviewAt
+          ? item.nextReviewAt.slice(0, 10)
           : todayKey;
         return item.modeId === modeId && !item.mastered && nextReviewAt <= todayKey;
       },
@@ -661,7 +661,7 @@ export const recordWrongAnswers = (state: ProgressState, wrongAnswers: WrongAnsw
         mastered: false,
         errorTypes: inferWrongAnswerErrorTypes(draft.question.modeId, draft.question.tags),
         leitnerBox: 1,
-        nextReviewAt: recordedAt.toISOString().slice(0, 10),
+        nextReviewAt: getDayKey(recordedAt),
       });
     } else {
       const existing = nextWrongAnswers[idx];

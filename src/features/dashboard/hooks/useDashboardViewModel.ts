@@ -17,6 +17,7 @@ import {
   getWrongReviewBacklogCount,
 } from '../../../domain/services/progressService';
 import { APP_CONFIG } from '../../../config/constants';
+import { getReviewTasks } from '../../../domain/services/reviewScheduleService';
 
 export function useDashboardViewModel() {
   const { state, todayKey, clearToday, setWeeklyGoal } = useProgressStore();
@@ -25,7 +26,9 @@ export function useDashboardViewModel() {
   const todayCompletedModeIds = getCompletedModeIdsForDay(state, todayKey);
 
   const metrics = getDashboardMetrics(state, todayKey);
-  const todayPlan = getTodayPlan(TRAINING_MODES, state, todayKey);
+  const now = new Date();
+  const reviewTasks = getReviewTasks(state, now);
+  const todayPlan = getTodayPlan(TRAINING_MODES, state, todayKey, now);
   const recentWeek = buildRecentWeek(state, todayKey);
 
   const todaySessionCounts = todaySessions.reduce<Partial<Record<string, number>>>((counts, session) => {
@@ -38,14 +41,14 @@ export function useDashboardViewModel() {
     vocab_review_wrong: getWrongReviewBacklogCount(state, 'vocab_review_wrong'),
   };
 
-  const insight = getDashboardInsight(state, todayKey, state.weeklyGoal, todayPlan);
+  const insight = getDashboardInsight(state, todayKey, state.weeklyGoal, todayPlan, now);
 
   const recommendedMode =
     todayPlan.find((mode) => mode.id === insight.recommendedModeId) ??
     todayPlan[0] ??
     null;
 
-  const weaknessSnapshot = getDashboardWeaknessSnapshot(state, todayKey);
+  const weaknessSnapshot = getDashboardWeaknessSnapshot(state, todayKey, now);
 
   const weaknessRecommendedMode =
     TRAINING_MODES.find((mode) => mode.id === weaknessSnapshot.recommendedModeId) ?? null;
@@ -54,6 +57,7 @@ export function useDashboardViewModel() {
     metrics,
     recentWeek,
     todayPlan,
+    reviewTasks,
     todayCompletedModeIds,
     todaySessionCounts,
     reviewBacklogCounts,

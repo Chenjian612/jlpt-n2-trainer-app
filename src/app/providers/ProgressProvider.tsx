@@ -8,6 +8,7 @@ import {
   useState,
 } from 'react';
 
+import { AppState } from 'react-native';
 import { progressRepository } from '../../data/repositories/progressRepository';
 import type { AiWrongAnswerExplanation, ProgressState } from '../../domain/models/progress';
 import type {
@@ -86,10 +87,20 @@ type ProgressProviderProps = {
 };
 
 export function ProgressProvider({ children }: ProgressProviderProps) {
-  const todayKey = getDayKey(new Date());
+  const [clock, setClock] = useState(() => new Date());
+  const todayKey = getDayKey(clock);
   const [state, setState] = useState<ProgressState>(createDefaultProgressState);
   const [isHydrated, setIsHydrated] = useState(false);
   const hasLoadedRef = useRef(false);
+
+  useEffect(() => {
+    const refresh = () => setClock(new Date());
+    const timer = setInterval(refresh, 30000);
+    const subscription = AppState.addEventListener('change', (status) => {
+      if (status === 'active') refresh();
+    });
+    return () => { clearInterval(timer); subscription.remove(); };
+  }, []);
 
   useEffect(() => {
     let isMounted = true;
@@ -197,7 +208,7 @@ export function ProgressProvider({ children }: ProgressProviderProps) {
         setState((current) => recordTransferResult(current, result));
       },
     }),
-    [isHydrated, state, todayKey],
+    [isHydrated, state, todayKey, clock],
   );
 
   return (

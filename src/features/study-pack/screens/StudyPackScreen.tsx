@@ -45,7 +45,7 @@ export function StudyPackScreen({
   const mode = getTrainingModeById(modeId);
   const initialSessionCount = getModeSessionCountForDay(state, todayKey, modeId);
   
-  const pack = useMemo(() => {
+  const [pack] = useState(() => {
     const basePack = getStudyPackByMode(modeId, initialSessionCount);
     if (!basePack) return null;
 
@@ -75,7 +75,7 @@ export function StudyPackScreen({
       ...basePack,
       items: [...weaknessItems, ...baseItems],
     };
-  }, [modeId, initialSessionCount, state]);
+  });
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [revealed, setRevealed] = useState(false);

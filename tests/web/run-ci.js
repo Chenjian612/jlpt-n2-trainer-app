@@ -42,7 +42,7 @@ async function main() {
   });
   try {
     const baseUrl = `http://127.0.0.1:${server.address().port}`;
-    for (const suite of ['component-flows.js', 'dashboard-e2e.js', 'listening-flow.js']) await runSuite(suite, baseUrl);
+    for (const suite of ['component-flows.js', 'dashboard-e2e.js', 'review-schedule.js', 'listening-flow.js']) await runSuite(suite, baseUrl);
   } finally {
     server.close();
     server.closeAllConnections();
