@@ -98,6 +98,8 @@ export type WeaknessSignalItem = {
   lastWrongAt: string;
   lastResolvedAt?: string;
   active: boolean;
+  reviewBox?: number;
+  nextReviewAt?: string;
   errorTypes: WeaknessErrorType[];
 };
 
@@ -141,6 +143,8 @@ export type StudyWeaknessItem = {
   lastUnstableAt: string;
   lastResolvedAt?: string;
   active: boolean;
+  reviewBox?: number;
+  nextReviewAt?: string;
 };
 
 export type StudyPack = {
@@ -235,4 +239,3 @@ export type ListeningCase = {
   dialogue: ListeningDialogueLine[];
   questions: ListeningQuestion[];
 };
-

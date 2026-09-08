@@ -82,6 +82,25 @@ const SESSION_KIND_BY_MODE: Record<TrainingModeId, TrainingSessionKind> = {
 
 const LEITNER_INTERVALS = [1, 2, 4, 8, Infinity] as const;
 
+const advanceTimedReview = (
+  box: number,
+  correct: boolean,
+  now: Date,
+): { reviewBox: number; nextReviewAt: string; active: boolean } => {
+  const nextBox = correct ? Math.min(Math.max(box, 1) + 1, 5) : 1;
+  const interval = LEITNER_INTERVALS[nextBox - 1];
+  return {
+    reviewBox: nextBox,
+    nextReviewAt: interval === Infinity ? '9999-12-31T00:00:00.000Z' : addDays(now, interval).toISOString(),
+    active: nextBox < 5,
+  };
+};
+
+const isTimedReviewDue = (nextReviewAt: string | undefined, referenceDate: Date, fallbackAt: string): boolean => {
+  const dueAt = new Date(nextReviewAt ?? fallbackAt);
+  return Number.isNaN(dueAt.getTime()) || dueAt <= referenceDate;
+};
+
 function advanceLeitner(item: WrongAnswerItem, correct: boolean, now: Date): WrongAnswerItem {
   if (correct) {
     const nextBox = Math.min(item.leitnerBox + 1, 5);
@@ -356,6 +375,8 @@ const normalizeWeaknessSignal = (value: unknown): WeaknessSignalItem | null => {
     lastWrongAt: typeof parsed.lastWrongAt === 'string' && parsed.lastWrongAt.length > 0 ? parsed.lastWrongAt : new Date().toISOString(),
     lastResolvedAt: typeof parsed.lastResolvedAt === 'string' && parsed.lastResolvedAt.length > 0 ? parsed.lastResolvedAt : undefined,
     active: typeof parsed.active === 'boolean' ? parsed.active : true,
+    reviewBox: typeof parsed.reviewBox === 'number' ? Math.min(Math.max(Math.round(parsed.reviewBox), 1), 5) : 1,
+    nextReviewAt: typeof parsed.nextReviewAt === 'string' ? parsed.nextReviewAt : undefined,
     errorTypes: normalizeWeaknessSignalErrorTypes(parsed.errorTypes, modeId as any, tags),
   };
 };
@@ -395,6 +416,8 @@ const normalizeStudyWeakness = (value: unknown): StudyWeaknessItem | null => {
     lastUnstableAt: typeof parsed.lastUnstableAt === 'string' ? parsed.lastUnstableAt : new Date().toISOString(),
     lastResolvedAt: typeof parsed.lastResolvedAt === 'string' ? parsed.lastResolvedAt : undefined,
     active: typeof parsed.active === 'boolean' ? parsed.active : true,
+    reviewBox: typeof parsed.reviewBox === 'number' ? Math.min(Math.max(Math.round(parsed.reviewBox), 1), 5) : 1,
+    nextReviewAt: typeof parsed.nextReviewAt === 'string' ? parsed.nextReviewAt : undefined,
   };
 };
 
@@ -598,8 +621,9 @@ export const getDueWrongAnswersForMode = (state: ProgressState, modeId: DrillMod
 export const getActiveWeaknessSignals = (
   state: ProgressState,
   modeId?: Extract<TrainingModeId, 'reading_drill' | 'listening_analyze'>,
+  referenceDate: Date = new Date(),
 ): WeaknessSignalItem[] =>
-  sortWeaknessSignals(state.weaknessSignals.filter((item) => item.active && (!modeId || item.modeId === modeId)));
+  sortWeaknessSignals(state.weaknessSignals.filter((item) => item.active && (!modeId || item.modeId === modeId) && isTimedReviewDue(item.nextReviewAt, referenceDate, item.lastWrongAt)));
 
 export const getActiveStudyWeaknesses = (
   state: ProgressState,
@@ -609,6 +633,7 @@ export const getActiveStudyWeaknesses = (
   const filtered = state.studyWeaknesses.filter((item) => {
     if (!item.active) return false;
     if (modeId && item.modeId !== modeId) return false;
+    if (item.nextReviewAt && !isTimedReviewDue(item.nextReviewAt, referenceDate, item.lastUnstableAt)) return false;
     const lastLook = new Date(item.lastUnstableAt);
     if (Number.isNaN(lastLook.getTime())) return true;
     return diffInHours(referenceDate, lastLook) >= APP_CONFIG.STUDY_REAPPEAR_HOURS;
@@ -689,7 +714,9 @@ export const recordWeaknessSignals = (state: ProgressState, weaknessSignals: Wea
     const idx = nextWeaknessSignals.findIndex((item) => item.questionId === draft.questionId);
     if (draft.wasCorrect) {
       if (idx >= 0) {
-        nextWeaknessSignals[idx] = { ...nextWeaknessSignals[idx], active: false, lastResolvedAt: recordedAtIso };
+        const existing = nextWeaknessSignals[idx];
+        const timed = advanceTimedReview(existing.reviewBox ?? 1, true, recordedAt);
+        nextWeaknessSignals[idx] = { ...existing, ...timed, lastResolvedAt: timed.active ? existing.lastResolvedAt : recordedAtIso };
       }
       continue;
     }
@@ -704,16 +731,16 @@ export const recordWeaknessSignals = (state: ProgressState, weaknessSignals: Wea
         firstWrongAt: recordedAtIso,
         lastWrongAt: recordedAtIso,
         active: true,
+        reviewBox: 1,
+        nextReviewAt: recordedAtIso,
         errorTypes: inferModeWeaknessErrorTypes(draft.modeId as any, draft.tags),
       });
     } else {
       const existing = nextWeaknessSignals[idx];
-      nextWeaknessSignals[idx] = {
-        ...existing,
-        wrongCount: existing.wrongCount + 1,
-        lastWrongAt: recordedAtIso,
-        active: true,
-      };
+      const timed = advanceTimedReview(existing.reviewBox ?? 1, draft.wasCorrect, recordedAt);
+      nextWeaknessSignals[idx] = draft.wasCorrect
+        ? { ...existing, ...timed, lastResolvedAt: timed.active ? existing.lastResolvedAt : recordedAtIso }
+        : { ...existing, ...timed, wrongCount: existing.wrongCount + 1, lastWrongAt: recordedAtIso };
     }
   }
   return { ...state, weaknessSignals: sortWeaknessSignals(nextWeaknessSignals) };
@@ -728,15 +755,17 @@ export const recordStudyWeaknesses = (state: ProgressState, studyWeaknesses: Stu
     const idx = nextStudyWeaknesses.findIndex((item) => item.id === draft.item.id);
     if (draft.wasConfident) {
       if (idx >= 0) {
-        nextStudyWeaknesses[idx] = { ...nextStudyWeaknesses[idx], active: false, lastResolvedAt: recordedAtIso };
+        const existing = nextStudyWeaknesses[idx];
+        const timed = advanceTimedReview(existing.reviewBox ?? 1, true, recordedAt);
+        nextStudyWeaknesses[idx] = { ...existing, ...timed, lastResolvedAt: timed.active ? existing.lastResolvedAt : recordedAtIso };
       }
       continue;
     }
     if (idx < 0) {
-      nextStudyWeaknesses.push({ ...draft.item, unstableCount: 1, firstUnstableAt: recordedAtIso, lastUnstableAt: recordedAtIso, active: true });
+      nextStudyWeaknesses.push({ ...draft.item, unstableCount: 1, firstUnstableAt: recordedAtIso, lastUnstableAt: recordedAtIso, active: true, reviewBox: 1, nextReviewAt: recordedAtIso });
     } else {
       const existing = nextStudyWeaknesses[idx];
-      nextStudyWeaknesses[idx] = { ...existing, unstableCount: existing.unstableCount + 1, lastUnstableAt: recordedAtIso, active: true };
+      nextStudyWeaknesses[idx] = { ...existing, ...advanceTimedReview(existing.reviewBox ?? 1, false, recordedAt), unstableCount: existing.unstableCount + 1, lastUnstableAt: recordedAtIso, active: true };
     }
   }
   return { ...state, studyWeaknesses: sortStudyWeaknesses(nextStudyWeaknesses) };

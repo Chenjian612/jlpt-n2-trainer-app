@@ -296,7 +296,7 @@ module.exports = {
       },
     },
     {
-      name: 'recordWeaknessSignals activates on wrong answer and resolves on correct answer',
+      name: 'recordWeaknessSignals advances spaced review after correct answers',
       run() {
         const wrongState = recordWeaknessSignals(
           createDefaultProgressState(),
@@ -310,8 +310,9 @@ module.exports = {
         );
 
         assert.equal(wrongState.weaknessSignals[0].active, true);
-        assert.equal(resolvedState.weaknessSignals[0].active, false);
-        assert.equal(resolvedState.weaknessSignals[0].lastResolvedAt, '2026-03-19T10:00:00.000Z');
+        assert.equal(resolvedState.weaknessSignals[0].active, true);
+        assert.equal(resolvedState.weaknessSignals[0].reviewBox, 2);
+        assert.equal(resolvedState.weaknessSignals[0].nextReviewAt, '2026-03-21T10:00:00.000Z');
       },
     },
     {
@@ -353,8 +354,20 @@ module.exports = {
           new Date('2026-03-19T13:00:00.000Z'),
         );
 
-        assert.equal(resolved.studyWeaknesses[0].active, false);
-        assert.equal(resolved.studyWeaknesses[0].lastResolvedAt, '2026-03-19T13:00:00.000Z');
+        assert.equal(resolved.studyWeaknesses[0].active, true);
+        assert.equal(resolved.studyWeaknesses[0].reviewBox, 2);
+        assert.equal(resolved.studyWeaknesses[0].nextReviewAt, '2026-03-21T13:00:00.000Z');
+
+        let mastered = resolved;
+        for (let index = 0; index < 3; index += 1) {
+          mastered = recordStudyWeaknesses(
+            mastered,
+            [{ ...buildStudyDraft(), wasConfident: true }],
+            new Date(`2026-03-${23 + index}T13:00:00.000Z`),
+          );
+        }
+        assert.equal(mastered.studyWeaknesses[0].reviewBox, 5);
+        assert.equal(mastered.studyWeaknesses[0].active, false);
       },
     },
     {

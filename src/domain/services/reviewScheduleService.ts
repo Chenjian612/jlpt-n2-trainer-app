@@ -45,7 +45,7 @@ export function getReviewTasks(state: ProgressState, now: Date = new Date()): Re
   for (const item of getActiveStudyWeaknesses(state, undefined, now)) {
     add(item.modeId, item.id, new Date(new Date(item.lastUnstableAt).getTime() + APP_CONFIG.STUDY_REAPPEAR_HOURS * 3600000));
   }
-  for (const item of getActiveWeaknessSignals(state)) {
+  for (const item of getActiveWeaknessSignals(state, undefined, now)) {
     add(item.modeId, item.questionId, new Date(item.lastWrongAt));
   }
   return [...groups].map(([modeId, entries]) => {

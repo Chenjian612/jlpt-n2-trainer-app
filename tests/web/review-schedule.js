@@ -20,7 +20,10 @@ async function main() {
         await page.locator('[data-testid="reading-next"]').click();
       }
       await page.locator('[data-testid="reading-result-title"]').waitFor();
-      await page.waitForFunction((id) => JSON.parse(localStorage.getItem('jlpt-n2-trainer-state-v1')).weaknessSignals.find((item) => item.questionId === id)?.active === false, passage.questions[0].id);
+      await page.waitForFunction((id) => {
+        const item = JSON.parse(localStorage.getItem('jlpt-n2-trainer-state-v1')).weaknessSignals.find((entry) => entry.questionId === id);
+        return item?.active === true && item.reviewBox === 2 && item.nextReviewAt > new Date().toISOString();
+      }, passage.questions[0].id);
       await page.locator('[data-testid="reading-back-dashboard"]').click();
       await page.locator('[data-testid="today-review-count"]').waitFor();
       assert.match(await page.locator('[data-testid="today-review-count"]').textContent(), /没有到期弱项/);
