@@ -151,4 +151,8 @@ export type LearningEffectivenessSnapshot = {
   transferAccuracy: number | null;
   sessionsLast7Days: number;
   activeDaysLast7Days: number;
+  reviewSessionsLast7Days: number;
+  recentErrorExposure: number;
+  priorErrorExposure: number;
+  errorTrend: WeaknessTrend;
 };

@@ -142,13 +142,15 @@ export function WeeklyRhythmCard({
         <View testID="learning-effectiveness" style={styles.effectivenessSection}>
           <Text style={styles.distTitle}>学习效果信号</Text>
           <Text style={styles.effectivenessCaption}>
-            用错误是否重复、复习是否晋级来判断训练有没有产生效果。
+            用错误趋势、复习晋级和迁移结果判断训练有没有产生效果。
           </Text>
           <View style={styles.effectivenessGrid}>
             <EffectivenessMetric label="待复习" value={`${effectiveness.dueReviewCount}`} />
             <EffectivenessMetric label="重复错误" value={`${effectiveness.repeatErrorCount}`} />
             <EffectivenessMetric label="已晋级" value={`${effectiveness.spacedProgressCount}`} />
             <EffectivenessMetric label="迁移正确率" value={effectiveness.transferAccuracy === null ? '—' : `${Math.round(effectiveness.transferAccuracy * 100)}%`} />
+            <EffectivenessMetric label="错误趋势" value={effectiveness.errorTrend === 'improving' ? '好转' : effectiveness.errorTrend === 'worsening' ? '上升' : '持平'} />
+            <EffectivenessMetric label="近 7 天复习" value={`${effectiveness.reviewSessionsLast7Days} 轮`} />
           </View>
         </View>
       </View>
