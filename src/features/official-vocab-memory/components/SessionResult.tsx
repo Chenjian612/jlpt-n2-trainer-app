@@ -39,7 +39,7 @@ export function SessionResult({
       </Text>
       <Text style={styles.sectionBody}>
         {isReview
-          ? `针对刚才明显没记住的 ${totalItems} 个词完成了强化。其中已记住 ${knownCount} 项，仍有 ${hardTerms.length} 项较难。`
+          ? `这轮完成了 ${totalItems} 个到期或难记词的强化。其中已记住 ${knownCount} 项、模糊 ${fuzzyCount} 项，仍有 ${hardTerms.length} 项较难。`
           : `《${deckTitle}》已经写入今日进度。你这轮一共过了 ${totalItems} 张卡，其中已记住 ${knownCount} 项、模糊 ${fuzzyCount} 项、明显没记住 ${hardTerms.length} 项。`}
       </Text>
 

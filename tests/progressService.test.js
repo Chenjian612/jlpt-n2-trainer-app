@@ -371,6 +371,38 @@ module.exports = {
       },
     },
     {
+      name: 'official vocab marks persist and advance through the shared study schedule',
+      run() {
+        const draft = buildStudyDraft({
+          id: 'official-vocab-lang-1',
+          modeId: 'official_vocab_memory',
+          term: '把握',
+        });
+        const unstable = recordStudyWeaknesses(
+          createDefaultProgressState(),
+          [draft],
+          new Date('2026-03-19T08:00:00.000Z'),
+        );
+
+        assert.equal(
+          getActiveStudyWeaknesses(
+            unstable,
+            'official_vocab_memory',
+            new Date('2026-03-19T12:00:00.000Z'),
+          ).length,
+          1,
+        );
+
+        const reviewed = recordStudyWeaknesses(
+          unstable,
+          [{ ...draft, wasConfident: true }],
+          new Date('2026-03-19T12:00:00.000Z'),
+        );
+        assert.equal(reviewed.studyWeaknesses[0].reviewBox, 2);
+        assert.equal(reviewed.studyWeaknesses[0].nextReviewAt, '2026-03-21T12:00:00.000Z');
+      },
+    },
+    {
       name: 'recordDrillSessionResult writes both a session and wrong answers',
       run() {
         const next = recordDrillSessionResult(

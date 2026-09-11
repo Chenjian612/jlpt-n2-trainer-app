@@ -197,7 +197,13 @@ const aggregateWeaknesses = (
     studyWeaknesses
       .filter((item) => item.active)
       .map((item) => ({
-        errorTypes: [item.modeId === 'grammar_study' ? 'grammar_study_unstable' : 'vocab_study_unstable'] as WeaknessErrorType[],
+        errorTypes: [
+          item.modeId === 'grammar_study'
+            ? 'grammar_study_unstable'
+            : item.modeId === 'official_vocab_memory'
+              ? 'official_vocab_unstable'
+              : 'vocab_study_unstable',
+        ] as WeaknessErrorType[],
         wrongCount: item.unstableCount,
         score: item.unstableCount * APP_CONFIG.PRIORITY_WEIGHT_STUDY,
       })),

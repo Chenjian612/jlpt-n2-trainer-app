@@ -24,7 +24,7 @@ import type {
 import type {
   DrillModeId,
   ReviewModeId,
-  StudyModeId,
+  StudyWeaknessModeId,
   TrainingModeId,
   TrainingSessionKind,
 } from '../../domain/models/training';
@@ -59,7 +59,7 @@ type ProgressContextValue = {
     wrongAnswers: WrongAnswerDraft[],
   ) => void;
   recordStudySession: (
-    modeId: StudyModeId,
+    modeId: StudyWeaknessModeId,
     studyWeaknesses: StudyWeaknessDraft[],
   ) => void;
   completeWrongReviewSession: (

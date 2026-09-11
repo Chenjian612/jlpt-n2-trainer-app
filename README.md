@@ -42,6 +42,7 @@
 | 听力分析 | `listening_analyze` | `ListeningSessionScreen` | 训练听力理解与陷阱识别 |
 | 错题回收 | `review_wrong` | `WrongReviewScreen` | 回收文法错题 |
 | 词汇错题回收 | `vocab_review_wrong` | `WrongReviewScreen` | 回收词汇错题 |
+| N2 文法 200 条特训 | `grammar_200` | `Grammar200Screen` | 章节学习与排序题训练 |
 
 ## 当前内容规模
 
@@ -52,7 +53,7 @@
 - 听力案例：23 条，共 26 题，其中 5 条配有本地官方 MP3
 - 官方词卡：120 张
 
-截至 2026-09-07，`M0：可用`、`M1：有效` 已完成，`M2：可信` 正在进行真实使用与发布前验收。文法/词汇错题已具备基础 Leitner 间隔复习，跨模式统一调度待完善。最新状态见 [开发现状报告](./STATUS-2026-09-07.md)。
+截至 2026-09-11，`M0：可用`、`M1：有效` 已完成，`M2：可信` 正在进行真实使用与发布前验收。文法/词汇错题、学习包、官方词卡、读解和听力弱点已经进入统一间隔复习调度。最新状态见 [开发现状报告](./STATUS-2026-09-07.md)。
 
 ## 维护说明
 
@@ -66,7 +67,7 @@ npm run ai:evaluate
 npm run ai:dev
 ```
 
-GitHub Actions 配置见 [CI 工作流](./.github/workflows/ci.yml)，在 push、pull request 和手动触发时运行 Node/TypeScript、Python、Chromium 三个检查。无需模型密钥。远端首轮结果需在推送后确认。
+GitHub Actions 配置见 [CI 工作流](./.github/workflows/ci.yml)，在 push、pull request 和手动触发时运行 Node/TypeScript、Python、Chromium 三个检查。无需模型密钥，远端运行已经验证通过。
 
 本地复现浏览器 CI：
 

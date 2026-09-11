@@ -23,6 +23,7 @@ import type {
   DrillModeId,
   ReviewModeId,
   StudyModeId,
+  StudyWeaknessModeId,
   TrainingModeId,
   TrainingSessionKind,
 } from '../models/training';
@@ -30,6 +31,7 @@ import {
   REVIEW_SOURCE_MODE,
   isDrillModeId,
   isListeningModeId,
+  isOfficialVocabMemoryModeId,
   isReadingModeId,
   isStudyModeId,
 } from '../models/training';
@@ -398,11 +400,16 @@ const sortStudyWeaknesses = (studyWeaknesses: StudyWeaknessItem[]): StudyWeaknes
 const normalizeStudyWeakness = (value: unknown): StudyWeaknessItem | null => {
   if (!value || typeof value !== 'object') return null;
   const parsed = value as Partial<StudyWeaknessItem>;
-  if (typeof parsed.id !== 'string' || !isStudyModeId(parsed.modeId as any) || typeof parsed.term !== 'string') return null;
+  if (
+    typeof parsed.id !== 'string' ||
+    (!isStudyModeId(parsed.modeId as TrainingModeId) &&
+      !isOfficialVocabMemoryModeId(parsed.modeId as TrainingModeId)) ||
+    typeof parsed.term !== 'string'
+  ) return null;
 
   return {
     id: parsed.id,
-    modeId: parsed.modeId as StudyModeId,
+    modeId: parsed.modeId as StudyWeaknessModeId,
     term: parsed.term,
     reading: parsed.reading,
     coreMeaning: parsed.coreMeaning ?? '',
@@ -627,7 +634,7 @@ export const getActiveWeaknessSignals = (
 
 export const getActiveStudyWeaknesses = (
   state: ProgressState,
-  modeId?: StudyModeId,
+  modeId?: StudyWeaknessModeId,
   referenceDate: Date = new Date(),
 ): StudyWeaknessItem[] => {
   const filtered = state.studyWeaknesses.filter((item) => {
@@ -649,7 +656,7 @@ export const getPrioritizedWrongAnswersForMode = (state: ProgressState, modeId: 
 export const getWrongReviewBacklogCount = (state: ProgressState, modeId: ReviewModeId): number =>
   getDueWrongAnswersForMode(state, REVIEW_SOURCE_MODE[modeId]).length;
 
-export const getStudyWeaknessBacklogCount = (state: ProgressState, modeId?: StudyModeId): number =>
+export const getStudyWeaknessBacklogCount = (state: ProgressState, modeId?: StudyWeaknessModeId): number =>
   getActiveStudyWeaknesses(state, modeId).length;
 
 export const recordTrainingSession = (state: ProgressState, dayKey: string, session: TrainingSessionRecord): ProgressState => {
@@ -776,7 +783,7 @@ export const recordDrillSessionResult = (state: ProgressState, dayKey: string, m
   return recordWrongAnswers(nextState, wrongAnswers, completedAt);
 };
 
-export const recordStudySessionResult = (state: ProgressState, dayKey: string, modeId: StudyModeId, kind: TrainingSessionKind, studyWeaknesses: StudyWeaknessDraft[], completedAt: Date = new Date()): ProgressState => {
+export const recordStudySessionResult = (state: ProgressState, dayKey: string, modeId: StudyWeaknessModeId, kind: TrainingSessionKind, studyWeaknesses: StudyWeaknessDraft[], completedAt: Date = new Date()): ProgressState => {
   const nextState = recordTrainingSession(state, dayKey, createTrainingSession(dayKey, modeId, kind, completedAt));
   return recordStudyWeaknesses(nextState, studyWeaknesses, completedAt);
 };

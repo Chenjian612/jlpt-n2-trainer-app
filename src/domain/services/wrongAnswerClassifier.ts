@@ -246,6 +246,14 @@ export const WEAKNESS_ERROR_META: Record<WeaknessErrorType, WeaknessErrorMeta> =
     coachPoint: '别死背词义，试着把这个词放进它的短例句里读三遍，建立场景记忆。',
     followUp: '回到词汇记忆包，快速过一遍不稳项，确保看到词就能联想到它的搭配对象。',
   },
+  official_vocab_unstable: {
+    label: '官方词卡记忆不稳',
+    sourceModeId: 'official_vocab_memory',
+    recommendedModeId: 'official_vocab_memory',
+    summary: '官方词卡里标记为“模糊”或“没记住”的词，需要按间隔重新回忆。',
+    coachPoint: '先回忆读音和核心义，再用例句确认搭配；不要只凭中文释义判断已经记住。',
+    followUp: '回到官方词卡，优先完成到期词卡复习，再继续新词包。',
+  },
 };
 
 export const isWrongAnswerErrorType = (

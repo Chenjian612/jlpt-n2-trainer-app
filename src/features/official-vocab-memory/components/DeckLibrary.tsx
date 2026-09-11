@@ -14,6 +14,7 @@ type DeckLibraryProps = {
   readyDeckCount: number;
   initialSessionCount: number;
   recordedSessionCount: number;
+  dueItemIds: string[];
   onOpenDeck: (deck: OfficialVocabDeck) => void;
   onExit: () => void;
 };
@@ -51,6 +52,7 @@ export function DeckLibrary({
   readyDeckCount,
   initialSessionCount,
   recordedSessionCount,
+  dueItemIds,
   onOpenDeck,
   onExit,
 }: DeckLibraryProps) {
@@ -159,6 +161,13 @@ export function DeckLibrary({
                       {DECK_STATUS_LABEL[deck.status]}
                     </Text>
                   </View>
+                  {deck.items.some((item) => dueItemIds.includes(item.id)) ? (
+                    <View style={[styles.statusPill, { backgroundColor: colors.warmCard }]}>
+                      <Text style={[styles.statusText, { color: colors.copper }]}>
+                        待复习 {deck.items.filter((item) => dueItemIds.includes(item.id)).length}
+                      </Text>
+                    </View>
+                  ) : null}
                 </View>
                 <Text style={styles.deckTitle}>{deck.title}</Text>
                 <Text style={styles.deckBody}>{deck.description}</Text>
@@ -202,7 +211,11 @@ export function DeckLibrary({
                   deck.status !== 'ready' && styles.disabledButtonText,
                 ]}
               >
-                {deck.status === 'ready' ? `开始背 ${deck.shortLabel}` : '等待导入资源'}
+                {deck.status === 'ready'
+                  ? deck.items.some((item) => dueItemIds.includes(item.id))
+                    ? `先复习 ${deck.items.filter((item) => dueItemIds.includes(item.id)).length} 项`
+                    : `开始背 ${deck.shortLabel}`
+                  : '等待导入资源'}
               </Text>
             </Pressable>
           </View>

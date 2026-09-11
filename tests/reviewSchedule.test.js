@@ -18,16 +18,20 @@ const wrong = (id, modeId, due) => ({ questionId: id, modeId, mastered: false, l
   wrongCount: 1, firstWrongAt: '2026-09-01T00:00:00Z', lastWrongAt: '2026-09-01T00:00:00Z', errorTypes: ['grammar_constraint'] });
 
 module.exports = { name: 'reviewSchedule', tests: [
-  { name: 'unifies six review modes and keeps oldest pending work first without mutation', run() {
+  { name: 'unifies seven review modes and keeps oldest pending work first without mutation', run() {
     const state = { ...createDefaultProgressState(),
       wrongAnswers: [wrong('g', 'grammar_drill', '2026-09-07'), wrong('v', 'vocab_drill', '2026-09-07')],
-      studyWeaknesses: [study('sg', 'grammar_study', '2026-09-07T00:00:00Z'), study('sv', 'vocab_study', '2026-09-07T00:00:00Z')],
+      studyWeaknesses: [
+        study('sg', 'grammar_study', '2026-09-07T00:00:00Z'),
+        study('sv', 'vocab_study', '2026-09-07T00:00:00Z'),
+        study('so', 'official_vocab_memory', '2026-09-07T00:00:00Z'),
+      ],
       weaknessSignals: [signal('r'), signal('l', 'listening_analyze')],
     };
     const before = JSON.stringify(state);
     const tasks = getReviewTasks(state, now);
-    assert.equal(tasks.length, 6);
-    assert.equal(tasks.reduce((sum, task) => sum + task.count, 0), 6);
+    assert.equal(tasks.length, 7);
+    assert.equal(tasks.reduce((sum, task) => sum + task.count, 0), 7);
     assert.ok(['reading_drill', 'listening_analyze'].includes(tasks[0].modeId));
     assert.ok(tasks.every((task) => task.overdueCount === 1));
     assert.equal(JSON.stringify(state), before);

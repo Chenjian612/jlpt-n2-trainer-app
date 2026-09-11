@@ -4,6 +4,7 @@
   OfficialVocabMemoryModeId,
   ReadingModeId,
   StudyModeId,
+  StudyWeaknessModeId,
 } from './training';
 
 export type DrillQuestion = {
@@ -47,7 +48,8 @@ export type ListeningWeaknessErrorType =
 
 export type StudyWeaknessErrorType =
   | 'grammar_study_unstable'
-  | 'vocab_study_unstable';
+  | 'vocab_study_unstable'
+  | 'official_vocab_unstable';
 
 export type WeaknessErrorType =
   | WrongAnswerErrorType
@@ -123,13 +125,22 @@ export type StudyPackItem = {
 };
 
 export type StudyWeaknessDraft = {
-  item: StudyPackItem;
+  item: Omit<
+    StudyWeaknessItem,
+    | 'unstableCount'
+    | 'firstUnstableAt'
+    | 'lastUnstableAt'
+    | 'lastResolvedAt'
+    | 'active'
+    | 'reviewBox'
+    | 'nextReviewAt'
+  >;
   wasConfident: boolean;
 };
 
 export type StudyWeaknessItem = {
   id: string;
-  modeId: StudyModeId;
+  modeId: StudyWeaknessModeId;
   term: string;
   reading?: string;
   coreMeaning: string;

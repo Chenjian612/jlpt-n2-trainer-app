@@ -5,7 +5,7 @@
   ProgressState,
   RecentDay,
 } from '../models/progress';
-import type { ReviewModeId, StudyModeId, TrainingMode, TrainingModeId } from '../models/training';
+import type { ReviewModeId, StudyWeaknessModeId, TrainingMode, TrainingModeId } from '../models/training';
 import {
   getCompletedModeIdsForDay,
   getSessionsForDay,
@@ -54,9 +54,10 @@ const getReviewBacklogCounts = (state: ProgressState): Record<ReviewModeId, numb
   vocab_review_wrong: getWrongReviewBacklogCount(state, 'vocab_review_wrong'),
 });
 
-const getStudyBacklogCounts = (state: ProgressState): Record<StudyModeId, number> => ({
+const getStudyBacklogCounts = (state: ProgressState): Record<StudyWeaknessModeId, number> => ({
   grammar_study: getStudyWeaknessBacklogCount(state, 'grammar_study'),
   vocab_study: getStudyWeaknessBacklogCount(state, 'vocab_study'),
+  official_vocab_memory: getStudyWeaknessBacklogCount(state, 'official_vocab_memory'),
 });
 
 export const getProgressRatio = (value: number, total: number): number =>
@@ -205,7 +206,9 @@ export const getDashboardInsight = (
   const reviewBacklogCounts = getReviewBacklogCounts(state);
   const studyBacklogCounts = getStudyBacklogCounts(state);
   const totalReviewBacklog = reviewBacklogCounts.review_wrong + reviewBacklogCounts.vocab_review_wrong;
-  const totalStudyBacklog = studyBacklogCounts.grammar_study + studyBacklogCounts.vocab_study;
+  const totalStudyBacklog = studyBacklogCounts.grammar_study
+    + studyBacklogCounts.vocab_study
+    + studyBacklogCounts.official_vocab_memory;
   const recommendedMode = todayPlan[0] ?? null;
   const task = getReviewTasks(state, now).find((item) => item.modeId === recommendedMode?.id);
 
@@ -228,7 +231,13 @@ export const getDashboardInsight = (
     };
   }
 
-  if (totalStudyBacklog > 0 && recommendedMode && (recommendedMode.id === 'grammar_study' || recommendedMode.id === 'vocab_study')) {
+  if (
+    totalStudyBacklog > 0 &&
+    recommendedMode &&
+    (recommendedMode.id === 'grammar_study' ||
+      recommendedMode.id === 'vocab_study' ||
+      recommendedMode.id === 'official_vocab_memory')
+  ) {
     return {
       headline: '重点攻克不稳的记忆项',
       body: `${task?.reason ?? `学习包里还有 ${totalStudyBacklog} 个不稳项`}，先回看这些项，再开启新阶段。`,

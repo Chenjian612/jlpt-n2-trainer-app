@@ -12,9 +12,13 @@ import type {
   OfficialVocabDeck,
   OfficialVocabDeckType,
   OfficialVocabMemoryItem,
+  StudyWeaknessDraft,
 } from '../../../domain/models/trainingContent';
 import type { OfficialVocabMemoryModeId } from '../../../domain/models/training';
-import { getModeSessionCountForDay } from '../../../domain/services/progressService';
+import {
+  getActiveStudyWeaknesses,
+  getModeSessionCountForDay,
+} from '../../../domain/services/progressService';
 import { colors, fonts } from '../../../theme/tokens';
 
 import { DeckLibrary } from '../components/DeckLibrary';
@@ -33,8 +37,9 @@ type MemoryResult = {
   knownCount: number;
   fuzzyCount: number;
   hardTerms: string[];
-  recordedSessionCount: number;
 };
+
+type ReviewKind = 'scheduled' | 'immediate' | null;
 
 export function OfficialVocabMemoryScreen({
   modeId,
@@ -42,19 +47,23 @@ export function OfficialVocabMemoryScreen({
   onBackToDetail,
   onBackToDashboard,
 }: OfficialVocabMemoryScreenProps) {
-  const { state, todayKey, recordSession } = useProgressStore();
+  const { state, todayKey, recordStudySession } = useProgressStore();
   const { width } = useWindowDimensions();
   const isWideLayout = width >= 1040;
   const mode = getTrainingModeById(modeId);
   const initialSessionCount = getModeSessionCountForDay(state, todayKey, modeId);
+  const dueWeaknesses = getActiveStudyWeaknesses(state, modeId);
+  const dueItemIds = new Set(dueWeaknesses.map((item) => item.id));
 
   const [activeType, setActiveType] = useState<OfficialVocabDeckType | 'all'>('all');
   const [activeDeckId, setActiveDeckId] = useState<string | null>(null);
   const [reviewItems, setReviewItems] = useState<OfficialVocabMemoryItem[] | null>(null);
+  const [reviewKind, setReviewKind] = useState<ReviewKind>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [revealed, setRevealed] = useState(false);
   const [markMap, setMarkMap] = useState<Record<string, MemoryMark>>({});
   const [result, setResult] = useState<MemoryResult | null>(null);
+  const [recordedSessionCount, setRecordedSessionCount] = useState(initialSessionCount);
   const recordedRef = useRef(false);
 
   const readyDecks = useMemo(
@@ -66,12 +75,16 @@ export function OfficialVocabMemoryScreen({
     readyDecks.forEach((deck) => types.add(deck.type));
     return ['all', ...Array.from(types)] as Array<OfficialVocabDeckType | 'all'>;
   }, [readyDecks]);
-  const visibleDecks = useMemo(
-    () => (activeType === 'all'
+  const visibleDecks = useMemo(() => {
+    const filtered = activeType === 'all'
       ? readyDecks
-      : readyDecks.filter((deck) => deck.type === activeType)),
-    [activeType, readyDecks],
-  );
+      : readyDecks.filter((deck) => deck.type === activeType);
+    return [...filtered].sort((left, right) => {
+      const leftDue = left.items.filter((item) => dueItemIds.has(item.id)).length;
+      const rightDue = right.items.filter((item) => dueItemIds.has(item.id)).length;
+      return rightDue - leftDue;
+    });
+  }, [activeType, readyDecks, dueWeaknesses]);
   const activeDeck = useMemo(
     () => (activeDeckId ? getOfficialVocabDeckById(activeDeckId) ?? null : null),
     [activeDeckId],
@@ -106,12 +119,18 @@ export function OfficialVocabMemoryScreen({
     setMarkMap({});
     setResult(null);
     setReviewItems(null);
+    setReviewKind(null);
   };
 
   const handleOpenDeck = (deck: OfficialVocabDeck) => {
     if (deck.status !== 'ready') return;
     resetDeckProgress();
     setActiveDeckId(deck.id);
+    const scheduledItems = deck.items.filter((item) => dueItemIds.has(item.id));
+    if (scheduledItems.length > 0) {
+      setReviewItems(scheduledItems);
+      setReviewKind('scheduled');
+    }
   };
 
   const handleBackToLibrary = () => {
@@ -127,6 +146,7 @@ export function OfficialVocabMemoryScreen({
     );
 
     setReviewItems(itemsToReview);
+    setReviewKind('immediate');
     setCurrentIndex(0);
     setRevealed(false);
     setMarkMap({});
@@ -146,11 +166,21 @@ export function OfficialVocabMemoryScreen({
       return;
     }
 
-    // Finished the session
-    if (!reviewItems) {
-      // Only record session if it's a full deck study, not a review
+    // Full-deck study and scheduled review both advance persistent spacing.
+    // Immediate same-session retry is feedback only, so it does not skip a box.
+    if (reviewKind !== 'immediate') {
       recordedRef.current = true;
-      recordSession(mode.id, 'study');
+      const studyWeaknesses: StudyWeaknessDraft[] = currentDeckItems.map((item) => ({
+        item: {
+          ...item,
+          modeId,
+          confusingPair: item.sourceHint,
+          reviewPrompt: `看到「${item.term}」时，先回忆读音、核心义和常见搭配。`,
+        },
+        wasConfident: nextMarkMap[item.id] === 'known',
+      }));
+      recordStudySession(modeId, studyWeaknesses);
+      setRecordedSessionCount((count) => count + 1);
     }
 
     const hardTerms = currentDeckItems
@@ -165,7 +195,6 @@ export function OfficialVocabMemoryScreen({
       knownCount,
       fuzzyCount,
       hardTerms,
-      recordedSessionCount: reviewItems ? result?.recordedSessionCount ?? initialSessionCount : initialSessionCount + 1,
     });
   };
 
@@ -184,7 +213,8 @@ export function OfficialVocabMemoryScreen({
             visibleDecks={visibleDecks}
             readyDeckCount={readyDeckCount}
             initialSessionCount={initialSessionCount}
-            recordedSessionCount={result?.recordedSessionCount ?? initialSessionCount}
+            recordedSessionCount={recordedSessionCount}
+            dueItemIds={[...dueItemIds]}
             onOpenDeck={handleOpenDeck}
             onExit={onExit}
           />
@@ -196,12 +226,12 @@ export function OfficialVocabMemoryScreen({
             knownCount={result.knownCount}
             fuzzyCount={result.fuzzyCount}
             hardTerms={result.hardTerms}
-            recordedSessionCount={result.recordedSessionCount}
+            recordedSessionCount={recordedSessionCount}
             onBackToLibrary={handleBackToLibrary}
             onBackToDashboard={onBackToDashboard}
             onBackToDetail={onBackToDetail}
             onStartReview={handleStartReview}
-            isReview={!!reviewItems}
+            isReview={reviewKind !== null}
           />
         ) : currentItem ? (
           <MemorySession
@@ -214,7 +244,7 @@ export function OfficialVocabMemoryScreen({
             onReveal={() => setRevealed(true)}
             onMark={handleMark}
             onBackToLibrary={handleBackToLibrary}
-            isReview={!!reviewItems}
+            isReview={reviewKind !== null}
           />
         ) : null}
       </ScrollView>
@@ -250,7 +280,6 @@ const styles = StyleSheet.create({
     fontFamily: fonts.title,
   },
 });
-
 
 
 

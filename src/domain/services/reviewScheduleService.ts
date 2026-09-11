@@ -21,6 +21,7 @@ export type ReviewTask = {
 const LABELS: Partial<Record<TrainingModeId, string>> = {
   review_wrong: '文法错题', vocab_review_wrong: '词汇错题',
   grammar_study: '文法记忆项', vocab_study: '词汇记忆项',
+  official_vocab_memory: '官方词卡',
   reading_drill: '读解弱项', listening_analyze: '听力弱项',
 };
 

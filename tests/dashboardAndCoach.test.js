@@ -190,6 +190,48 @@ module.exports = {
       },
     },
     {
+      name: 'dashboard prioritizes due official vocabulary cards as recovery work',
+      run() {
+        const state = {
+          ...createDefaultProgressState(),
+          studyWeaknesses: [
+            {
+              id: 'official-vocab-lang-1',
+              modeId: 'official_vocab_memory',
+              term: '把握',
+              coreMeaning: '把握',
+              keyUsage: '',
+              confusingPair: '',
+              example: '',
+              memoryHook: '',
+              reviewPrompt: '',
+              unstableCount: 1,
+              firstUnstableAt: '2026-03-18T09:00:00.000Z',
+              lastUnstableAt: '2026-03-18T09:00:00.000Z',
+              active: true,
+            },
+          ],
+        };
+        const plan = getTodayPlan(
+          TRAINING_MODES,
+          state,
+          '2026-03-19',
+          new Date('2026-03-19T09:00:00.000Z'),
+        );
+        const insight = getDashboardInsight(
+          state,
+          '2026-03-19',
+          14,
+          plan,
+          new Date('2026-03-19T09:00:00.000Z'),
+        );
+
+        assert.equal(plan[0].id, 'official_vocab_memory');
+        assert.equal(insight.battleState, 'recovering');
+        assert.equal(insight.recommendedModeId, 'official_vocab_memory');
+      },
+    },
+    {
       name: 'dashboard insight enters first battle mode at the start of the day',
       run() {
         const insight = getDashboardInsight(createDefaultProgressState(), '2026-03-19', 14, TRAINING_MODES.slice(0, 3));
