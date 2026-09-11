@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import {
   Pressable,
   ScrollView,
@@ -24,6 +24,11 @@ import type {
   Grammar200SortQuestion,
 } from '../../../domain/models/grammar200';
 import type { Grammar200ModeId } from '../../../domain/models/training';
+import {
+  buildGrammar200ReviewDrafts,
+  getGrammar200ChapterDueCount,
+} from '../../../domain/services/grammar200ReviewService';
+import { getActiveStudyWeaknesses } from '../../../domain/services/progressService';
 import { getSortQuestionExplanation } from '../../../services/aiCoachClient';
 import { colors, fonts, radii, shadows } from '../../../theme/tokens';
 
@@ -47,7 +52,16 @@ export function Grammar200Screen({
     recordChapterCompletion,
     saveAiExplanation,
   } = useGrammar200Store();
-  const { recordSession } = useProgressStore();
+  const { state, recordStudySession } = useProgressStore();
+  const dueWeaknessIds = new Set(
+    getActiveStudyWeaknesses(state, modeId).map((item) => item.id),
+  );
+  const orderedChapters = [...GRAMMAR_200_CHAPTERS].sort(
+    (left, right) =>
+      getGrammar200ChapterDueCount(right, dueWeaknessIds) -
+      getGrammar200ChapterDueCount(left, dueWeaknessIds),
+  );
+  const completionRecordedRef = useRef(false);
 
   const [phase, setPhase] = useState<Phase>('chapter-picker');
   const [activeChapter, setActiveChapter] =
@@ -94,6 +108,7 @@ export function Grammar200Screen({
     setSortPlacement([null, null, null, null]);
     setSortRevealed(false);
     setSortAttempts([]);
+    completionRecordedRef.current = false;
     setPhase('overview');
   };
 
@@ -107,8 +122,9 @@ export function Grammar200Screen({
     return (
       <ChapterPickerView
         mode={mode}
-        chapters={GRAMMAR_200_CHAPTERS}
+        chapters={orderedChapters}
         progressByChapter={g200State.chapters}
+        dueWeaknessIds={[...dueWeaknessIds]}
         onPickChapter={startChapter}
         onExit={onExit}
       />
@@ -219,10 +235,17 @@ export function Grammar200Screen({
 
     const handleNext = () => {
       if (isLast) {
+        if (completionRecordedRef.current) return;
+        completionRecordedRef.current = true;
         const correctCount =
           sortAttempts.filter((attempt) => attempt.correct).length;
+        const reviewDrafts = buildGrammar200ReviewDrafts(
+          activeChapter,
+          unstableIds,
+          sortAttempts,
+        );
         recordChapterCompletion(activeChapter.id, correctCount);
-        recordSession(modeId, 'chapter');
+        recordStudySession(modeId, reviewDrafts, 'chapter');
         setPhase('result');
         return;
       }
@@ -302,6 +325,7 @@ export function Grammar200Screen({
         setSortPlacement([null, null, null, null]);
         setSortRevealed(false);
         setSortAttempts([]);
+        completionRecordedRef.current = false;
         setPhase('overview');
       }}
       onPicker={backToPicker}
@@ -316,6 +340,7 @@ type ChapterPickerProps = {
   mode: ReturnType<typeof getTrainingModeById>;
   chapters: Grammar200Chapter[];
   progressByChapter: ReturnType<typeof useGrammar200Store>['state']['chapters'];
+  dueWeaknessIds: string[];
   onPickChapter: (chapter: Grammar200Chapter) => void;
   onExit: () => void;
 };
@@ -324,6 +349,7 @@ function ChapterPickerView({
   mode,
   chapters,
   progressByChapter,
+  dueWeaknessIds,
   onPickChapter,
   onExit,
 }: ChapterPickerProps) {
@@ -369,8 +395,13 @@ function ChapterPickerView({
           {chapters.map((chapter) => {
             const progress = progressByChapter[chapter.id];
             const locked = !chapter.published;
+            const dueCount = getGrammar200ChapterDueCount(
+              chapter,
+              new Set(dueWeaknessIds),
+            );
             return (
               <Pressable
+                testID={`grammar200-chapter-${chapter.id}`}
                 key={chapter.id}
                 onPress={() => onPickChapter(chapter)}
                 style={[
@@ -399,6 +430,11 @@ function ChapterPickerView({
                       </Text>
                     </View>
                   ) : null}
+                  {dueCount > 0 ? (
+                    <View style={styles.scoreBadge}>
+                      <Text style={styles.scoreBadgeText}>待复习 {dueCount}</Text>
+                    </View>
+                  ) : null}
                 </View>
                 <Text style={styles.chapterTitle}>{chapter.title}</Text>
                 <Text style={styles.chapterRange}>{chapter.rangeLabel}</Text>
@@ -407,7 +443,7 @@ function ChapterPickerView({
                   <Text style={styles.chapterLockedText}>即将上线</Text>
                 ) : (
                   <Text style={[styles.chapterEnterText, { color: mode.accent }]}>
-                    进入本章 →
+                    {dueCount > 0 ? `本章有 ${dueCount} 项到期 →` : '进入本章 →'}
                   </Text>
                 )}
               </Pressable>

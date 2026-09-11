@@ -30,6 +30,7 @@ import type {
 import {
   REVIEW_SOURCE_MODE,
   isDrillModeId,
+  isGrammar200ModeId,
   isListeningModeId,
   isOfficialVocabMemoryModeId,
   isReadingModeId,
@@ -403,7 +404,8 @@ const normalizeStudyWeakness = (value: unknown): StudyWeaknessItem | null => {
   if (
     typeof parsed.id !== 'string' ||
     (!isStudyModeId(parsed.modeId as TrainingModeId) &&
-      !isOfficialVocabMemoryModeId(parsed.modeId as TrainingModeId)) ||
+      !isOfficialVocabMemoryModeId(parsed.modeId as TrainingModeId) &&
+      !isGrammar200ModeId(parsed.modeId as TrainingModeId)) ||
     typeof parsed.term !== 'string'
   ) return null;
 

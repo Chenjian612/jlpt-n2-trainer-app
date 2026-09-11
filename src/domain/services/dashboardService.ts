@@ -58,6 +58,7 @@ const getStudyBacklogCounts = (state: ProgressState): Record<StudyWeaknessModeId
   grammar_study: getStudyWeaknessBacklogCount(state, 'grammar_study'),
   vocab_study: getStudyWeaknessBacklogCount(state, 'vocab_study'),
   official_vocab_memory: getStudyWeaknessBacklogCount(state, 'official_vocab_memory'),
+  grammar_200: getStudyWeaknessBacklogCount(state, 'grammar_200'),
 });
 
 export const getProgressRatio = (value: number, total: number): number =>
@@ -208,7 +209,8 @@ export const getDashboardInsight = (
   const totalReviewBacklog = reviewBacklogCounts.review_wrong + reviewBacklogCounts.vocab_review_wrong;
   const totalStudyBacklog = studyBacklogCounts.grammar_study
     + studyBacklogCounts.vocab_study
-    + studyBacklogCounts.official_vocab_memory;
+    + studyBacklogCounts.official_vocab_memory
+    + studyBacklogCounts.grammar_200;
   const recommendedMode = todayPlan[0] ?? null;
   const task = getReviewTasks(state, now).find((item) => item.modeId === recommendedMode?.id);
 
@@ -236,7 +238,8 @@ export const getDashboardInsight = (
     recommendedMode &&
     (recommendedMode.id === 'grammar_study' ||
       recommendedMode.id === 'vocab_study' ||
-      recommendedMode.id === 'official_vocab_memory')
+      recommendedMode.id === 'official_vocab_memory' ||
+      recommendedMode.id === 'grammar_200')
   ) {
     return {
       headline: '重点攻克不稳的记忆项',

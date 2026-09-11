@@ -83,7 +83,9 @@ export const getCrossModuleWeaknessSummary = (
   state.studyWeaknesses
     .filter((item) => item.active)
     .forEach((item) => {
-      const moduleId = item.modeId === 'grammar_study' ? 'grammar' : 'vocab';
+      const moduleId = item.modeId === 'grammar_study' || item.modeId === 'grammar_200'
+        ? 'grammar'
+        : 'vocab';
       counters[moduleId].activeItems += 1;
       counters[moduleId].exposureCount += item.unstableCount;
     });
@@ -200,6 +202,8 @@ const aggregateWeaknesses = (
         errorTypes: [
           item.modeId === 'grammar_study'
             ? 'grammar_study_unstable'
+            : item.modeId === 'grammar_200'
+              ? 'grammar_200_unstable'
             : item.modeId === 'official_vocab_memory'
               ? 'official_vocab_unstable'
               : 'vocab_study_unstable',

@@ -2,6 +2,7 @@ const { buildState, buildWrongAnswerItem, runCase, withPage } = require('./share
 const passages = require('../../src/data/seed/reading_passages.json');
 const cases = require('../../src/data/seed/listening_cases.json');
 const officialDecks = require('../../src/data/seed/official_vocab_decks.json');
+const grammar200 = require('../../src/data/seed/n2_grammar_200.json');
 const signal = (question, modeId) => ({
   questionId: question.id, modeId, prompt: question.prompt, source: 'browser-test', tags: question.tags,
   active: true, wrongCount: 2, firstWrongAt: '2026-03-01T00:00:00Z', lastWrongAt: '2026-03-01T00:00:00Z',
@@ -80,6 +81,39 @@ async function main() {
       await page.getByText('继续今天的安排', { exact: true }).click();
       await page.locator('[data-testid="today-review-count"]').waitFor();
       assert.match(await page.locator('[data-testid="today-review-count"]').textContent(), /没有到期弱项/);
+    });
+  });
+  await runCase('schedule-grammar200-target-chapter', async () => {
+    const chapter = grammar200.chapters.find((item) => item.published && item.index > 1)
+      || grammar200.chapters.find((item) => item.published);
+    const pattern = chapter.patterns[0];
+    const weakness = {
+      id: `grammar200:pattern:${pattern.id}`,
+      modeId: 'grammar_200',
+      term: pattern.term,
+      reading: pattern.reading,
+      coreMeaning: pattern.meaningZh,
+      keyUsage: pattern.usage,
+      confusingPair: pattern.confusingWith || '',
+      example: pattern.examples[0].jp,
+      memoryHook: pattern.memoryHook,
+      reviewPrompt: '回忆核心义、接续和例句。',
+      unstableCount: 1,
+      firstUnstableAt: '2026-03-01T00:00:00.000Z',
+      lastUnstableAt: '2026-03-01T00:00:00.000Z',
+      active: true,
+      reviewBox: 1,
+      nextReviewAt: '2026-03-01T00:00:00.000Z',
+    };
+    await withPage('schedule-grammar200-target-chapter', buildState({ studyWeaknesses: [weakness] }), async (page, assert) => {
+      await page.locator('[data-testid="today-plan-start-grammar_200"]').click();
+      const target = page.locator(`[data-testid="grammar200-chapter-${chapter.id}"]`);
+      await target.waitFor();
+      assert.equal(
+        await page.locator('[data-testid^="grammar200-chapter-"]').first().getAttribute('data-testid'),
+        `grammar200-chapter-${chapter.id}`,
+      );
+      assert.match(await target.textContent(), /待复习 1|本章有 1 项到期/);
     });
   });
 }

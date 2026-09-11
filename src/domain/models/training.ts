@@ -15,7 +15,10 @@ export type ReadingModeId = 'reading_drill';
 export type ListeningModeId = 'listening_analyze';
 export type StudyModeId = 'grammar_study' | 'vocab_study';
 export type OfficialVocabMemoryModeId = 'official_vocab_memory';
-export type StudyWeaknessModeId = StudyModeId | OfficialVocabMemoryModeId;
+export type StudyWeaknessModeId =
+  | StudyModeId
+  | OfficialVocabMemoryModeId
+  | Grammar200ModeId;
 export type ReviewModeId = 'review_wrong' | 'vocab_review_wrong';
 export type Grammar200ModeId = 'grammar_200';
 export type TrainingSessionKind = 'drill' | 'study' | 'review' | 'chapter';

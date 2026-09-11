@@ -61,6 +61,7 @@ type ProgressContextValue = {
   recordStudySession: (
     modeId: StudyWeaknessModeId,
     studyWeaknesses: StudyWeaknessDraft[],
+    kind?: TrainingSessionKind,
   ) => void;
   completeWrongReviewSession: (
     modeId: ReviewModeId,
@@ -164,13 +165,13 @@ export function ProgressProvider({ children }: ProgressProviderProps) {
           ),
         );
       },
-      recordStudySession: (modeId, studyWeaknesses) => {
+      recordStudySession: (modeId, studyWeaknesses, kind = 'study') => {
         setState((current) =>
           recordStudySessionResult(
             current,
             todayKey,
             modeId,
-            'study',
+            kind,
             studyWeaknesses,
           ),
         );

@@ -254,6 +254,14 @@ export const WEAKNESS_ERROR_META: Record<WeaknessErrorType, WeaknessErrorMeta> =
     coachPoint: '先回忆读音和核心义，再用例句确认搭配；不要只凭中文释义判断已经记住。',
     followUp: '回到官方词卡，优先完成到期词卡复习，再继续新词包。',
   },
+  grammar_200_unstable: {
+    label: '文法 200 条掌握不稳',
+    sourceModeId: 'grammar_200',
+    recommendedModeId: 'grammar_200',
+    summary: '章节卡片或排序题仍有不稳项，需要回到对应章节重新确认结构和语序。',
+    coachPoint: '先锁定句尾和接续，再组合中间成分；文法卡只记核心义、结构和一个例句。',
+    followUp: '回到文法 200 条中置顶的章节，复习到期卡片并重做排序题。',
+  },
 };
 
 export const isWrongAnswerErrorType = (

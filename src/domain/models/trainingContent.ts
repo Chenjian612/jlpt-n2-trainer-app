@@ -49,7 +49,8 @@ export type ListeningWeaknessErrorType =
 export type StudyWeaknessErrorType =
   | 'grammar_study_unstable'
   | 'vocab_study_unstable'
-  | 'official_vocab_unstable';
+  | 'official_vocab_unstable'
+  | 'grammar_200_unstable';
 
 export type WeaknessErrorType =
   | WrongAnswerErrorType
