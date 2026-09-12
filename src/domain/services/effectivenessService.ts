@@ -1,5 +1,5 @@
 import type { LearningEffectivenessSnapshot, ProgressState } from '../models/progress';
-import { addDays, getDayKey, parseDayKey } from '../../utils/dateUtils';
+import { addDays, diffInDays, getDayKey, parseDayKey, startOfDay } from '../../utils/dateUtils';
 import { getReviewTasks } from './reviewScheduleService';
 
 export const getLearningEffectiveness = (
@@ -23,10 +23,13 @@ export const getLearningEffectiveness = (
     ...state.studyWeaknesses.map((item) => ({ at: item.lastUnstableAt, count: item.unstableCount })),
   ];
   const hasEventTracking = Boolean(state.errorTrackingStartedAt) || (state.errorEvents?.length ?? 0) > 0;
-  const trackingStartedAt = state.errorTrackingStartedAt
-    ? new Date(state.errorTrackingStartedAt).getTime()
-    : Number.POSITIVE_INFINITY;
-  const errorTrendReady = trackingStartedAt <= priorStart.getTime();
+  const trackingStartedDay = state.errorTrackingStartedAt
+    ? startOfDay(new Date(state.errorTrackingStartedAt))
+    : null;
+  const errorTrackingDays = trackingStartedDay
+    ? Math.min(14, Math.max(0, diffInDays(today, trackingStartedDay) + 1))
+    : 0;
+  const errorTrendReady = errorTrackingDays >= 14;
   const exposureItems = hasEventTracking
     ? (state.errorEvents ?? []).map((event) => ({ at: event.occurredAt, count: 1 }))
     : legacyExposureItems;
@@ -65,6 +68,10 @@ export const getLearningEffectiveness = (
     priorErrorExposure,
     errorTrend,
     errorTrendReady,
+    errorTrackingDays,
+    errorEventCountLast14Days: hasEventTracking
+      ? recentErrorExposure + priorErrorExposure
+      : 0,
     errorExposureBasis: hasEventTracking
       ? 'event_history'
       : legacyExposureItems.length > 0 ? 'legacy_aggregate' : 'empty',

@@ -145,7 +145,7 @@ export function WeeklyRhythmCard({
             {effectiveness.errorExposureBasis === 'event_history'
               ? effectiveness.errorTrendReady
                 ? '错误趋势按逐次记录比较近 7 天与此前 7 天，并结合复习晋级和迁移结果。'
-                : '正在积累完整 14 天逐次记录；期间继续展示复习晋级和迁移结果。'
+                : `逐次记录已采集 ${effectiveness.errorTrackingDays}/14 天；满 14 天后开始比较趋势。`
               : effectiveness.errorExposureBasis === 'legacy_aggregate'
                 ? '历史错误暂按最近记录估算；完成新训练后会改用逐次记录。'
                 : '完成训练后会按逐次错误记录、复习晋级和迁移结果判断效果。'}
@@ -156,6 +156,7 @@ export function WeeklyRhythmCard({
             <EffectivenessMetric label="已晋级" value={`${effectiveness.spacedProgressCount}`} />
             <EffectivenessMetric label="迁移正确率" value={effectiveness.transferAccuracy === null ? '—' : `${Math.round(effectiveness.transferAccuracy * 100)}%`} />
             <EffectivenessMetric label="错误趋势" value={!effectiveness.errorTrendReady ? '积累中' : effectiveness.errorTrend === 'improving' ? '好转' : effectiveness.errorTrend === 'worsening' ? '上升' : '持平'} />
+            <EffectivenessMetric label="14 天错误样本" value={effectiveness.errorExposureBasis === 'event_history' ? `${effectiveness.errorEventCountLast14Days}` : '—'} />
             <EffectivenessMetric label="近 7 天复习" value={`${effectiveness.reviewSessionsLast7Days} 轮`} />
           </View>
         </View>

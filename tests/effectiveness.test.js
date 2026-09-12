@@ -25,6 +25,8 @@ module.exports = { name: 'effectiveness', tests: [
     assert.equal(result.priorErrorExposure, 0);
     assert.equal(result.errorTrend, 'stable');
     assert.equal(result.errorTrendReady, false);
+    assert.equal(result.errorTrackingDays, 0);
+    assert.equal(result.errorEventCountLast14Days, 0);
     assert.equal(result.errorExposureBasis, 'legacy_aggregate');
   } },
   { name: 'uses individual error events instead of assigning lifetime counts to the latest date', run() {
@@ -48,7 +50,25 @@ module.exports = { name: 'effectiveness', tests: [
     assert.equal(result.priorErrorExposure, 4);
     assert.equal(result.errorTrend, 'improving');
     assert.equal(result.errorTrendReady, true);
+    assert.equal(result.errorTrackingDays, 14);
+    assert.equal(result.errorEventCountLast14Days, 6);
     assert.equal(result.errorExposureBasis, 'event_history');
+  } },
+  { name: 'keeps the trend in collection mode until both seven-day windows are covered', run() {
+    const state = {
+      ...createDefaultProgressState(),
+      errorTrackingStartedAt: '2026-09-04T08:00:00+08:00',
+      errorEvents: [
+        { id: 'recent', occurredAt: '2026-09-08T08:00:00Z', source: 'drill_wrong', modeId: 'grammar_drill', itemId: 'g' },
+      ],
+    };
+
+    const result = getLearningEffectiveness(state, '2026-09-08', new Date('2026-09-08T12:00:00Z'));
+
+    assert.equal(result.errorTrackingDays, 5);
+    assert.equal(result.errorTrendReady, false);
+    assert.equal(result.errorTrend, 'stable');
+    assert.equal(result.errorEventCountLast14Days, 1);
   } },
   { name: 'does not invent a transfer rate without transfer attempts', run() {
     const result = getLearningEffectiveness(createDefaultProgressState(), '2026-09-08', new Date('2026-09-08T12:00:00Z'));
@@ -56,5 +76,6 @@ module.exports = { name: 'effectiveness', tests: [
     assert.equal(result.dueReviewCount, 0);
     assert.equal(result.errorExposureBasis, 'empty');
     assert.equal(result.errorTrendReady, false);
+    assert.equal(result.errorTrackingDays, 0);
   } },
 ] };

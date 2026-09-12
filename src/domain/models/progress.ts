@@ -172,5 +172,7 @@ export type LearningEffectivenessSnapshot = {
   priorErrorExposure: number;
   errorTrend: WeaknessTrend;
   errorTrendReady: boolean;
+  errorTrackingDays: number;
+  errorEventCountLast14Days: number;
   errorExposureBasis: 'event_history' | 'legacy_aggregate' | 'empty';
 };
