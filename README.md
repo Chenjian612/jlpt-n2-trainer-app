@@ -63,6 +63,7 @@
 npm test
 npm run typecheck
 npm run test:ai
+npm run test:production
 npm run ai:evaluate
 npm run ai:dev
 ```

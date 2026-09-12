@@ -14,6 +14,7 @@
     "typecheck": "tsc --noEmit",
     "build:web:test": "EXPO_NO_DOTENV=1 EXPO_NO_TELEMETRY=1 expo export --platform web --output-dir output/web-ci",
     "test:web": "node tests/web/run-ci.js",
+    "test:production": "node scripts/verify-production.js",
     "ai:dev": "cd ai-service && .venv/bin/python -m uvicorn app.main:app --reload --port 8000 --env-file ../.env.local",
     "test:ai": "cd ai-service && .venv/bin/python -m unittest discover -s tests -v",
     "ai:evaluate": "cd ai-service && .venv/bin/python scripts/run_evaluation.py",
