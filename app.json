@@ -1,8 +1,9 @@
 {
   "expo": {
-    "name": "jlpt-n2-trainer-app",
+    "name": "JLPT N2 Trainer",
     "slug": "jlpt-n2-trainer-app",
     "version": "1.0.0",
+    "scheme": "jlptn2trainer",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -13,9 +14,17 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.anonymous.jlpt-n2-trainer-app"
+      "bundleIdentifier": "com.chenjian612.jlptn2trainer",
+      "buildNumber": "1"
     },
     "android": {
+      "package": "com.chenjian612.jlptn2trainer",
+      "versionCode": 1,
+      "blockedPermissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE"
+      ],
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/android-icon-foreground.png",
@@ -28,7 +37,15 @@
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
-      "expo-audio"
+      [
+        "expo-audio",
+        {
+          "microphonePermission": false,
+          "recordAudioAndroid": false,
+          "enableBackgroundRecording": false
+        }
+      ],
+      "expo-asset"
     ]
   }
 }
