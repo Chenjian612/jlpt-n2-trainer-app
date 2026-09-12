@@ -39,12 +39,28 @@ export type TrainingSessionRecord = {
 
 export type SessionsByDay = Partial<Record<string, TrainingSessionRecord[]>>;
 
+export type LearningErrorEventSource =
+  | 'drill_wrong'
+  | 'weakness_wrong'
+  | 'study_unstable'
+  | 'review_wrong';
+
+export type LearningErrorEvent = {
+  id: string;
+  occurredAt: string;
+  source: LearningErrorEventSource;
+  modeId: TrainingModeId;
+  itemId: string;
+};
+
 export type ProgressState = {
   weeklyGoal: number;
   sessionsByDay: SessionsByDay;
   wrongAnswers: WrongAnswerItem[];
   weaknessSignals: WeaknessSignalItem[];
   studyWeaknesses: StudyWeaknessItem[];
+  errorEvents: LearningErrorEvent[];
+  errorTrackingStartedAt: string | null;
   aiExplanationCache: Record<string, AiWrongAnswerExplanation>; // key: WrongAnswerItem.questionId
   personalizedTutorCache: Record<string, CachedPersonalizedTutorExplanation>;
   transferResults: TransferResult[];
@@ -155,4 +171,6 @@ export type LearningEffectivenessSnapshot = {
   recentErrorExposure: number;
   priorErrorExposure: number;
   errorTrend: WeaknessTrend;
+  errorTrendReady: boolean;
+  errorExposureBasis: 'event_history' | 'legacy_aggregate' | 'empty';
 };

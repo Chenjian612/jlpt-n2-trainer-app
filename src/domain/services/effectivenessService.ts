@@ -17,21 +17,32 @@ export const getLearningEffectiveness = (
   const recentStart = new Date(addDays(today, -6).setHours(0, 0, 0, 0));
   const priorStart = new Date(addDays(today, -13).setHours(0, 0, 0, 0));
   const priorEnd = recentStart;
-  const exposure = (start: Date, end: Date) => [
+  const legacyExposureItems = [
     ...state.wrongAnswers.map((item) => ({ at: item.lastWrongAt, count: item.wrongCount })),
     ...state.weaknessSignals.map((item) => ({ at: item.lastWrongAt, count: item.wrongCount })),
     ...state.studyWeaknesses.map((item) => ({ at: item.lastUnstableAt, count: item.unstableCount })),
-  ].filter((item) => {
+  ];
+  const hasEventTracking = Boolean(state.errorTrackingStartedAt) || (state.errorEvents?.length ?? 0) > 0;
+  const trackingStartedAt = state.errorTrackingStartedAt
+    ? new Date(state.errorTrackingStartedAt).getTime()
+    : Number.POSITIVE_INFINITY;
+  const errorTrendReady = trackingStartedAt <= priorStart.getTime();
+  const exposureItems = hasEventTracking
+    ? (state.errorEvents ?? []).map((event) => ({ at: event.occurredAt, count: 1 }))
+    : legacyExposureItems;
+  const exposure = (start: Date, end: Date) => exposureItems.filter((item) => {
     const at = new Date(item.at).getTime();
     return at >= start.getTime() && at < end.getTime();
   }).reduce((sum, item) => sum + item.count, 0);
   const recentErrorExposure = exposure(recentStart, new Date(addDays(today, 1).setHours(0, 0, 0, 0)));
   const priorErrorExposure = exposure(priorStart, priorEnd);
-  const errorTrend = priorErrorExposure === 0
-    ? (recentErrorExposure === 0 ? 'stable' : 'worsening')
-    : recentErrorExposure < priorErrorExposure * 0.8
-      ? 'improving'
-      : recentErrorExposure > priorErrorExposure * 1.2 ? 'worsening' : 'stable';
+  const errorTrend = !errorTrendReady
+    ? 'stable'
+    : priorErrorExposure === 0
+      ? (recentErrorExposure === 0 ? 'stable' : 'worsening')
+      : recentErrorExposure < priorErrorExposure * 0.8
+        ? 'improving'
+        : recentErrorExposure > priorErrorExposure * 1.2 ? 'worsening' : 'stable';
   const repeatErrorCount = [
     ...state.wrongAnswers.filter((item) => !item.mastered && item.wrongCount >= 2),
     ...state.weaknessSignals.filter((item) => item.active && item.wrongCount >= 2),
@@ -53,5 +64,9 @@ export const getLearningEffectiveness = (
     recentErrorExposure,
     priorErrorExposure,
     errorTrend,
+    errorTrendReady,
+    errorExposureBasis: hasEventTracking
+      ? 'event_history'
+      : legacyExposureItems.length > 0 ? 'legacy_aggregate' : 'empty',
   };
 };

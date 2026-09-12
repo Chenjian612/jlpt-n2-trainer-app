@@ -23,11 +23,38 @@ module.exports = { name: 'effectiveness', tests: [
     assert.equal(result.reviewSessionsLast7Days, 1);
     assert.equal(result.recentErrorExposure, 6);
     assert.equal(result.priorErrorExposure, 0);
-    assert.equal(result.errorTrend, 'worsening');
+    assert.equal(result.errorTrend, 'stable');
+    assert.equal(result.errorTrendReady, false);
+    assert.equal(result.errorExposureBasis, 'legacy_aggregate');
+  } },
+  { name: 'uses individual error events instead of assigning lifetime counts to the latest date', run() {
+    const state = {
+      ...createDefaultProgressState(),
+      wrongAnswers: [{ mastered: false, wrongCount: 99, modeId: 'grammar_drill', lastWrongAt: '2026-09-08T08:00:00Z', nextReviewAt: '2026-09-08', questionId: 'g' }],
+      errorEvents: [
+        { id: 'recent-1', occurredAt: '2026-09-08T08:00:00Z', source: 'drill_wrong', modeId: 'grammar_drill', itemId: 'g' },
+        { id: 'recent-2', occurredAt: '2026-09-04T08:00:00Z', source: 'study_unstable', modeId: 'vocab_study', itemId: 'v' },
+        { id: 'prior-1', occurredAt: '2026-09-01T08:00:00Z', source: 'weakness_wrong', modeId: 'reading_drill', itemId: 'r1' },
+        { id: 'prior-2', occurredAt: '2026-08-31T08:00:00Z', source: 'weakness_wrong', modeId: 'reading_drill', itemId: 'r2' },
+        { id: 'prior-3', occurredAt: '2026-08-30T08:00:00Z', source: 'review_wrong', modeId: 'grammar_drill', itemId: 'g' },
+        { id: 'prior-4', occurredAt: '2026-08-29T08:00:00Z', source: 'study_unstable', modeId: 'grammar_study', itemId: 's' },
+      ],
+      errorTrackingStartedAt: '2026-08-20T08:00:00Z',
+    };
+
+    const result = getLearningEffectiveness(state, '2026-09-08', new Date('2026-09-08T12:00:00Z'));
+
+    assert.equal(result.recentErrorExposure, 2);
+    assert.equal(result.priorErrorExposure, 4);
+    assert.equal(result.errorTrend, 'improving');
+    assert.equal(result.errorTrendReady, true);
+    assert.equal(result.errorExposureBasis, 'event_history');
   } },
   { name: 'does not invent a transfer rate without transfer attempts', run() {
     const result = getLearningEffectiveness(createDefaultProgressState(), '2026-09-08', new Date('2026-09-08T12:00:00Z'));
     assert.equal(result.transferAccuracy, null);
     assert.equal(result.dueReviewCount, 0);
+    assert.equal(result.errorExposureBasis, 'empty');
+    assert.equal(result.errorTrendReady, false);
   } },
 ] };

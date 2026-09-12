@@ -1,5 +1,7 @@
 import type {
   AiWrongAnswerExplanation,
+  LearningErrorEvent,
+  LearningErrorEventSource,
   ProgressState,
   SessionsByDay,
   TrainingSessionRecord,
@@ -49,6 +51,7 @@ export { getDayKey };
 
 export const DEFAULT_WEEKLY_GOAL = APP_CONFIG.DEFAULT_WEEKLY_GOAL;
 const MAX_HISTORY_DAYS = APP_CONFIG.MAX_HISTORY_DAYS;
+const MAX_ERROR_EVENTS = APP_CONFIG.MAX_ERROR_EVENTS;
 
 const VALID_MODE_IDS = new Set<TrainingModeId>([
   'grammar_drill',
@@ -68,6 +71,13 @@ const VALID_SESSION_KINDS = new Set<TrainingSessionKind>([
   'study',
   'review',
   'chapter',
+]);
+
+const VALID_ERROR_EVENT_SOURCES = new Set<LearningErrorEventSource>([
+  'drill_wrong',
+  'weakness_wrong',
+  'study_unstable',
+  'review_wrong',
 ]);
 
 const SESSION_KIND_BY_MODE: Record<TrainingModeId, TrainingSessionKind> = {
@@ -134,6 +144,8 @@ export const createDefaultProgressState = (): ProgressState => ({
   wrongAnswers: [],
   weaknessSignals: [],
   studyWeaknesses: [],
+  errorEvents: [],
+  errorTrackingStartedAt: null,
   aiExplanationCache: {},
   personalizedTutorCache: {},
   transferResults: [],
@@ -568,6 +580,28 @@ const normalizeTransferResults = (value: unknown): TransferResult[] => {
     .slice(-100);
 };
 
+const normalizeErrorEvents = (value: unknown): LearningErrorEvent[] => {
+  if (!Array.isArray(value)) return [];
+  return value
+    .filter((entry): entry is LearningErrorEvent => {
+      if (!entry || typeof entry !== 'object') return false;
+      const parsed = entry as Partial<LearningErrorEvent>;
+      return (
+        typeof parsed.id === 'string' &&
+        parsed.id.length > 0 &&
+        typeof parsed.occurredAt === 'string' &&
+        !Number.isNaN(new Date(parsed.occurredAt).getTime()) &&
+        typeof parsed.source === 'string' &&
+        VALID_ERROR_EVENT_SOURCES.has(parsed.source as LearningErrorEventSource) &&
+        isValidModeId(parsed.modeId) &&
+        typeof parsed.itemId === 'string' &&
+        parsed.itemId.length > 0
+      );
+    })
+    .sort((left, right) => left.occurredAt.localeCompare(right.occurredAt))
+    .slice(-MAX_ERROR_EVENTS);
+};
+
 export const normalizeProgressState = (raw: string | null): ProgressState => {
   if (!raw) return createDefaultProgressState();
   try {
@@ -575,12 +609,20 @@ export const normalizeProgressState = (raw: string | null): ProgressState => {
     const weeklyGoal = typeof parsed.weeklyGoal === 'number' ? clampWeeklyGoal(parsed.weeklyGoal) : DEFAULT_WEEKLY_GOAL;
     const sessionsByDay = parsed.sessionsByDay && typeof parsed.sessionsByDay === 'object' ? normalizeSessionsByDay(parsed.sessionsByDay) : migrateCompletedByDay(parsed.completedByDay ?? {});
 
+    const errorEvents = normalizeErrorEvents(parsed.errorEvents);
+    const parsedTrackingStartedAt = typeof parsed.errorTrackingStartedAt === 'string' &&
+      !Number.isNaN(new Date(parsed.errorTrackingStartedAt).getTime())
+      ? parsed.errorTrackingStartedAt
+      : null;
+
     return {
       weeklyGoal,
       sessionsByDay: pruneHistory(sessionsByDay),
       wrongAnswers: normalizeWrongAnswers(parsed.wrongAnswers),
       weaknessSignals: normalizeWeaknessSignals(parsed.weaknessSignals),
       studyWeaknesses: normalizeStudyWeaknesses(parsed.studyWeaknesses),
+      errorEvents,
+      errorTrackingStartedAt: parsedTrackingStartedAt ?? errorEvents[0]?.occurredAt ?? null,
       aiExplanationCache: normalizeAiExplanationCache(parsed.aiExplanationCache),
       personalizedTutorCache: normalizePersonalizedTutorCache(parsed.personalizedTutorCache),
       transferResults: normalizeTransferResults(parsed.transferResults),
@@ -588,6 +630,25 @@ export const normalizeProgressState = (raw: string | null): ProgressState => {
   } catch {
     return createDefaultProgressState();
   }
+};
+
+const appendErrorEvents = (
+  state: ProgressState,
+  source: LearningErrorEventSource,
+  items: Array<{ modeId: TrainingModeId; itemId: string }>,
+  occurredAt: Date,
+): LearningErrorEvent[] => {
+  if (items.length === 0) return state.errorEvents ?? [];
+  const occurredAtIso = occurredAt.toISOString();
+  const offset = state.errorEvents?.length ?? 0;
+  const events = items.map((item, index): LearningErrorEvent => ({
+    id: `${occurredAt.getTime()}:${source}:${item.modeId}:${item.itemId}:${offset + index}`,
+    occurredAt: occurredAtIso,
+    source,
+    modeId: item.modeId,
+    itemId: item.itemId,
+  }));
+  return [...(state.errorEvents ?? []), ...events].slice(-MAX_ERROR_EVENTS);
 };
 
 export const createTrainingSession = (
@@ -666,7 +727,11 @@ export const recordTrainingSession = (state: ProgressState, dayKey: string, sess
     ...state.sessionsByDay,
     [dayKey]: sortSessions([...(state.sessionsByDay[dayKey] ?? []), session]),
   };
-  return { ...state, sessionsByDay: pruneHistory(nextSessionsByDay) };
+  return {
+    ...state,
+    sessionsByDay: pruneHistory(nextSessionsByDay),
+    errorTrackingStartedAt: state.errorTrackingStartedAt ?? session.completedAt,
+  };
 };
 
 export const recordWrongAnswers = (state: ProgressState, wrongAnswers: WrongAnswerDraft[], recordedAt: Date = new Date()): ProgressState => {
@@ -711,7 +776,17 @@ export const recordWrongAnswers = (state: ProgressState, wrongAnswers: WrongAnsw
       );
     }
   }
-  return { ...state, wrongAnswers: sortWrongAnswers(nextWrongAnswers) };
+  return {
+    ...state,
+    wrongAnswers: sortWrongAnswers(nextWrongAnswers),
+    errorEvents: appendErrorEvents(
+      state,
+      'drill_wrong',
+      wrongAnswers.map((draft) => ({ modeId: draft.question.modeId, itemId: draft.question.id })),
+      recordedAt,
+    ),
+    errorTrackingStartedAt: state.errorTrackingStartedAt ?? recordedAtIso,
+  };
 };
 
 export const recordWeaknessSignals = (state: ProgressState, weaknessSignals: WeaknessSignalDraft[], recordedAt: Date = new Date()): ProgressState => {
@@ -752,7 +827,19 @@ export const recordWeaknessSignals = (state: ProgressState, weaknessSignals: Wea
         : { ...existing, ...timed, wrongCount: existing.wrongCount + 1, lastWrongAt: recordedAtIso };
     }
   }
-  return { ...state, weaknessSignals: sortWeaknessSignals(nextWeaknessSignals) };
+  return {
+    ...state,
+    weaknessSignals: sortWeaknessSignals(nextWeaknessSignals),
+    errorEvents: appendErrorEvents(
+      state,
+      'weakness_wrong',
+      weaknessSignals
+        .filter((draft) => !draft.wasCorrect)
+        .map((draft) => ({ modeId: draft.modeId, itemId: draft.questionId })),
+      recordedAt,
+    ),
+    errorTrackingStartedAt: state.errorTrackingStartedAt ?? recordedAtIso,
+  };
 };
 
 export const recordStudyWeaknesses = (state: ProgressState, studyWeaknesses: StudyWeaknessDraft[], recordedAt: Date = new Date()): ProgressState => {
@@ -777,7 +864,19 @@ export const recordStudyWeaknesses = (state: ProgressState, studyWeaknesses: Stu
       nextStudyWeaknesses[idx] = { ...existing, ...advanceTimedReview(existing.reviewBox ?? 1, false, recordedAt), unstableCount: existing.unstableCount + 1, lastUnstableAt: recordedAtIso, active: true };
     }
   }
-  return { ...state, studyWeaknesses: sortStudyWeaknesses(nextStudyWeaknesses) };
+  return {
+    ...state,
+    studyWeaknesses: sortStudyWeaknesses(nextStudyWeaknesses),
+    errorEvents: appendErrorEvents(
+      state,
+      'study_unstable',
+      studyWeaknesses
+        .filter((draft) => !draft.wasConfident)
+        .map((draft) => ({ modeId: draft.item.modeId, itemId: draft.item.id })),
+      recordedAt,
+    ),
+    errorTrackingStartedAt: state.errorTrackingStartedAt ?? recordedAtIso,
+  };
 };
 
 export const recordDrillSessionResult = (state: ProgressState, dayKey: string, modeId: DrillModeId, kind: TrainingSessionKind, wrongAnswers: WrongAnswerDraft[], completedAt: Date = new Date()): ProgressState => {
@@ -822,6 +921,18 @@ export const recordWrongReviewSession = (state: ProgressState, dayKey: string, m
     ...recordedState,
     wrongAnswers: sortWrongAnswers(nextWrongAnswers),
     aiExplanationCache: nextCache,
+    errorEvents: appendErrorEvents(
+      recordedState,
+      'review_wrong',
+      decisions
+        .flatMap((decision) => {
+          const item = recordedState.wrongAnswers.find((candidate) => candidate.questionId === decision.questionId);
+          return item && decision.selectedChoice !== item.answer
+            ? [{ modeId: item.modeId, itemId: item.questionId }]
+            : [];
+        }),
+      completedAt,
+    ),
   };
 };
 

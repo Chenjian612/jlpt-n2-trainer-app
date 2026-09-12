@@ -6,6 +6,7 @@ const defaultWebAiProxyUrl =
 export const APP_CONFIG = {
   // Progress & History
   MAX_HISTORY_DAYS: 45,
+  MAX_ERROR_EVENTS: 2000,
   DEFAULT_WEEKLY_GOAL: 14,
   MIN_WEEKLY_GOAL: 6,
   MAX_WEEKLY_GOAL: 28,

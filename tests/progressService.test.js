@@ -183,6 +183,21 @@ module.exports = {
       },
     },
     {
+      name: 'normalizeProgressState keeps valid error events and drops invalid records',
+      run() {
+        const state = normalizeProgressState(JSON.stringify({
+          errorEvents: [
+            { id: 'valid', occurredAt: '2026-09-08T08:00:00.000Z', source: 'drill_wrong', modeId: 'grammar_drill', itemId: 'g1' },
+            { id: 'bad-date', occurredAt: 'never', source: 'drill_wrong', modeId: 'grammar_drill', itemId: 'g2' },
+            { id: 'bad-source', occurredAt: '2026-09-08T08:00:00.000Z', source: 'unknown', modeId: 'grammar_drill', itemId: 'g3' },
+          ],
+        }));
+
+        assert.deepEqual(state.errorEvents.map((event) => event.id), ['valid']);
+        assert.equal(state.errorTrackingStartedAt, '2026-09-08T08:00:00.000Z');
+      },
+    },
+    {
       name: 'priority label covers new overdue stable and high priority branches',
       run() {
         const base = {
@@ -293,6 +308,39 @@ module.exports = {
         assert.equal(next.wrongAnswers[0].wrongCount, 2);
         assert.equal(next.wrongAnswers[0].mastered, false);
         assert.equal(next.wrongAnswers[0].lastWrongAt, '2026-03-19T10:00:00.000Z');
+        assert.equal(next.errorEvents.length, 2);
+        assert.equal(next.errorEvents[1].source, 'drill_wrong');
+        assert.equal(next.errorTrackingStartedAt, '2026-03-19T09:00:00.000Z');
+      },
+    },
+    {
+      name: 'records each real weakness exposure and ignores correct confirmations',
+      run() {
+        let state = recordWeaknessSignals(
+          createDefaultProgressState(),
+          [buildWeaknessSignalDraft()],
+          new Date('2026-03-19T09:00:00.000Z'),
+        );
+        state = recordWeaknessSignals(
+          state,
+          [buildWeaknessSignalDraft({ wasCorrect: true })],
+          new Date('2026-03-19T10:00:00.000Z'),
+        );
+        state = recordStudyWeaknesses(
+          state,
+          [buildStudyDraft()],
+          new Date('2026-03-19T11:00:00.000Z'),
+        );
+        state = recordStudyWeaknesses(
+          state,
+          [{ ...buildStudyDraft(), wasConfident: true }],
+          new Date('2026-03-19T15:00:00.000Z'),
+        );
+
+        assert.deepEqual(state.errorEvents.map((event) => event.source), [
+          'weakness_wrong',
+          'study_unstable',
+        ]);
       },
     },
     {
@@ -443,6 +491,35 @@ module.exports = {
         assert.equal(reviewedState.wrongAnswers[0].lastUserChoice, 2);
         assert.equal(reviewedState.wrongAnswers[0].lastReviewedAt, atHour(TEST_DAY, 10));
         assert.equal(reviewedState.sessionsByDay[TEST_DAY].length, 1);
+        assert.equal(reviewedState.errorEvents.length, 1);
+      },
+    },
+    {
+      name: 'wrong review records only an actually incorrect re-answer as a new error',
+      run() {
+        const wrongState = recordWrongAnswers(
+          createDefaultProgressState(),
+          [buildWrongAnswerDraft()],
+          new Date(atHour(TEST_DAY, 9)),
+        );
+        const keptAfterCorrect = recordWrongReviewSession(
+          wrongState,
+          TEST_DAY,
+          'review_wrong',
+          [{ questionId: 'grammar-q1', selectedChoice: 2, mastered: false }],
+          new Date(atHour(TEST_DAY, 10)),
+        );
+        const incorrect = recordWrongReviewSession(
+          keptAfterCorrect,
+          TEST_DAY,
+          'review_wrong',
+          [{ questionId: 'grammar-q1', selectedChoice: 1, mastered: false }],
+          new Date(atHour(TEST_DAY, 11)),
+        );
+
+        assert.equal(keptAfterCorrect.errorEvents.length, 1);
+        assert.equal(incorrect.errorEvents.length, 2);
+        assert.equal(incorrect.errorEvents[1].source, 'review_wrong');
       },
     },
     {
