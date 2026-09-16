@@ -9,7 +9,11 @@ from pathlib import Path
 SERVICE_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(SERVICE_ROOT))
 
-from app.evaluation import evaluate_cases, load_evaluation_set  # noqa: E402
+from app.evaluation import (  # noqa: E402
+    evaluate_cases,
+    evaluate_quality_gates,
+    load_evaluation_set,
+)
 
 
 def main() -> None:
@@ -26,6 +30,13 @@ def main() -> None:
         type=float,
         default=float(os.getenv("AI_LLM_OUTPUT_COST_PER_MILLION", "0")),
     )
+    parser.add_argument("--max-fallback-rate", type=float)
+    parser.add_argument("--max-validation-failure-rate", type=float)
+    parser.add_argument("--min-locked-fields-valid-rate", type=float)
+    parser.add_argument("--min-personalization-valid-rate", type=float)
+    parser.add_argument("--min-transfer-quality-score", type=float)
+    parser.add_argument("--max-p95-latency-ms", type=float)
+    parser.add_argument("--max-estimated-cost-usd", type=float)
     args = parser.parse_args()
 
     cases = load_evaluation_set()
@@ -38,11 +49,31 @@ def main() -> None:
         input_cost_per_million=args.input_cost_per_million,
         output_cost_per_million=args.output_cost_per_million,
     )
+    gate_values = {
+        "fallbackRate": args.max_fallback_rate,
+        "validationFailureRate": args.max_validation_failure_rate,
+        "lockedFieldsValidRate": args.min_locked_fields_valid_rate,
+        "personalizationValidRate": args.min_personalization_valid_rate,
+        "averageTransferQualityScore": args.min_transfer_quality_score,
+        "p95LatencyMs": args.max_p95_latency_ms,
+        "estimatedCostUsd": args.max_estimated_cost_usd,
+    }
+    configured_gates = {
+        metric: value for metric, value in gate_values.items() if value is not None
+    }
+    if configured_gates:
+        report["qualityGates"] = evaluate_quality_gates(
+            report["summary"], configured_gates
+        )
     rendered = json.dumps(report, ensure_ascii=False, indent=2)
     if args.output:
         args.output.parent.mkdir(parents=True, exist_ok=True)
         args.output.write_text(rendered + "\n", encoding="utf-8")
     print(json.dumps(report["summary"], ensure_ascii=False, indent=2))
+    if configured_gates:
+        print(json.dumps(report["qualityGates"], ensure_ascii=False, indent=2))
+        if not report["qualityGates"]["passed"]:
+            raise SystemExit(1)
 
 
 if __name__ == "__main__":

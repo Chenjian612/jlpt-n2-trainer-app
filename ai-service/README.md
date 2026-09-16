@@ -135,9 +135,25 @@ Web 对外展示时，访客不能访问你电脑上的 `127.0.0.1:8000`。项�
 ```bash
 AI_LLM_INPUT_COST_PER_MILLION=1 \
 AI_LLM_OUTPUT_COST_PER_MILLION=2 \
-npm run ai:evaluate -- --output ai-service/evaluation/latest-report.json
+npm run ai:evaluate -- --output evaluation/latest-report.json
 ```
 
 单价单位是美元/百万 token，应填写当前所用模型的实际价格。未配置单价时仍统计 token，成本显示为 `0`。开发时可用 `--limit 2` 做小规模连通检查；完整质量报告必须运行全部 40 个案例。
 
 迁移题质量分由六项可复现规则组成：考点保持、题干不是原题复制、选项不重复、答案索引合法、解释非空、题干或解释包含考点锚点。报告同时保留逐案例失败原因，便于区分模型不可用（回退）与结构校验失败。
+
+评估集加载时会与当前题库逐项核对题号、考点、误选答案和首次/重复错误上下文，题库变更导致的陈旧案例会直接报错。报告还包含评估集 SHA-256、模型与价格配置、失败原因分布、成功/回退延迟，以及首次错误和重复错误的分组指标，便于比较不同版本。
+
+需要把报告作为发布或 CI 门槛时，可显式指定阈值；任一指标未达标，命令会在写出完整报告后以非零状态退出：
+
+```bash
+npm run ai:evaluate -- \
+  --output evaluation/latest-report.json \
+  --max-fallback-rate 0.05 \
+  --max-validation-failure-rate 0.02 \
+  --min-locked-fields-valid-rate 1 \
+  --min-personalization-valid-rate 1 \
+  --min-transfer-quality-score 0.9 \
+  --max-p95-latency-ms 15000 \
+  --max-estimated-cost-usd 0.10
+```

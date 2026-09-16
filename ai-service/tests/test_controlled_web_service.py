@@ -77,6 +77,7 @@ class ControlledWebServiceTest(unittest.TestCase):
         )
         html = "<h1>Official FAQ</h1><p>JLPT N2 tests language knowledge and reading comprehension through multiple choice questions.</p>"
 
+        fixed_now = datetime.now(timezone.utc)
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             registry = root / "registry.json"
@@ -103,7 +104,7 @@ class ControlledWebServiceTest(unittest.TestCase):
             result = sync_web_sources(
                 config,
                 fetcher=lambda _source, _config: html,
-                now=lambda: datetime(2026, 8, 25, tzinfo=timezone.utc),
+                now=lambda: fixed_now,
                 registry_loader=lambda _config: [source],
             )
             cached = load_web_cache(config)
@@ -112,7 +113,7 @@ class ControlledWebServiceTest(unittest.TestCase):
             self.assertEqual(result.synced, 1)
             self.assertEqual(result.failed, 0)
             self.assertEqual(len(cached), 1)
-            self.assertEqual(cached[0].fetchedAt, "2026-08-25T00:00:00+00:00")
+            self.assertEqual(cached[0].fetchedAt, fixed_now.isoformat())
             self.assertEqual(len(cached[0].contentHash), 64)
             self.assertEqual(hits[0].url, source.url)
             self.assertEqual(hits[0].sourceType, "official")

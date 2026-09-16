@@ -1,9 +1,12 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import math
+import os
 import time
 from dataclasses import asdict, dataclass, field
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Callable
 
@@ -35,9 +38,108 @@ class CaseResult:
 def load_evaluation_set(path: Path = EVALUATION_SET_PATH) -> list[dict]:
     with path.open(encoding="utf-8") as source:
         cases = json.load(source)
+    _validate_evaluation_set(cases)
+    return cases
+
+
+def _validate_evaluation_set(cases: object) -> None:
     if not isinstance(cases, list) or not 30 <= len(cases) <= 50:
         raise ValueError("fixed evaluation set must contain 30-50 cases")
-    return cases
+
+    question_index = load_question_index()
+    seen_case_ids: set[str] = set()
+    contexts_by_question: dict[str, list[str]] = {}
+    mode_counts = {"grammar_drill": 0, "vocab_drill": 0}
+    context_counts = {"first_error": 0, "repeated_error": 0}
+    required_fields = {
+        "id",
+        "questionId",
+        "contextGroup",
+        "selectedChoice",
+        "wrongCount",
+        "weaknessType",
+        "recentSimilarWrongCount",
+        "recentSimilarPointIds",
+        "expectedTestedPoint",
+        "qualityAnchors",
+    }
+
+    for index, case in enumerate(cases):
+        if not isinstance(case, dict):
+            raise ValueError(f"evaluation case {index} must be an object")
+        missing = sorted(required_fields - case.keys())
+        if missing:
+            raise ValueError(
+                f"evaluation case {index} is missing fields: {', '.join(missing)}"
+            )
+
+        case_id = case["id"]
+        if not isinstance(case_id, str) or not case_id.strip():
+            raise ValueError(f"evaluation case {index} has an invalid id")
+        if case_id in seen_case_ids:
+            raise ValueError(f"duplicate evaluation case id: {case_id}")
+        seen_case_ids.add(case_id)
+
+        question_id = case["questionId"]
+        question = question_index.get(question_id)
+        if question is None:
+            raise ValueError(f"{case_id}: unknown questionId {question_id}")
+        mode_counts[question["modeId"]] += 1
+
+        context = case["contextGroup"]
+        if context not in context_counts:
+            raise ValueError(f"{case_id}: unsupported contextGroup {context}")
+        context_counts[context] += 1
+        contexts_by_question.setdefault(question_id, []).append(context)
+
+        try:
+            request = TutorWrongAnswerRequest(
+                questionId=question_id,
+                selectedChoice=case["selectedChoice"],
+                wrongCount=case["wrongCount"],
+                weaknessType=case["weaknessType"],
+                recentSimilarWrongCount=case["recentSimilarWrongCount"],
+                recentSimilarPointIds=case["recentSimilarPointIds"],
+            )
+        except (TypeError, ValueError) as error:
+            raise ValueError(f"{case_id}: invalid learning context: {error}") from error
+
+        if request.selectedChoice >= len(question["choices"]):
+            raise ValueError(f"{case_id}: selectedChoice is outside the question choices")
+        if request.selectedChoice == question["answer"]:
+            raise ValueError(f"{case_id}: selectedChoice must be a wrong answer")
+        if context == "first_error" and (
+            request.wrongCount != 1 or request.recentSimilarWrongCount != 0
+        ):
+            raise ValueError(f"{case_id}: first_error must use a first-error context")
+        if context == "repeated_error" and (
+            request.wrongCount < 2 or request.recentSimilarWrongCount < 1
+        ):
+            raise ValueError(f"{case_id}: repeated_error must use a repeated-error context")
+
+        tags = question.get("tags", [])
+        tested_point = tags[1] if len(tags) > 1 else question["choices"][question["answer"]]
+        if case["expectedTestedPoint"] != tested_point:
+            raise ValueError(
+                f"{case_id}: expectedTestedPoint does not match current question data"
+            )
+        anchors = case["qualityAnchors"]
+        if (
+            not isinstance(anchors, list)
+            or not anchors
+            or not all(isinstance(anchor, str) and anchor.strip() for anchor in anchors)
+        ):
+            raise ValueError(f"{case_id}: qualityAnchors must contain non-empty strings")
+
+    if mode_counts["grammar_drill"] != mode_counts["vocab_drill"]:
+        raise ValueError("fixed evaluation set must balance grammar and vocabulary cases")
+    if context_counts["first_error"] != context_counts["repeated_error"]:
+        raise ValueError("fixed evaluation set must balance first and repeated errors")
+    for question_id, contexts in contexts_by_question.items():
+        if sorted(contexts) != ["first_error", "repeated_error"]:
+            raise ValueError(
+                f"{question_id}: evaluation set must include both learning contexts"
+            )
 
 
 def _percentile(values: list[float], percentile: float) -> float:
@@ -50,6 +152,69 @@ def _percentile(values: list[float], percentile: float) -> float:
 
 def _contains_any(text: str, candidates: list[str]) -> bool:
     return any(candidate and candidate in text for candidate in candidates)
+
+
+def _latency_summary(results: list[CaseResult]) -> dict[str, float]:
+    latencies = [result.latencyMs for result in results]
+    return {
+        "average": round(sum(latencies) / len(latencies), 2) if latencies else 0,
+        "p50": _percentile(latencies, 0.5),
+        "p95": _percentile(latencies, 0.95),
+    }
+
+
+def _result_breakdown(results: list[CaseResult]) -> dict:
+    successful = [result for result in results if result.status == "success"]
+    total = len(results)
+    return {
+        "totalCases": total,
+        "successfulCases": len(successful),
+        "fallbackRate": round((total - len(successful)) / total, 4) if total else 0,
+        "lockedFieldsValidRate": round(
+            sum(result.lockedFieldsValid for result in successful) / len(successful), 4
+        ) if successful else 0,
+        "personalizationValidRate": round(
+            sum(result.personalizationValid for result in successful) / len(successful), 4
+        ) if successful else 0,
+        "averageTransferQualityScore": round(
+            sum(result.transferQualityScore for result in successful) / len(successful), 4
+        ) if successful else 0,
+        "latencyMs": _latency_summary(results),
+    }
+
+
+def evaluate_quality_gates(summary: dict, gates: dict[str, float]) -> dict:
+    checks: list[dict] = []
+    metrics = {
+        "fallbackRate": summary["fallbackRate"],
+        "validationFailureRate": summary["validationFailureRate"],
+        "lockedFieldsValidRate": summary["lockedFieldsValidRate"],
+        "personalizationValidRate": summary["personalizationValidRate"],
+        "averageTransferQualityScore": summary["averageTransferQualityScore"],
+        "p95LatencyMs": summary["latencyMs"]["p95"],
+        "estimatedCostUsd": summary["modelUsage"]["estimatedCostUsd"],
+    }
+    for metric, threshold in gates.items():
+        if metric not in metrics:
+            raise ValueError(f"unsupported quality gate: {metric}")
+        comparison = "max" if metric in {
+            "fallbackRate",
+            "validationFailureRate",
+            "p95LatencyMs",
+            "estimatedCostUsd",
+        } else "min"
+        actual = metrics[metric]
+        passed = actual <= threshold if comparison == "max" else actual >= threshold
+        checks.append(
+            {
+                "metric": metric,
+                "comparison": comparison,
+                "threshold": threshold,
+                "actual": actual,
+                "passed": passed,
+            }
+        )
+    return {"passed": all(check["passed"] for check in checks), "checks": checks}
 
 
 def _score_transfer(case: dict, attempt: TutorGenerationAttempt) -> tuple[float, dict[str, bool]]:
@@ -153,7 +318,12 @@ def evaluate_cases(
 
     total = len(results)
     successful = [result for result in results if result.status == "success"]
-    latencies = [result.latencyMs for result in results]
+    failure_reason_counts: dict[str, int] = {}
+    for result in results:
+        if result.failureReason:
+            failure_reason_counts[result.failureReason] = (
+                failure_reason_counts.get(result.failureReason, 0) + 1
+            )
     summary = {
         "totalCases": total,
         "successfulCases": len(successful),
@@ -171,10 +341,17 @@ def evaluate_cases(
         "averageTransferQualityScore": round(
             sum(result.transferQualityScore for result in successful) / len(successful), 4
         ) if successful else 0,
-        "latencyMs": {
-            "average": round(sum(latencies) / len(latencies), 2) if latencies else 0,
-            "p50": _percentile(latencies, 0.5),
-            "p95": _percentile(latencies, 0.95),
+        "latencyMs": _latency_summary(results),
+        "successfulLatencyMs": _latency_summary(successful),
+        "fallbackLatencyMs": _latency_summary(
+            [result for result in results if result.status == "fallback"]
+        ),
+        "failureReasonCounts": failure_reason_counts,
+        "byContext": {
+            context: _result_breakdown(
+                [result for result in results if result.contextGroup == context]
+            )
+            for context in sorted({result.contextGroup for result in results})
         },
         "modelUsage": {
             "promptTokens": sum(result.promptTokens for result in results),
@@ -182,4 +359,20 @@ def evaluate_cases(
             "estimatedCostUsd": round(sum(result.estimatedCostUsd for result in results), 8),
         },
     }
-    return {"summary": summary, "cases": [asdict(result) for result in results]}
+    canonical_set = json.dumps(
+        cases, ensure_ascii=False, sort_keys=True, separators=(",", ":")
+    ).encode("utf-8")
+    metadata = {
+        "generatedAt": datetime.now(timezone.utc).isoformat(),
+        "evaluationSetSha256": hashlib.sha256(canonical_set).hexdigest(),
+        "model": os.getenv("AI_LLM_MODEL", "") or None,
+        "pricingUsdPerMillionTokens": {
+            "input": input_cost_per_million,
+            "output": output_cost_per_million,
+        },
+    }
+    return {
+        "metadata": metadata,
+        "summary": summary,
+        "cases": [asdict(result) for result in results],
+    }
