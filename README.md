@@ -79,7 +79,7 @@ npm run build:web:test
 npm run test:web
 ```
 
-测试构建禁用 `.env.local` 加载，输出到 `output/web-ci/`。浏览器 runner 自动启动本地服务器、运行三组脚本并关闭服务器；失败截图、日志和 trace 保存在 `output/playwright/`，CI 会上传供排查。Linux 安装浏览器时使用 `npx playwright install --with-deps chromium`。
+测试构建禁用 `.env.local` 加载，输出到 `output/web-ci/`。浏览器 runner 自动启动本地服务器、运行五组脚本并关闭服务器；当前 16 条回归覆盖核心训练模式、统一复习调度、首页联动和听力链路。失败截图、日志和 trace 保存在 `output/playwright/`，CI 会上传供排查。Linux 安装浏览器时使用 `npx playwright install --with-deps chromium`。
 
 错题讲解默认使用 App 内置的本地结构化知识库，不配置 API Key 也能运行。需要通过 FastAPI 服务调用时，在 `.env.local` 中设置：
 

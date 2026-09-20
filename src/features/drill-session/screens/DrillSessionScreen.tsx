@@ -223,7 +223,7 @@ export function DrillSessionScreen({
 
         {result ? (
           <View style={[styles.sectionCard, styles.resultShell, shadows.card]}>
-            <Text style={styles.sectionTitle}>本轮训练完成</Text>
+            <Text testID={`drill-result-title-${modeId}`} style={styles.sectionTitle}>本轮训练完成</Text>
             <Text style={styles.sectionBody}>
               本轮结果已经写入今日进度。你共答对 {result.correctCount} 题，答错 {result.wrongCount} 题；今天这个模式累计完成 {result.recordedSessionCount} 轮。
             </Text>
@@ -332,6 +332,7 @@ export function DrillSessionScreen({
                     return (
                       <Pressable
                         key={choice}
+                        testID={`drill-choice-${modeId}-${index}`}
                         onPress={() => !submitted && setSelectedChoice(index)}
                         style={[
                           styles.choiceButton,
@@ -418,6 +419,7 @@ export function DrillSessionScreen({
 
               <View style={styles.footerActions}>
                 <Pressable
+                  testID={`drill-primary-action-${modeId}`}
                   onPress={submitted ? handleNext : handleSubmit}
                   disabled={!submitted && selectedChoice === null}
                   style={[
@@ -1019,4 +1021,3 @@ const styles = StyleSheet.create({
     fontFamily: fonts.body,
   },
 });
-

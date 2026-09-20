@@ -194,7 +194,7 @@ export function StudyPackScreen({
 
         {result ? (
           <View style={[styles.sectionCard, styles.resultCard, shadows.card]}>
-            <Text style={styles.sectionTitle}>本轮学习完成</Text>
+            <Text testID={`study-result-title-${modeId}`} style={styles.sectionTitle}>本轮学习完成</Text>
             <Text style={styles.sectionBody}>
               本轮学习结果已经写入今日进度。你共过了 {pack.items.length} 项，其中已记住 {result.solidCount} 项、还不稳 {result.unstableTerms.length} 项；今天这个模式累计完成 {result.recordedSessionCount} 轮。
             </Text>
@@ -276,6 +276,7 @@ export function StudyPackScreen({
                   </View>
 
                   <Pressable
+                    testID={`study-reveal-${modeId}`}
                     onPress={handleReveal}
                     style={[styles.primaryButton, { backgroundColor: mode.accent }]}
                   >
@@ -311,12 +312,14 @@ export function StudyPackScreen({
 
                   <View style={styles.footerActions}>
                     <Pressable
+                      testID={`study-mark-unstable-${modeId}`}
                       onPress={() => handleMark(false)}
                       style={styles.secondaryButton}
                     >
                       <Text style={styles.secondaryButtonText}>还不稳</Text>
                     </Pressable>
                     <Pressable
+                      testID={`study-mark-known-${modeId}`}
                       onPress={() => handleMark(true)}
                       style={[
                         styles.primaryButton,

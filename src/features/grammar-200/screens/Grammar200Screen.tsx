@@ -535,6 +535,7 @@ function ChapterOverviewView({
         </View>
 
         <Pressable
+          testID="grammar200-start-study"
           onPress={onStartStudy}
           style={[styles.primaryButton, { backgroundColor: accent }]}
         >
@@ -603,7 +604,11 @@ function StudyCardView({
           <Pressable onPress={onBack} style={styles.ghostButton}>
             <Text style={styles.ghostButtonText}>退回章节</Text>
           </Pressable>
-          <Pressable onPress={onJumpToSort} style={styles.ghostButton}>
+          <Pressable
+            testID="grammar200-jump-to-sort"
+            onPress={onJumpToSort}
+            style={styles.ghostButton}
+          >
             <Text style={styles.ghostButtonText}>跳到排序题</Text>
           </Pressable>
         </View>
@@ -863,6 +868,7 @@ function SortDrillView({
               return (
                 <Pressable
                   key={fragIdx}
+                  testID={`grammar200-fragment-${fragIdx}`}
                   onPress={() => onPlace(fragIdx)}
                   disabled={revealed}
                   style={[
@@ -890,6 +896,7 @@ function SortDrillView({
                 <Text style={styles.secondaryButtonText}>清空</Text>
               </Pressable>
               <Pressable
+                testID="grammar200-submit-sort"
                 onPress={onSubmit}
                 disabled={!isComplete}
                 style={[
@@ -1013,6 +1020,7 @@ function SortDrillView({
               </View>
 
               <Pressable
+                testID="grammar200-next-sort"
                 onPress={onNext}
                 style={[styles.primaryButton, { backgroundColor: accent }]}
               >
@@ -1074,7 +1082,7 @@ function ResultView({
         </View>
 
         <View style={[styles.heroCard, shadows.card, { backgroundColor: accent }]}>
-          <Text style={styles.heroTitle}>
+          <Text testID="grammar200-result-title" style={styles.heroTitle}>
             {correctCount} / {totalCount}
           </Text>
           <Text style={styles.heroBody}>{chapter.title} · 排序闯关结果</Text>
