@@ -15,6 +15,14 @@
 
 ## 首次 Android 真机包
 
+构建前先运行仓库内的移动配置验收，确认应用标识、版本、权限、图标资源和 EAS 档案没有发生回归：
+
+```bash
+npm run test:mobile-config
+```
+
+这个检查已接入 GitHub Actions。首次完成 EAS 项目关联前，它会提示 `PENDING EAS project link`；关联后则会同时校验并显示 `projectId`。
+
 首次执行前需要登录 Expo 账号。仓库配置与本地验证完成后，再运行：
 
 ```bash

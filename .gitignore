@@ -47,5 +47,6 @@ tmp/
 # Python AI service
 ai-service/.venv/
 ai-service/.cache/
+ai-service/evaluation/latest-report.json
 __pycache__/
 *.py[cod]

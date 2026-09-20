@@ -1,6 +1,9 @@
+import json
+import tempfile
 import unittest
+from pathlib import Path
 
-from app.evaluation import evaluate_cases, load_evaluation_set
+from app.evaluation import evaluate_cases, evaluate_quality_gates, load_evaluation_set
 from app.llm_gateway import TutorGenerationAttempt
 from app.schemas import (
     ConfusionComparison,
@@ -19,6 +22,16 @@ class EvaluationTest(unittest.TestCase):
         self.assertEqual(sum(case["questionId"].startswith("grammar-") for case in cases), 20)
         self.assertEqual(sum(case["questionId"].startswith("vocab-") for case in cases), 20)
         self.assertEqual({case["contextGroup"] for case in cases}, {"first_error", "repeated_error"})
+
+    def test_fixed_set_rejects_stale_question_facts(self) -> None:
+        cases = load_evaluation_set()
+        cases[0]["expectedTestedPoint"] = "stale-point"
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "invalid-set.json"
+            path.write_text(json.dumps(cases, ensure_ascii=False), encoding="utf-8")
+
+            with self.assertRaisesRegex(ValueError, "does not match current question data"):
+                load_evaluation_set(path)
 
     def test_aggregates_fallback_latency_transfer_quality_and_cost(self) -> None:
         cases = load_evaluation_set()[:2]
@@ -80,6 +93,49 @@ class EvaluationTest(unittest.TestCase):
         self.assertEqual(summary["modelUsage"]["completionTokens"], 70)
         self.assertAlmostEqual(summary["modelUsage"]["estimatedCostUsd"], 0.00064)
         self.assertEqual(summary["averageTransferQualityScore"], 1.0)
+        self.assertEqual(summary["failureReasonCounts"], {"validation_failed": 1})
+        self.assertEqual(summary["byContext"]["first_error"]["fallbackRate"], 0)
+        self.assertEqual(summary["byContext"]["repeated_error"]["fallbackRate"], 1)
+        self.assertEqual(len(report["metadata"]["evaluationSetSha256"]), 64)
+
+    def test_quality_gates_report_every_failed_threshold(self) -> None:
+        summary = {
+            "fallbackRate": 0.1,
+            "validationFailureRate": 0.05,
+            "lockedFieldsValidRate": 1.0,
+            "personalizationValidRate": 0.95,
+            "averageTransferQualityScore": 0.9,
+            "latencyMs": {"p95": 1500},
+            "modelUsage": {"estimatedCostUsd": 0.02},
+        }
+
+        result = evaluate_quality_gates(
+            summary,
+            {
+                "fallbackRate": 0.05,
+                "lockedFieldsValidRate": 1.0,
+                "personalizationValidRate": 1.0,
+                "p95LatencyMs": 2000,
+            },
+        )
+
+        self.assertFalse(result["passed"])
+        failed = {check["metric"] for check in result["checks"] if not check["passed"]}
+        self.assertEqual(failed, {"fallbackRate", "personalizationValidRate"})
+
+    def test_quality_gates_reject_invalid_thresholds(self) -> None:
+        summary = {
+            "fallbackRate": 0.1,
+            "validationFailureRate": 0.05,
+            "lockedFieldsValidRate": 1.0,
+            "personalizationValidRate": 0.95,
+            "averageTransferQualityScore": 0.9,
+            "latencyMs": {"p95": 1500},
+            "modelUsage": {"estimatedCostUsd": 0.02},
+        }
+
+        with self.assertRaisesRegex(ValueError, "between 0 and 1"):
+            evaluate_quality_gates(summary, {"fallbackRate": 1.1})
 
 
 if __name__ == "__main__":
