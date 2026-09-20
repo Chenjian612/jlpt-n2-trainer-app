@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - main
+      - fix/android-preview-build
     paths:
       - .github/workflows/android-preview.yml
 
@@ -36,7 +37,6 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
-          cache: gradle
 
       - name: Install JavaScript dependencies
         run: npm ci
