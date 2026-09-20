@@ -1,0 +1,60 @@
+name: Android Preview APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/android-preview.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: android-preview-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build installable APK
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      CI: '1'
+      EXPO_NO_DOTENV: '1'
+      EXPO_NO_TELEMETRY: '1'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+
+      - name: Install JavaScript dependencies
+        run: npm ci
+
+      - name: Verify mobile release configuration
+        run: npm run test:mobile-config
+
+      - name: Generate Android native project
+        run: npx expo prebuild --platform android --clean --non-interactive
+
+      - name: Build release APK
+        working-directory: android
+        run: ./gradlew assembleRelease --no-daemon
+
+      - name: Upload Android preview APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: jlpt-n2-trainer-android-preview-${{ github.sha }}
+          path: android/app/build/outputs/apk/release/*.apk
+          if-no-files-found: error
+          retention-days: 14

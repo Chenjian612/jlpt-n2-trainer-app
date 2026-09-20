@@ -34,6 +34,18 @@ npx eas-cli build --platform android --profile preview
 
 如果这是仓库首次使用 EAS，CLI 会要求关联或创建 Expo 项目，并把项目 ID 写入应用配置。完成关联后应先提交该项目 ID，再保留云端构建链接供后续验收追踪。
 
+### EAS 不可用时的 GitHub Actions 备用构建
+
+如果本机无法稳定下载 EAS CLI，仓库提供 `Android Preview APK` 工作流。它使用 GitHub 托管环境中的 Java 17 和 Android SDK，执行 Expo Prebuild 与 Gradle `assembleRelease`，不需要 Expo 登录或 EAS Token。
+
+- 修改并推送 `.github/workflows/android-preview.yml` 时会触发一次构建。
+- 后续可在 GitHub Actions 页面手动运行 `Android Preview APK`。
+- 成功后从该次运行的 Artifacts 下载 `jlpt-n2-trainer-android-preview-<commit>`。
+- 产物使用自动生成的内部测试签名，只用于真机预览，不作为 Google Play 正式签名包。
+- Artifact 保留 14 天；应同时记录构建链接和 Git 提交。
+
+这个备用方案只替代“生成内部测试 APK”，不会完成 EAS 项目关联，也不能代替未来的正式商店签名流程。
+
 构建完成后安装生成的 APK，按下面顺序验收：
 
 1. 冷启动和返回前台正常，首页没有白屏或布局溢出。

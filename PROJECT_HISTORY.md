@@ -4,6 +4,11 @@
 
 ## Unreleased
 
+### 2026-09-20 `Android Preview 云端备用构建`
+
+- 新增 GitHub Actions `Android Preview APK` 工作流，在无 Expo 登录和 EAS Token 时使用 Java 17、Expo Prebuild 与 Gradle 生成可安装的内部测试 APK。
+- 构建前自动运行移动配置验收，产物按提交命名并保留 14 天；该方案不替代正式商店签名和后续 EAS 项目关联。
+
 ### 2026-09-20 `下一阶段交付清单`
 
 - 新增统一的下一阶段完善清单，将 Android 真机、14 天效果验证、授权听力、真实 AI、数据备份和商店准备拆成可勾选任务与完成标准。

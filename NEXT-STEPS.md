@@ -33,6 +33,8 @@ npx eas-cli whoami
 npx eas-cli build --platform android --profile preview
 ```
 
+如果 EAS CLI 因本机网络不可用，可先运行 GitHub Actions 的 `Android Preview APK` 备用工作流生成内部测试包；该产物用于完成真机验收，后续仍需补做 EAS 项目关联和正式签名构建。
+
 ### 真机任务
 
 - [ ] 冷启动、退到后台、返回前台和系统返回键正常。
