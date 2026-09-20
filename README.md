@@ -106,6 +106,7 @@ EXPO_PUBLIC_AI_SERVICE_URL=http://localhost:8000
 - [CLI 代理启动](./CLI_PROXY_STARTUP.md)
 - [部署说明](./DEPLOYMENT.md)
 - [移动端构建与验收](./MOBILE_RELEASE.md)
+- [下一阶段完善清单](./NEXT-STEPS.md)
 - [Codex 指令](./CODEX-INSTRUCTIONS.md)
 - [内容进度](./CONTENT-PROGRESS.md)
 - [最新开发现状](./STATUS-2026-09-07.md)
