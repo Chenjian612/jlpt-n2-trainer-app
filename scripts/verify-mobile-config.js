@@ -35,6 +35,11 @@ assert.match(appConfig.version, /^\d+\.\d+\.\d+$/);
 assert.equal(appConfig.ios.bundleIdentifier, 'com.chenjian612.jlptn2trainer');
 assert.match(appConfig.ios.buildNumber, /^\d+$/);
 assert.ok(Number(appConfig.ios.buildNumber) >= 1, 'iOS build number must be positive.');
+assert.equal(
+  appConfig.ios.infoPlist?.ITSAppUsesNonExemptEncryption,
+  false,
+  'iOS export-compliance declaration must remain explicit.',
+);
 
 assert.equal(appConfig.android.package, appConfig.ios.bundleIdentifier);
 assert.ok(
@@ -76,9 +81,10 @@ assert.equal(easConfig.build.production.autoIncrement, true);
 assert.deepEqual(easConfig.submit.production, {});
 
 console.log('PASS mobile identity, versions, permissions, plugins, and assets');
+console.log('PASS iOS export-compliance declaration');
 console.log('PASS EAS preview APK and production build profiles');
 if (appConfig.extra?.eas?.projectId) {
   console.log(`PASS EAS project linked: ${appConfig.extra.eas.projectId}`);
 } else {
-  console.log('PENDING EAS project link: projectId will be added during the first authenticated build');
+  console.log('INFO EAS project link is optional for the local Xcode workflow');
 }

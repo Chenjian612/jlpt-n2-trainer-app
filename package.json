@@ -8,6 +8,7 @@
     "combined": "node scripts/combined-server.js",
     "start": "expo start",
     "android": "expo run:android",
+    "ios:prepare": "expo prebuild --platform ios --no-install && node scripts/patch-ios-podfile.js && cd ios && pod install",
     "ios": "expo run:ios",
     "web": "expo start --web",
     "test": "node tests/run-tests.js",
