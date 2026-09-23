@@ -74,10 +74,10 @@ class RetrievalServiceTest(unittest.TestCase):
                 self.assertTrue(hit.listeningEvidence.keySignal)
                 self.assertTrue(hit.listeningEvidence.trapPoint)
 
-    def test_marks_official_audio_transcript_without_claiming_dialogue_match(self) -> None:
+    def test_marks_verified_official_audio_as_transcript_evidence(self) -> None:
         result = search_knowledge(
             KnowledgeSearchRequest(
-                query="名刺を忘れてた お茶はいらない",
+                query="会社案内 お土産のお茶 名刺",
                 modeId="listening_analyze",
                 limit=3,
             )

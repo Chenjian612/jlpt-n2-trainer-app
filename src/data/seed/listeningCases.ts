@@ -1,5 +1,9 @@
 import type { ListeningModeId } from '../../domain/models/training';
 import type { ListeningCase } from '../../domain/models/trainingContent';
+import {
+  LISTENING_DIALOGUE_TRANSLATIONS_ZH,
+  LISTENING_GUIDANCE_ZH,
+} from './listeningCaseLocalization';
 import listeningData from './listening_cases.json';
 
 /**
@@ -13,16 +17,56 @@ const AUDIO_ASSETS: Record<string, ReturnType<typeof require>> = {
   N2M3Q1: require('../../../assets/audio/official/N2M3Q1.mp3'),
   N2M4Q1: require('../../../assets/audio/official/N2M4Q1.mp3'),
   N2M5Q1: require('../../../assets/audio/official/N2M5Q1.mp3'),
+  'planning-meeting-001': require('../../../assets/audio/generated/planning-meeting-001.mp3'),
+  'customer-service-001': require('../../../assets/audio/generated/customer-service-001.mp3'),
+  'airport-announcement-001': require('../../../assets/audio/generated/airport-announcement-001.mp3'),
+  'office-reassignment-001': require('../../../assets/audio/generated/office-reassignment-001.mp3'),
+  'campus-schedule-001': require('../../../assets/audio/generated/campus-schedule-001.mp3'),
+  'family-dinner-001': require('../../../assets/audio/generated/family-dinner-001.mp3'),
+  'restaurant-change-001': require('../../../assets/audio/generated/restaurant-change-001.mp3'),
+  'public-broadcast-001': require('../../../assets/audio/generated/public-broadcast-001.mp3'),
+  'clinic-reservation-001': require('../../../assets/audio/generated/clinic-reservation-001.mp3'),
+  'warehouse-shift-001': require('../../../assets/audio/generated/warehouse-shift-001.mp3'),
+  'instant-reply-001': require('../../../assets/audio/generated/instant-reply-001.mp3'),
+  'instant-reply-002': require('../../../assets/audio/generated/instant-reply-002.mp3'),
+  'instant-reply-003': require('../../../assets/audio/generated/instant-reply-003.mp3'),
+  'instant-reply-004': require('../../../assets/audio/generated/instant-reply-004.mp3'),
+  'instant-reply-005': require('../../../assets/audio/generated/instant-reply-005.mp3'),
+  'synthesis-001': require('../../../assets/audio/generated/synthesis-001.mp3'),
+  'synthesis-002': require('../../../assets/audio/generated/synthesis-002.mp3'),
+  'synthesis-003': require('../../../assets/audio/generated/synthesis-003.mp3'),
 };
 
-type ListeningCaseRaw = Omit<ListeningCase, 'audioAsset'> & { audioKey: string };
+type ListeningCaseRaw = Omit<ListeningCase, 'audioAsset' | 'audioKind' | 'dialogue'> & {
+  audioKey: string;
+  dialogue: Array<Omit<ListeningCase['dialogue'][number], 'translation'>>;
+};
 
 const LISTENING_CASES: ListeningCase[] = (
   listeningData as ListeningCaseRaw[]
-).map((item) => ({
-  ...item,
-  audioAsset: AUDIO_ASSETS[item.audioKey] ?? AUDIO_ASSETS['N2M1Q2'],
-}));
+).map((item) => {
+  const audioAsset = AUDIO_ASSETS[item.audioKey];
+  const translations = LISTENING_DIALOGUE_TRANSLATIONS_ZH[item.id];
+
+  if (!audioAsset) {
+    throw new Error(`Missing listening audio asset for ${item.id}: ${item.audioKey}`);
+  }
+
+  if (!translations || translations.length !== item.dialogue.length) {
+    throw new Error(`Listening transcript translation mismatch for ${item.id}`);
+  }
+
+  return {
+    ...item,
+    ...LISTENING_GUIDANCE_ZH[item.id],
+    audioAsset,
+    audioKind: item.audioKey.startsWith('N2M') ? 'official' : 'synthetic',
+    dialogue: item.dialogue.map((line, index) => ({
+      ...line,
+      translation: translations[index],
+    })),
+  };
+});
 
 export const getListeningCasesByMode = (
   modeId: ListeningModeId,

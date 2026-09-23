@@ -221,6 +221,7 @@ export type ReadingPassage = {
 export type ListeningDialogueLine = {
   speaker: string;
   text: string;
+  translation: string;
 };
 
 export type ListeningQuestion = {
@@ -243,6 +244,7 @@ export type ListeningCase = {
   title: string;
   source: string;
   audioAsset: number;
+  audioKind: 'official' | 'synthetic';
   audioDurationLabel: string;
   scene: string;
   task: string;
