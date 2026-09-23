@@ -1,6 +1,6 @@
 # 移动端构建与验收
 
-当前移动端阶段的目标是先生成可安装的 Android 预览包完成真机验收，再准备商店包。iOS 使用相同应用标识和生产配置，但签名与真机分发需要对应的 Apple 开发者凭据。
+当前移动端阶段的目标是生成可安装的 Android 预览包和本地签名的 iOS 真机包完成验收，再准备商店包。iOS 使用相同应用标识；本机测试采用 Xcode Personal Team，正式分发仍需要 Apple Developer Program。
 
 跨阶段的整体优先级、14 天实测、真实 AI、数据备份与商店准备见 [下一阶段完善清单](./NEXT-STEPS.md)。
 
@@ -23,7 +23,7 @@
 npm run test:mobile-config
 ```
 
-这个检查已接入 GitHub Actions。首次完成 EAS 项目关联前，它会提示 `PENDING EAS project link`；关联后则会同时校验并显示 `projectId`。
+这个检查已接入 GitHub Actions。EAS 项目关联对本地 Xcode 流程不是必需项；配置了 `projectId` 时检查会同时显示它。
 
 首次执行前需要登录 Expo 账号。仓库配置与本地验证完成后，再运行：
 
@@ -54,6 +54,27 @@ npx eas-cli build --platform android --profile preview
 4. 制造一条错题和一个学习项“不稳”，确认首页推荐和到期回收路径可进入。
 5. 检查系统应用权限，确认没有请求麦克风。
 6. 在弱网或断网下完成本地训练；AI 不可用时仍能显示本地结构化讲解。
+
+## 本地 Xcode iOS 真机包
+
+本地首次准备或重新生成 `ios/` 后运行：
+
+```bash
+npm run ios:prepare
+open ios/JLPTN2Trainer.xcworkspace
+```
+
+`ios:prepare` 会执行 Expo Prebuild、为 Xcode 27 将所有 Pod 的最低部署目标统一为 iOS 15.1，再安装 CocoaPods。这个兼容处理由仓库中的 `scripts/patch-ios-podfile.js` 自动完成，不需要手工修改被 Git 忽略的原生目录。
+
+在 Xcode 中选择 `TARGETS > JLPTN2Trainer > Signing & Capabilities`，勾选 `Automatically manage signing` 并选择 Apple ID 对应的 `Personal Team`。连接 iPhone、信任电脑并开启开发者模式后，在运行目标中选择真实的 `iPhone`，不要选择仅供归档的 `Any iOS Device`。
+
+调试包依赖 Metro；需要脱离电脑独立运行时，应使用 `Release` 配置构建，确保构建日志中出现 `main.jsbundle`。免费 Personal Team 只适用于自己的注册设备，签名有效期有限，不能替代 App Store、TestFlight 或长期分发签名。
+
+Xcode 27 使用独立的 Device Hub 管理真机和模拟器，可从终端打开：
+
+```bash
+open "/Applications/Xcode.app/Contents/Applications/DeviceHub.app"
+```
 
 ## 商店构建前仍需准备
 
