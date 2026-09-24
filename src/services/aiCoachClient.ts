@@ -560,6 +560,31 @@ const callDeepSeekWithSystem = async (
   return data.choices[0]?.message?.content ?? '';
 };
 
+// Every distributed build has a key-hiding OpenAI-compatible proxy. Prefer it
+// regardless of AI_PROVIDER so a Release archive can never fall through to a
+// direct provider request with an empty client-side API key.
+const callConfiguredChatWithSystem = async (
+  userContent: string,
+  systemPrompt: string,
+  signal: AbortSignal,
+): Promise<string> => {
+  if (APP_CONFIG.DEEPSEEK_PROXY_URL) {
+    return callDeepSeekWithSystem(userContent, systemPrompt, signal);
+  }
+
+  if (!APP_CONFIG.AI_API_KEY) {
+    throw new Error('AI_NOT_CONFIGURED');
+  }
+
+  if (APP_CONFIG.AI_PROVIDER === 'openai') {
+    return callOpenAIWithSystem(userContent, systemPrompt, signal);
+  }
+  if (APP_CONFIG.AI_PROVIDER === 'claude') {
+    return callClaudeWithSystem(userContent, systemPrompt, signal);
+  }
+  return callDeepSeekWithSystem(userContent, systemPrompt, signal);
+};
+
 export const getSortQuestionExplanation = async (
   params: SortQuestionExplanationParams,
 ): Promise<SortQuestionExplanation> => {
@@ -568,14 +593,11 @@ export const getSortQuestionExplanation = async (
 
   try {
     const userContent = buildSortUserContent(params);
-    let raw: string;
-    if (APP_CONFIG.AI_PROVIDER === 'openai') {
-      raw = await callOpenAIWithSystem(userContent, SORT_SYSTEM_PROMPT, controller.signal);
-    } else if (APP_CONFIG.AI_PROVIDER === 'deepseek') {
-      raw = await callDeepSeekWithSystem(userContent, SORT_SYSTEM_PROMPT, controller.signal);
-    } else {
-      raw = await callClaudeWithSystem(userContent, SORT_SYSTEM_PROMPT, controller.signal);
-    }
+    const raw = await callConfiguredChatWithSystem(
+      userContent,
+      SORT_SYSTEM_PROMPT,
+      controller.signal,
+    );
     return parseSortExplanation(raw);
   } catch (err) {
     if (__DEV__) console.error('[AI Coach][sort] error:', err);

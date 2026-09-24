@@ -90,19 +90,29 @@ assert.deepEqual(easConfig.submit.production, {});
 
 assert.match(
   appConstants,
-  /const defaultAiProxyUrl = 'https:\/\/[^']+';/,
-  'Shipped clients must have an HTTPS AI proxy fallback even when .env.local is unavailable.',
+  /const defaultAiProxyUrl = 'https:\/\/[^']+\.pages\.dev\/api\/ai';/,
+  'Shipped clients must use the phone-reachable Pages AI route by default.',
+);
+assert.match(
+  appConstants,
+  /EXPO_PUBLIC_AI_PROVIDER \?\? 'deepseek'/,
+  'Release builds must default to the provider implemented by the bundled proxy.',
 );
 assert.match(
   aiCoachClient,
   /navigator\.product === 'ReactNative'[\s\S]*localhost\|127\\\.0\\\.0\\\.1/,
   'Native clients must not request a loopback AI service that points to the phone itself.',
 );
+assert.match(
+  aiCoachClient,
+  /if \(APP_CONFIG\.DEEPSEEK_PROXY_URL\) \{\s*return callDeepSeekWithSystem/,
+  'Shipped AI features must prefer the key-hiding proxy over direct provider calls.',
+);
 
 console.log('PASS mobile identity, versions, permissions, plugins, and assets');
 console.log('PASS iOS export-compliance declaration');
 console.log('PASS EAS preview APK and production build profiles');
-console.log('PASS native AI proxy fallback and loopback protection');
+console.log('PASS native AI proxy fallback, provider default, and loopback protection');
 if (appConfig.extra?.eas?.projectId) {
   console.log(`PASS EAS project linked: ${appConfig.extra.eas.projectId}`);
 } else {

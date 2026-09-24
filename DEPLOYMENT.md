@@ -184,20 +184,20 @@ npm run test:production
 推荐做法：
 
 1. Pages 只托管静态文件
-2. AI 请求使用现有 Worker：`https://jlpt-ai-proxy.08075921888chenjian.workers.dev`
-3. Worker 必须允许 Pages 站点的 `POST` 和 `OPTIONS` 跨域请求，并允许 `content-type`、`authorization` 请求头
-4. Web 端已内置该 Worker 地址；也可以用 `EXPO_PUBLIC_DEEPSEEK_PROXY_URL` 覆盖
+2. 客户端 AI 请求使用 Pages 同域入口：`https://jlpt-n2-trainer-app.pages.dev/api/ai`
+3. Pages Function 从 Cloudflare 边缘转发至现有 Worker，避免 iOS 真机直接访问 `workers.dev` 超时
+4. Web 和移动端均已内置 Pages 入口；也可以用 `EXPO_PUBLIC_DEEPSEEK_PROXY_URL` 覆盖
 
 可选变量：
 
 - Worker Secret：模型 API Key（名称必须与 Worker 代码读取的 binding 一致）
 - Worker 上游地址：`https://api.deepseek.com/v1/chat/completions`
-- 前端请求地址：`https://jlpt-ai-proxy.08075921888chenjian.workers.dev/v1/chat/completions`
+- 前端请求地址：`https://jlpt-n2-trainer-app.pages.dev/api/ai/v1/chat/completions`
 
 部署后先验证代理配置是否生效。未配置密钥时接口会返回 503（不会泄露配置细节）：
 
 ```bash
-curl -i -X POST https://jlpt-ai-proxy.08075921888chenjian.workers.dev/v1/chat/completions \
+curl -i -X POST https://jlpt-n2-trainer-app.pages.dev/api/ai/v1/chat/completions \
   -H 'content-type: application/json' \
   --data '{"messages":[{"role":"user","content":"Reply with only: ok"}]}'
 ```

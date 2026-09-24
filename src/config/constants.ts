@@ -1,7 +1,7 @@
 // This endpoint is the public, key-hiding proxy used by every shipped client.
 // Keep the fallback platform-independent: native Release bundles do not have a
 // browser location and may also be built without loading a developer .env file.
-const defaultAiProxyUrl = 'https://jlpt-ai-proxy.08075921888chenjian.workers.dev';
+const defaultAiProxyUrl = 'https://jlpt-n2-trainer-app.pages.dev/api/ai';
 
 export const APP_CONFIG = {
   // Progress & History
@@ -30,7 +30,10 @@ export const APP_CONFIG = {
   STUDY_REAPPEAR_HOURS: 4, // Don't show unstable items again within 4 hours of last look
 
   // AI Coach
-  AI_PROVIDER: (process.env.EXPO_PUBLIC_AI_PROVIDER ?? 'openai') as 'claude' | 'deepseek' | 'openai',
+  // The shipped fallback proxy exposes an OpenAI-compatible DeepSeek endpoint.
+  // Default to the matching provider because Xcode Release archives do not
+  // reliably inherit the developer machine's .env.local file.
+  AI_PROVIDER: (process.env.EXPO_PUBLIC_AI_PROVIDER ?? 'deepseek') as 'claude' | 'deepseek' | 'openai',
   AI_API_KEY: process.env.EXPO_PUBLIC_AI_API_KEY ?? '',
   AI_SERVICE_URL: (process.env.EXPO_PUBLIC_AI_SERVICE_URL ?? '').replace(/\/$/, ''),
   DEEPSEEK_PROXY_URL: (
