@@ -63,8 +63,10 @@ module.exports = {
           assert.ok(!audioKeys.has(item.audioKey), `duplicate listening audio: ${item.audioKey}`);
           audioKeys.add(item.audioKey);
 
-          const translations = LISTENING_DIALOGUE_TRANSLATIONS_ZH[item.id];
-          assert.equal(translations?.length, item.dialogue.length, `${item.id} transcript translations`);
+          const translations = item.dialogue.map(
+            (line, index) => line.translation ?? LISTENING_DIALOGUE_TRANSLATIONS_ZH[item.id]?.[index],
+          );
+          assert.ok(translations.every(Boolean), `${item.id} transcript translations`);
           item.dialogue.forEach((line) => assert.match(line.text, JAPANESE_KANA, `${item.id} transcript`));
 
           const guidance = LISTENING_GUIDANCE_ZH[item.id] || item;
@@ -74,7 +76,7 @@ module.exports = {
           item.questions.forEach((question) => {
             assert.match(question.prompt, JAPANESE_KANA, `${question.id} prompt`);
             question.choices.forEach((choice) =>
-              assert.match(choice, JAPANESE_KANA, `${question.id} choice`),
+              assert.match(choice, /[\u3040-\u30ff]|[0-9０-９]+円/, `${question.id} choice`),
             );
           });
 

@@ -1,9 +1,6 @@
 import type { ListeningModeId } from '../../domain/models/training';
 import type { ListeningCase } from '../../domain/models/trainingContent';
-import {
-  LISTENING_DIALOGUE_TRANSLATIONS_ZH,
-  LISTENING_GUIDANCE_ZH,
-} from './listeningCaseLocalization';
+import { LISTENING_DIALOGUE_TRANSLATIONS_ZH } from './listeningCaseLocalization';
 import listeningData from './listening_cases.json';
 
 /**
@@ -39,31 +36,36 @@ const AUDIO_ASSETS: Record<string, ReturnType<typeof require>> = {
 
 type ListeningCaseRaw = Omit<ListeningCase, 'audioAsset' | 'audioKind' | 'dialogue'> & {
   audioKey: string;
-  dialogue: Array<Omit<ListeningCase['dialogue'][number], 'translation'>>;
+  dialogue: Array<
+    Omit<ListeningCase['dialogue'][number], 'translation'> & {
+      translation?: string;
+    }
+  >;
 };
 
 const LISTENING_CASES: ListeningCase[] = (
   listeningData as ListeningCaseRaw[]
 ).map((item) => {
   const audioAsset = AUDIO_ASSETS[item.audioKey];
-  const translations = LISTENING_DIALOGUE_TRANSLATIONS_ZH[item.id];
+  const translations = item.dialogue.map(
+    (line, index) => line.translation ?? LISTENING_DIALOGUE_TRANSLATIONS_ZH[item.id]?.[index],
+  );
 
   if (!audioAsset) {
     throw new Error(`Missing listening audio asset for ${item.id}: ${item.audioKey}`);
   }
 
-  if (!translations || translations.length !== item.dialogue.length) {
+  if (translations.some((translation) => !translation)) {
     throw new Error(`Listening transcript translation mismatch for ${item.id}`);
   }
 
   return {
     ...item,
-    ...LISTENING_GUIDANCE_ZH[item.id],
     audioAsset,
-    audioKind: item.audioKey.startsWith('N2M') ? 'official' : 'synthetic',
+    audioKind: item.source.includes('JLPT N2 官方') ? 'official' : 'synthetic',
     dialogue: item.dialogue.map((line, index) => ({
       ...line,
-      translation: translations[index],
+      translation: translations[index]!,
     })),
   };
 });
