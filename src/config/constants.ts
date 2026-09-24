@@ -1,7 +1,7 @@
-const defaultWebAiProxyUrl =
-  typeof window !== 'undefined' && window.location?.origin
-    ? 'https://jlpt-ai-proxy.08075921888chenjian.workers.dev'
-    : '';
+// This endpoint is the public, key-hiding proxy used by every shipped client.
+// Keep the fallback platform-independent: native Release bundles do not have a
+// browser location and may also be built without loading a developer .env file.
+const defaultAiProxyUrl = 'https://jlpt-ai-proxy.08075921888chenjian.workers.dev';
 
 export const APP_CONFIG = {
   // Progress & History
@@ -34,6 +34,6 @@ export const APP_CONFIG = {
   AI_API_KEY: process.env.EXPO_PUBLIC_AI_API_KEY ?? '',
   AI_SERVICE_URL: (process.env.EXPO_PUBLIC_AI_SERVICE_URL ?? '').replace(/\/$/, ''),
   DEEPSEEK_PROXY_URL: (
-    process.env.EXPO_PUBLIC_DEEPSEEK_PROXY_URL ?? defaultWebAiProxyUrl
+    process.env.EXPO_PUBLIC_DEEPSEEK_PROXY_URL ?? defaultAiProxyUrl
   ).replace(/\/$/, ''),
 };

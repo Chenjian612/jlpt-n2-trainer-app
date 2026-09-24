@@ -12,9 +12,18 @@ import {
 
 import { useProgressStore } from '../../../app/providers/ProgressProvider';
 import { AppBackground } from '../../../components/common/AppBackground';
+import { PersonalizedTutorPanel } from '../../../components/common/PersonalizedTutorPanel';
 import { getListeningCasesByMode } from '../../../data/seed/listeningCases';
 import { getTrainingModeById } from '../../../data/seed/trainingModes';
 import type { ListeningModeId } from '../../../domain/models/training';
+import type { PersonalizedTutorExplanation } from '../../../domain/models/personalizedTutor';
+import { getPersonalizedTutorExplanation } from '../../../services/aiCoachClient';
+import {
+  buildTutorLearningContext,
+  getCachedPersonalizedTutor,
+  getTutorCacheKey,
+  withTutorCacheMetadata,
+} from '../../../domain/services/personalizedTutorService';
 import { getModeSessionCountForDay } from '../../../domain/services/progressService';
 import { prioritizeListeningReviewCases } from '../../../domain/services/reviewScheduleService';
 import { inferListeningWeaknessErrorTypes, WEAKNESS_ERROR_META } from '../../../domain/services/wrongAnswerClassifier';
@@ -48,7 +57,13 @@ export function ListeningSessionScreen({
   onBackToDetail,
   onBackToDashboard,
 }: ListeningSessionScreenProps) {
-  const { state, todayKey, recordSession } = useProgressStore();
+  const {
+    state,
+    todayKey,
+    recordSession,
+    savePersonalizedTutor,
+    saveTransferResult,
+  } = useProgressStore();
   const { width } = useWindowDimensions();
   const isWideLayout = width >= 1040;
   const mode = getTrainingModeById(modeId);
@@ -77,6 +92,12 @@ export function ListeningSessionScreen({
   const [listenCounts, setListenCounts] = useState<Record<string, number>>({});
   const [tipsShownCases, setTipsShownCases] = useState<Set<string>>(new Set());
   const [answers, setAnswers] = useState<Record<string, number>>({});
+  const [personalizedTutor, setPersonalizedTutor] =
+    useState<PersonalizedTutorExplanation | null>(null);
+  const [tutorLoading, setTutorLoading] = useState(false);
+  const [tutorError, setTutorError] = useState<string | null>(null);
+  const [transferSelectedChoice, setTransferSelectedChoice] = useState<number | null>(null);
+  const [transferChecked, setTransferChecked] = useState(false);
   const [result, setResult] = useState<{
     correctCount: number;
     wrongCount: number;
@@ -109,6 +130,11 @@ export function ListeningSessionScreen({
     ? answers[question.id] ?? selectedChoice
     : selectedChoice;
   const isCorrect = chosenAnswer === question.answer;
+  const questionErrorTypes = inferListeningWeaknessErrorTypes(question.tags);
+  const existingWeakness = state.weaknessSignals.find(
+    (item) => item.questionId === question.id,
+  );
+  const tutorWrongCount = (existingWeakness?.wrongCount ?? 0) + 1;
   const progressValue = (currentIndex + 1) / listeningItems.length;
   const listenCount = listenCounts[currentCase.id] ?? 0;
   const hasPlayedCurrent = listenCount > 0;
@@ -276,6 +302,98 @@ export function ListeningSessionScreen({
     setSubmitted(true);
   };
 
+  const resetTutor = () => {
+    setPersonalizedTutor(null);
+    setTutorError(null);
+    setTutorLoading(false);
+    setTransferSelectedChoice(null);
+    setTransferChecked(false);
+  };
+
+  const buildCurrentTutorContext = (choice: number) =>
+    buildTutorLearningContext(
+      state,
+      {
+        questionId: question.id,
+        modeId,
+        tags: question.tags,
+        wrongCount: tutorWrongCount,
+        errorTypes: questionErrorTypes,
+        active: true,
+      },
+      choice,
+    );
+
+  const handlePersonalizedTutor = async (forceRefresh = false) => {
+    if (tutorLoading || chosenAnswer === null || chosenAnswer === question.answer) return;
+    if (audioStatus.playing) player.pause();
+    const context = buildCurrentTutorContext(chosenAnswer);
+    const cached = getCachedPersonalizedTutor(state, question.id, context.contextVersion);
+    if (cached && !forceRefresh) {
+      setPersonalizedTutor(cached);
+      setTutorError(null);
+      return;
+    }
+
+    setTutorLoading(true);
+    setTutorError(null);
+    setTransferSelectedChoice(null);
+    setTransferChecked(false);
+    try {
+      const result = await getPersonalizedTutorExplanation({
+        questionId: question.id,
+        modeId,
+        prompt: question.prompt,
+        choices: question.choices,
+        answer: question.answer,
+        explanation: question.explanation,
+        choiceInsights: question.choiceInsights,
+        reviewNote: question.reviewNote,
+        tags: question.tags,
+        source: currentCase.source,
+        wrongCount: tutorWrongCount,
+        selectedChoice: chosenAnswer,
+        weaknessType: context.weaknessType,
+        recentSimilarWrongCount: context.recentSimilarWrongCount,
+        recentSimilarPointIds: context.recentSimilarPointIds,
+        listeningEvidence: {
+          testedPoint: WEAKNESS_ERROR_META[questionErrorTypes[0]].label,
+          basisLine: question.basisLine,
+          keySignal: question.keySignal,
+          trapPoint: question.trapPoint,
+        },
+      });
+      savePersonalizedTutor(
+        getTutorCacheKey(question.id, context.contextVersion),
+        withTutorCacheMetadata(result, context.contextVersion),
+      );
+      setPersonalizedTutor(result);
+    } catch (error) {
+      if (__DEV__) console.warn('[Listening AI Tutor]', error);
+      setTutorError('听力 AI 辅导暂时不可用，原文依据和固定解析仍然有效。');
+    } finally {
+      setTutorLoading(false);
+    }
+  };
+
+  const handleTransferCheck = () => {
+    if (
+      !personalizedTutor ||
+      transferSelectedChoice === null ||
+      transferChecked ||
+      chosenAnswer === null
+    ) return;
+    const context = buildCurrentTutorContext(chosenAnswer);
+    setTransferChecked(true);
+    saveTransferResult({
+      questionId: question.id,
+      contextVersion: context.contextVersion,
+      selectedChoice: transferSelectedChoice,
+      correct: transferSelectedChoice === personalizedTutor.transferQuestion.answer,
+      answeredAt: new Date().toISOString(),
+    });
+  };
+
   const handleNext = () => {
     if (!submitted) {
       return;
@@ -289,6 +407,7 @@ export function ListeningSessionScreen({
       setCurrentIndex(nextIndex);
       setSelectedChoice(nextAnswer ?? null);
       setSubmitted(nextAnswer !== undefined);
+      resetTutor();
       return;
     }
 
@@ -341,6 +460,7 @@ export function ListeningSessionScreen({
     setCurrentIndex(previousIndex);
     setSelectedChoice(previousAnswer ?? null);
     setSubmitted(previousAnswer !== undefined);
+    resetTutor();
   };
 
   return (
@@ -822,6 +942,20 @@ export function ListeningSessionScreen({
                     <Text style={styles.analysisTitle}>复盘提醒</Text>
                     <Text style={styles.explanationBody}>{withKana(question.reviewNote)}</Text>
                   </View>
+
+                  {!isCorrect && chosenAnswer !== null ? (
+                    <PersonalizedTutorPanel
+                      mode="listening"
+                      explanation={personalizedTutor}
+                      loading={tutorLoading}
+                      error={tutorError}
+                      transferSelectedChoice={transferSelectedChoice}
+                      transferChecked={transferChecked}
+                      onGenerate={handlePersonalizedTutor}
+                      onSelectTransferChoice={setTransferSelectedChoice}
+                      onCheckTransfer={handleTransferCheck}
+                    />
+                  ) : null}
                 </View>
               ) : null}
             </View>

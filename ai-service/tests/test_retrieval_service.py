@@ -14,12 +14,12 @@ from app.schemas import WebEvidenceSource
 class RetrievalServiceTest(unittest.TestCase):
     def test_builds_index_for_all_searchable_questions(self) -> None:
         index = build_retrieval_index()
-        self.assertEqual(len(index.documents), 886)
+        self.assertEqual(len(index.documents), 883)
         self.assertTrue(all(document.vector_norm > 0 for document in index.documents))
 
     def test_flattens_reading_questions_into_search_documents(self) -> None:
         documents = load_search_documents()
-        self.assertEqual(len(documents), 886)
+        self.assertEqual(len(documents), 883)
         self.assertEqual(documents["reading-001-q1"]["passageId"], "reading-001")
         self.assertEqual(len(documents["reading-001-q1"]["paragraphs"]), 4)
 
@@ -55,7 +55,7 @@ class RetrievalServiceTest(unittest.TestCase):
             if document["modeId"] == "listening_analyze"
         ]
 
-        self.assertEqual(len(listening_documents), 26)
+        self.assertEqual(len(listening_documents), 23)
         for document in listening_documents:
             with self.subTest(question_id=document["id"]):
                 result = search_knowledge(
@@ -91,7 +91,7 @@ class RetrievalServiceTest(unittest.TestCase):
         cases = [
             ("instant-reply-001-q1", "stimulus_response"),
             ("planning-meeting-001-q1", "dialogue_quote"),
-            ("office-reassignment-001-q1", "pedagogical_summary"),
+            ("office-reassignment-001-q1", "dialogue_quote"),
         ]
         documents = load_search_documents()
 

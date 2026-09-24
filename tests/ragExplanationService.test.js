@@ -15,15 +15,32 @@ const {
   getTutorCacheKey,
 } = require('../src/domain/services/personalizedTutorService.ts');
 const {
+  canRequestConfiguredAiService,
+  lockComprehensionMicroCheck,
   mergePersonalizedTutorResponse,
   mergeWrongAnswerAiText,
 } = require('../src/services/aiCoachClient.ts');
 
 const grammarQuestion = require('../src/data/seed/drill_questions.json')[0];
+const readingPassage = require('../src/data/seed/reading_passages.json')[0];
+const readingQuestion = readingPassage.questions[0];
+const listeningCase = require('../src/data/seed/listening_cases.json')[0];
+const listeningQuestion = listeningCase.questions[0];
 
 module.exports = {
   name: 'ragExplanationService',
   tests: [
+    {
+      name: 'native clients skip loopback AI services but retain remote and web development URLs',
+      run() {
+        assert.equal(canRequestConfiguredAiService('', true), false);
+        assert.equal(canRequestConfiguredAiService('http://127.0.0.1:8000', true), false);
+        assert.equal(canRequestConfiguredAiService('http://localhost:8000', true), false);
+        assert.equal(canRequestConfiguredAiService('http://[::1]:8000', true), false);
+        assert.equal(canRequestConfiguredAiService('http://192.168.1.10:8000', true), true);
+        assert.equal(canRequestConfiguredAiService('http://localhost:8000', false), true);
+      },
+    },
     {
       name: 'indexes every grammar and vocabulary drill question',
       run() {
@@ -48,6 +65,44 @@ module.exports = {
         assert.equal(result.choiceAnalysis[0].status, 'correct');
         assert.equal(result.choiceAnalysis[1].status, 'selected_wrong');
         assert.equal(result.generationMode, 'local_knowledge');
+      },
+    },
+    {
+      name: 'builds grounded reading and listening explanations from locked evidence',
+      run() {
+        const reading = buildLocalRagExplanation({
+          ...readingQuestion,
+          questionId: readingQuestion.id,
+          modeId: 'reading_drill',
+          source: readingPassage.source,
+          selectedChoice: 0,
+          wrongCount: 1,
+          readingEvidence: {
+            testedPoint: '读解证据定位',
+            evidence: readingQuestion.evidence,
+          },
+        });
+        const listening = buildLocalRagExplanation({
+          ...listeningQuestion,
+          questionId: listeningQuestion.id,
+          modeId: 'listening_analyze',
+          source: listeningCase.source,
+          selectedChoice: 0,
+          wrongCount: 1,
+          listeningEvidence: {
+            testedPoint: '听力信息追踪',
+            basisLine: listeningQuestion.basisLine,
+            keySignal: listeningQuestion.keySignal,
+            trapPoint: listeningQuestion.trapPoint,
+          },
+        });
+
+        assert.equal(reading.testedPoint, '读解证据定位');
+        assert.equal(reading.sources[0].id, `reading-${readingQuestion.id}`);
+        assert.match(reading.sources[0].snippet, /证据位置/);
+        assert.equal(listening.testedPoint, '听力信息追踪');
+        assert.equal(listening.sources[0].id, `listening-${listeningQuestion.id}`);
+        assert.equal(listening.sources[0].snippet, listeningQuestion.basisLine);
       },
     },
     {
@@ -130,6 +185,60 @@ module.exports = {
         assert.equal(result.personalizationEvidence.wrongCount, 3);
         assert.equal(result.personalizationEvidence.recentSimilarWrongCount, 2);
         assert.equal(result.transferQuestion.testedPoint, local.testedPoint);
+      },
+    },
+    {
+      name: 'reading and listening micro checks keep locally locked answers',
+      run() {
+        const params = {
+          ...readingQuestion,
+          questionId: readingQuestion.id,
+          modeId: 'reading_drill',
+          source: readingPassage.source,
+          selectedChoice: 0,
+          wrongCount: 1,
+          weaknessType: '读解证据定位',
+          recentSimilarWrongCount: 0,
+          recentSimilarPointIds: [],
+          readingEvidence: {
+            testedPoint: '读解证据定位',
+            evidence: readingQuestion.evidence,
+          },
+        };
+        const local = buildLocalRagExplanation(params);
+        const generated = {
+          diagnosisSummary: '诊断',
+          whyYouChoseIt: '误选原因',
+          reasoningSteps: ['一', '二', '三'],
+          confusionComparison: {
+            correctPoint: local.testedPoint,
+            confusedPoint: readingQuestion.choices[0],
+            decisiveDifference: '区别',
+          },
+          reviewPlan: [{ timing: 'now', action: '复盘' }],
+          personalizationEvidence: {
+            selectedChoice: readingQuestion.choices[0],
+            wrongCount: 1,
+            weaknessType: '读解证据定位',
+            recentSimilarWrongCount: 0,
+          },
+          transferQuestion: {
+            prompt: '模型自由生成的问题',
+            choices: ['错误答案', '伪造答案'],
+            answer: 1,
+            testedPoint: local.testedPoint,
+            explanation: '模型解释',
+          },
+          generationMode: 'ai_tutor',
+        };
+
+        const locked = lockComprehensionMicroCheck(generated, local, params);
+        assert.notEqual(locked.transferQuestion.prompt, '模型自由生成的问题');
+        assert.equal(
+          locked.transferQuestion.choices[locked.transferQuestion.answer],
+          readingQuestion.choices[readingQuestion.answer],
+        );
+        assert.equal(locked.transferQuestion.testedPoint, local.testedPoint);
       },
     },
     {

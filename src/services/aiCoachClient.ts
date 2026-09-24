@@ -23,6 +23,26 @@ type OpenAIResponse = {
   choices: Array<{ message: { content: string } }>;
 };
 
+const isReactNativeRuntime =
+  typeof navigator !== 'undefined' && navigator.product === 'ReactNative';
+
+export const canRequestConfiguredAiService = (
+  serviceUrl: string,
+  nativeRuntime: boolean,
+): boolean =>
+  Boolean(serviceUrl) &&
+  !(
+    nativeRuntime &&
+    /^https?:\/\/(?:localhost|127\.0\.0\.1|\[::1\])(?::|\/|$)/i.test(serviceUrl)
+  );
+
+// On a physical phone, loopback points to the phone itself rather than the
+// developer Mac. Skip it immediately and use the HTTPS proxy fallback.
+const canRequestAiService = canRequestConfiguredAiService(
+  APP_CONFIG.AI_SERVICE_URL,
+  isReactNativeRuntime,
+);
+
 const WRONG_ANSWER_TEXT_FIELDS = [
   'mistakePattern',
   'whyCorrect',
@@ -139,7 +159,7 @@ export const getWrongAnswerExplanation = async (
     throw new Error('KNOWLEDGE_NOT_FOUND');
   }
 
-  if (APP_CONFIG.AI_SERVICE_URL) {
+  if (canRequestAiService) {
     try {
       const serviceExplanation = await requestFastApiExplanation(params);
       if (serviceExplanation.generationMode === 'ai_service') return serviceExplanation;
@@ -236,6 +256,44 @@ export const mergePersonalizedTutorResponse = (
   };
 };
 
+export const lockComprehensionMicroCheck = (
+  explanation: PersonalizedTutorExplanation,
+  localExplanation: WrongAnswerExplanation,
+  params: PersonalizedTutorParams,
+): PersonalizedTutorExplanation => {
+  if (params.modeId !== 'reading_drill' && params.modeId !== 'listening_analyze') {
+    return explanation;
+  }
+
+  const correctChoice = params.choices[params.answer];
+  const selectedChoice = params.choices[params.selectedChoice];
+  if (!correctChoice || !selectedChoice || params.answer === params.selectedChoice) {
+    return explanation;
+  }
+
+  const correctFirst = params.questionId
+    .split('')
+    .reduce((total, character) => total + character.charCodeAt(0), 0) % 2 === 0;
+  const choices = correctFirst
+    ? [correctChoice, selectedChoice]
+    : [selectedChoice, correctChoice];
+  const answer = correctFirst ? 0 : 1;
+  const evidencePrompt = params.modeId === 'reading_drill'
+    ? `重新对照原文证据，哪一项完整符合题干要求？`
+    : `重新抓住依据句和关键信号，最终应该保留哪一项？`;
+
+  return {
+    ...explanation,
+    transferQuestion: {
+      prompt: evidencePrompt,
+      choices,
+      answer,
+      testedPoint: localExplanation.testedPoint,
+      explanation: localExplanation.whyCorrect,
+    },
+  };
+};
+
 const requestFastApiTutor = async (
   params: PersonalizedTutorParams,
 ): Promise<Record<string, unknown>> => {
@@ -314,10 +372,14 @@ export const getPersonalizedTutorExplanation = async (
   const localExplanation = buildLocalRagExplanation(params);
   if (!localExplanation) throw new Error('KNOWLEDGE_NOT_FOUND');
 
-  if (APP_CONFIG.AI_SERVICE_URL) {
+  if (canRequestAiService) {
     try {
       const generated = await requestFastApiTutor(params);
-      return mergePersonalizedTutorResponse(generated, localExplanation, params);
+      return lockComprehensionMicroCheck(
+        mergePersonalizedTutorResponse(generated, localExplanation, params),
+        localExplanation,
+        params,
+      );
     } catch (err) {
       if (__DEV__) console.warn('[AI Tutor] FastAPI unavailable, trying proxy:', err);
     }
@@ -325,7 +387,11 @@ export const getPersonalizedTutorExplanation = async (
 
   if (APP_CONFIG.DEEPSEEK_PROXY_URL) {
     const generated = await requestProxyTutor(params, localExplanation);
-    return mergePersonalizedTutorResponse(generated, localExplanation, params);
+    return lockComprehensionMicroCheck(
+      mergePersonalizedTutorResponse(generated, localExplanation, params),
+      localExplanation,
+      params,
+    );
   }
 
   throw new Error('AI_TUTOR_UNAVAILABLE');

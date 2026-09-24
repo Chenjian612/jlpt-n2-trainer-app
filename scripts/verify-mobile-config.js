@@ -9,6 +9,14 @@ const appConfig = JSON.parse(
 const easConfig = JSON.parse(
   fs.readFileSync(path.join(projectRoot, 'eas.json'), 'utf8'),
 );
+const appConstants = fs.readFileSync(
+  path.join(projectRoot, 'src/config/constants.ts'),
+  'utf8',
+);
+const aiCoachClient = fs.readFileSync(
+  path.join(projectRoot, 'src/services/aiCoachClient.ts'),
+  'utf8',
+);
 
 function assertAsset(relativePath, label) {
   assert.equal(typeof relativePath, 'string', `${label} must be configured.`);
@@ -80,9 +88,21 @@ assert.equal(easConfig.build.production.environment, 'production');
 assert.equal(easConfig.build.production.autoIncrement, true);
 assert.deepEqual(easConfig.submit.production, {});
 
+assert.match(
+  appConstants,
+  /const defaultAiProxyUrl = 'https:\/\/[^']+';/,
+  'Shipped clients must have an HTTPS AI proxy fallback even when .env.local is unavailable.',
+);
+assert.match(
+  aiCoachClient,
+  /navigator\.product === 'ReactNative'[\s\S]*localhost\|127\\\.0\\\.0\\\.1/,
+  'Native clients must not request a loopback AI service that points to the phone itself.',
+);
+
 console.log('PASS mobile identity, versions, permissions, plugins, and assets');
 console.log('PASS iOS export-compliance declaration');
 console.log('PASS EAS preview APK and production build profiles');
+console.log('PASS native AI proxy fallback and loopback protection');
 if (appConfig.extra?.eas?.projectId) {
   console.log(`PASS EAS project linked: ${appConfig.extra.eas.projectId}`);
 } else {
