@@ -66,6 +66,8 @@ open ios/JLPTN2Trainer.xcworkspace
 
 `ios:prepare` 会执行 Expo Prebuild、为 Xcode 27 将所有 Pod 的最低部署目标统一为 iOS 15.1，再安装 CocoaPods。这个兼容处理由仓库中的 `scripts/patch-ios-podfile.js` 自动完成，不需要手工修改被 Git 忽略的原生目录。
 
+真机不能访问电脑语义下的 `localhost` 或 `127.0.0.1`。应用在 iOS/Android 上会自动跳过这类 AI 服务地址，并使用内置的 HTTPS Cloudflare 代理；因此即使 Xcode Release 没有读取开发机的 `.env.local`，个性化辅导仍可用。修改 AI 环境变量后必须重新构建并安装 App，旧包不会自动更新配置。
+
 在 Xcode 中选择 `TARGETS > JLPTN2Trainer > Signing & Capabilities`，勾选 `Automatically manage signing` 并选择 Apple ID 对应的 `Personal Team`。连接 iPhone、信任电脑并开启开发者模式后，在运行目标中选择真实的 `iPhone`，不要选择仅供归档的 `Any iOS Device`。
 
 调试包依赖 Metro；需要脱离电脑独立运行时，应使用 `Release` 配置构建，确保构建日志中出现 `main.jsbundle`。免费 Personal Team 只适用于自己的注册设备，签名有效期有限，不能替代 App Store、TestFlight 或长期分发签名。

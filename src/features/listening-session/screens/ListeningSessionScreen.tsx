@@ -1,6 +1,7 @@
 ﻿import { useEffect, useMemo, useRef, useState } from 'react';
 import { useAudioPlayer, useAudioPlayerStatus, setAudioModeAsync } from 'expo-audio';
 import {
+  type GestureResponderEvent,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -11,9 +12,18 @@ import {
 
 import { useProgressStore } from '../../../app/providers/ProgressProvider';
 import { AppBackground } from '../../../components/common/AppBackground';
+import { PersonalizedTutorPanel } from '../../../components/common/PersonalizedTutorPanel';
 import { getListeningCasesByMode } from '../../../data/seed/listeningCases';
 import { getTrainingModeById } from '../../../data/seed/trainingModes';
 import type { ListeningModeId } from '../../../domain/models/training';
+import type { PersonalizedTutorExplanation } from '../../../domain/models/personalizedTutor';
+import { getPersonalizedTutorExplanation } from '../../../services/aiCoachClient';
+import {
+  buildTutorLearningContext,
+  getCachedPersonalizedTutor,
+  getTutorCacheKey,
+  withTutorCacheMetadata,
+} from '../../../domain/services/personalizedTutorService';
 import { getModeSessionCountForDay } from '../../../domain/services/progressService';
 import { prioritizeListeningReviewCases } from '../../../domain/services/reviewScheduleService';
 import { inferListeningWeaknessErrorTypes, WEAKNESS_ERROR_META } from '../../../domain/services/wrongAnswerClassifier';
@@ -47,7 +57,13 @@ export function ListeningSessionScreen({
   onBackToDetail,
   onBackToDashboard,
 }: ListeningSessionScreenProps) {
-  const { state, todayKey, recordSession } = useProgressStore();
+  const {
+    state,
+    todayKey,
+    recordSession,
+    savePersonalizedTutor,
+    saveTransferResult,
+  } = useProgressStore();
   const { width } = useWindowDimensions();
   const isWideLayout = width >= 1040;
   const mode = getTrainingModeById(modeId);
@@ -72,9 +88,16 @@ export function ListeningSessionScreen({
   const [submitted, setSubmitted] = useState(false);
   const [playbackRate, setPlaybackRate] =
     useState<(typeof PLAYBACK_RATES)[number]>(1);
+  const [audioTrackWidth, setAudioTrackWidth] = useState(0);
   const [listenCounts, setListenCounts] = useState<Record<string, number>>({});
   const [tipsShownCases, setTipsShownCases] = useState<Set<string>>(new Set());
   const [answers, setAnswers] = useState<Record<string, number>>({});
+  const [personalizedTutor, setPersonalizedTutor] =
+    useState<PersonalizedTutorExplanation | null>(null);
+  const [tutorLoading, setTutorLoading] = useState(false);
+  const [tutorError, setTutorError] = useState<string | null>(null);
+  const [transferSelectedChoice, setTransferSelectedChoice] = useState<number | null>(null);
+  const [transferChecked, setTransferChecked] = useState(false);
   const [result, setResult] = useState<{
     correctCount: number;
     wrongCount: number;
@@ -100,13 +123,18 @@ export function ListeningSessionScreen({
   const question = currentItem.question;
   const currentCaseQuestionIndex = currentItem.caseQuestionIndex;
   const currentCaseIndex = cases.findIndex((caseData) => caseData.id === currentCase.id) + 1;
-  const player = useAudioPlayer(currentCase.audioAsset, { updateInterval: 250 });
+  const player = useAudioPlayer(null, { updateInterval: 250 });
   const audioStatus = useAudioPlayerStatus(player);
 
   const chosenAnswer = submitted
     ? answers[question.id] ?? selectedChoice
     : selectedChoice;
   const isCorrect = chosenAnswer === question.answer;
+  const questionErrorTypes = inferListeningWeaknessErrorTypes(question.tags);
+  const existingWeakness = state.weaknessSignals.find(
+    (item) => item.questionId === question.id,
+  );
+  const tutorWrongCount = (existingWeakness?.wrongCount ?? 0) + 1;
   const progressValue = (currentIndex + 1) / listeningItems.length;
   const listenCount = listenCounts[currentCase.id] ?? 0;
   const hasPlayedCurrent = listenCount > 0;
@@ -117,7 +145,9 @@ export function ListeningSessionScreen({
   const shouldRestartPlayback =
     hasPlayedCurrent &&
     !audioStatus.playing &&
-    (audioStatus.didJustFinish || audioStatus.currentTime < 0.05);
+    (audioStatus.currentTime < 0.05 ||
+      (audioStatus.duration > 0 &&
+        audioStatus.currentTime >= audioStatus.duration - 0.25));
   const displayDuration =
     audioStatus.duration > 0
       ? formatSeconds(audioStatus.duration)
@@ -174,14 +204,17 @@ export function ListeningSessionScreen({
   }, []);
 
   useEffect(() => {
-    player.setPlaybackRate(playbackRate, 'medium');
-  }, [playbackRate, player]);
+    player.pause();
+    player.replace(currentCase.audioAsset);
+
+    return () => {
+      player.pause();
+    };
+  }, [currentCase.audioAsset, player]);
 
   useEffect(() => {
-    if (submitted && audioStatus.playing) {
-      player.pause();
-    }
-  }, [audioStatus.playing, player, submitted]);
+    player.setPlaybackRate(playbackRate, 'medium');
+  }, [playbackRate, player]);
 
   const markListenAttempt = () => {
     setListenCounts((current) => ({
@@ -192,6 +225,11 @@ export function ListeningSessionScreen({
 
   const handlePlayPause = () => {
     if (!audioStatus.isLoaded) {
+      if (!hasPlayedCurrent) {
+        markListenAttempt();
+      }
+      player.replace(currentCase.audioAsset);
+      player.play();
       return;
     }
 
@@ -200,7 +238,7 @@ export function ListeningSessionScreen({
       return;
     }
 
-    if (!hasPlayedCurrent && audioStatus.currentTime < 0.15) {
+    if (!hasPlayedCurrent) {
       markListenAttempt();
     }
 
@@ -212,6 +250,30 @@ export function ListeningSessionScreen({
     }
 
     player.play();
+  };
+
+  const seekFromTrackEvent = (event: GestureResponderEvent) => {
+    if (!audioStatus.isLoaded || audioStatus.duration <= 0 || audioTrackWidth <= 0) {
+      return;
+    }
+
+    const fraction = Math.min(
+      Math.max(event.nativeEvent.locationX / audioTrackWidth, 0),
+      1,
+    );
+    void player.seekTo(fraction * audioStatus.duration);
+  };
+
+  const seekBy = (seconds: number) => {
+    if (!audioStatus.isLoaded || audioStatus.duration <= 0) {
+      return;
+    }
+
+    const nextTime = Math.min(
+      Math.max(audioStatus.currentTime + seconds, 0),
+      audioStatus.duration,
+    );
+    void player.seekTo(nextTime);
   };
 
   const handleReplay = async () => {
@@ -240,15 +302,112 @@ export function ListeningSessionScreen({
     setSubmitted(true);
   };
 
+  const resetTutor = () => {
+    setPersonalizedTutor(null);
+    setTutorError(null);
+    setTutorLoading(false);
+    setTransferSelectedChoice(null);
+    setTransferChecked(false);
+  };
+
+  const buildCurrentTutorContext = (choice: number) =>
+    buildTutorLearningContext(
+      state,
+      {
+        questionId: question.id,
+        modeId,
+        tags: question.tags,
+        wrongCount: tutorWrongCount,
+        errorTypes: questionErrorTypes,
+        active: true,
+      },
+      choice,
+    );
+
+  const handlePersonalizedTutor = async (forceRefresh = false) => {
+    if (tutorLoading || chosenAnswer === null || chosenAnswer === question.answer) return;
+    if (audioStatus.playing) player.pause();
+    const context = buildCurrentTutorContext(chosenAnswer);
+    const cached = getCachedPersonalizedTutor(state, question.id, context.contextVersion);
+    if (cached && !forceRefresh) {
+      setPersonalizedTutor(cached);
+      setTutorError(null);
+      return;
+    }
+
+    setTutorLoading(true);
+    setTutorError(null);
+    setTransferSelectedChoice(null);
+    setTransferChecked(false);
+    try {
+      const result = await getPersonalizedTutorExplanation({
+        questionId: question.id,
+        modeId,
+        prompt: question.prompt,
+        choices: question.choices,
+        answer: question.answer,
+        explanation: question.explanation,
+        choiceInsights: question.choiceInsights,
+        reviewNote: question.reviewNote,
+        tags: question.tags,
+        source: currentCase.source,
+        wrongCount: tutorWrongCount,
+        selectedChoice: chosenAnswer,
+        weaknessType: context.weaknessType,
+        recentSimilarWrongCount: context.recentSimilarWrongCount,
+        recentSimilarPointIds: context.recentSimilarPointIds,
+        listeningEvidence: {
+          testedPoint: WEAKNESS_ERROR_META[questionErrorTypes[0]].label,
+          basisLine: question.basisLine,
+          keySignal: question.keySignal,
+          trapPoint: question.trapPoint,
+        },
+      });
+      savePersonalizedTutor(
+        getTutorCacheKey(question.id, context.contextVersion),
+        withTutorCacheMetadata(result, context.contextVersion),
+      );
+      setPersonalizedTutor(result);
+    } catch (error) {
+      if (__DEV__) console.warn('[Listening AI Tutor]', error);
+      setTutorError('听力 AI 辅导暂时不可用，原文依据和固定解析仍然有效。');
+    } finally {
+      setTutorLoading(false);
+    }
+  };
+
+  const handleTransferCheck = () => {
+    if (
+      !personalizedTutor ||
+      transferSelectedChoice === null ||
+      transferChecked ||
+      chosenAnswer === null
+    ) return;
+    const context = buildCurrentTutorContext(chosenAnswer);
+    setTransferChecked(true);
+    saveTransferResult({
+      questionId: question.id,
+      contextVersion: context.contextVersion,
+      selectedChoice: transferSelectedChoice,
+      correct: transferSelectedChoice === personalizedTutor.transferQuestion.answer,
+      answeredAt: new Date().toISOString(),
+    });
+  };
+
   const handleNext = () => {
     if (!submitted) {
       return;
     }
 
     if (currentIndex < listeningItems.length - 1) {
-      setCurrentIndex((current) => current + 1);
-      setSelectedChoice(null);
-      setSubmitted(false);
+      const nextIndex = currentIndex + 1;
+      const nextQuestion = listeningItems[nextIndex].question;
+      const nextAnswer = answers[nextQuestion.id];
+
+      setCurrentIndex(nextIndex);
+      setSelectedChoice(nextAnswer ?? null);
+      setSubmitted(nextAnswer !== undefined);
+      resetTutor();
       return;
     }
 
@@ -288,6 +447,22 @@ export function ListeningSessionScreen({
     });
   };
 
+  const handlePrevious = () => {
+    if (currentIndex === 0) {
+      return;
+    }
+
+    player.pause();
+    const previousIndex = currentIndex - 1;
+    const previousQuestion = listeningItems[previousIndex].question;
+    const previousAnswer = answers[previousQuestion.id];
+
+    setCurrentIndex(previousIndex);
+    setSelectedChoice(previousAnswer ?? null);
+    setSubmitted(previousAnswer !== undefined);
+    resetTutor();
+  };
+
   return (
     <AppBackground>
       <ScrollView contentContainerStyle={[styles.content, isWideLayout && styles.contentWide]}>
@@ -310,7 +485,7 @@ export function ListeningSessionScreen({
 
           <Text style={styles.heroTitle}>{mode.title}</Text>
           <Text style={styles.heroBody}>
-            按照正式节奏先听再答。当前接入的是官方公开示例音频，至少播放一次后再作答，提交后再看复盘摘要、依据句和陷阱分析。
+            按照正式节奏先听再答。每道题都使用与原文对应的日语音频；提交后可查看日语原文、中文翻译、依据句和陷阱分析。
           </Text>
 
           <View style={styles.heroMetaRow}>
@@ -411,6 +586,16 @@ export function ListeningSessionScreen({
             >
               <Text style={styles.primaryButtonText}>明白了，开始听题</Text>
             </Pressable>
+
+            {currentIndex > 0 ? (
+              <Pressable
+                testID="listening-previous"
+                onPress={handlePrevious}
+                style={styles.secondaryButton}
+              >
+                <Text style={styles.secondaryButtonText}>上一题</Text>
+              </Pressable>
+            ) : null}
           </View>
         ) : (
           <>
@@ -455,13 +640,22 @@ export function ListeningSessionScreen({
                 />
               </View>
               <Text style={styles.progressHint}>
-                这一轮采用先听后答的流程。每题至少播放 1 次官方示例音频，做完整轮后会自动记 1 轮听力。
+                这一轮采用先听后答的流程。非即时应答题至少播放 1 次匹配音频，做完整轮后会自动记 1 轮听力。
               </Text>
             </View>
 
             <View style={[styles.audioCard, shadows.card]}>
               <View style={styles.audioHeader}>
-                <Text style={styles.sectionTitle}>官方示例音频</Text>
+                <View style={styles.audioTitleGroup}>
+                  <Text style={styles.sectionTitle}>
+                    {currentCase.audioKind === 'official' ? '官方示例音频' : '日语合成练习音频'}
+                  </Text>
+                  <Text style={styles.audioSourceHint}>
+                    {currentCase.audioKind === 'official'
+                      ? '题目与原音频已按官方脚本逐句核对'
+                      : '根据本题日语原文生成，仅用于个人练习'}
+                  </Text>
+                </View>
                 <View style={styles.audioMetaBadge}>
                   <Text style={styles.audioMetaBadgeText}>已听 {listenCount} 遍</Text>
                 </View>
@@ -478,11 +672,38 @@ export function ListeningSessionScreen({
               <View style={styles.audioProgressCard}>
                 <View style={styles.audioTimeRow}>
                   <Text style={styles.audioTimeText}>
+                    <Text testID="listening-audio-current-time">
                     {formatSeconds(audioStatus.currentTime)}
+                    </Text>
                   </Text>
                   <Text style={styles.audioTimeText}>{displayDuration}</Text>
                 </View>
-                <View style={styles.audioTrack}>
+                <Pressable
+                  testID="listening-audio-progress"
+                  accessible
+                  accessibilityRole="adjustable"
+                  accessibilityLabel="音频播放进度"
+                  aria-valuemin={0}
+                  aria-valuemax={Math.max(Math.round(audioStatus.duration), 0)}
+                  aria-valuenow={Math.round(audioStatus.currentTime)}
+                  aria-valuetext={`${formatSeconds(audioStatus.currentTime)} / ${displayDuration}`}
+                  accessibilityValue={{
+                    min: 0,
+                    max: Math.max(Math.round(audioStatus.duration), 0),
+                    now: Math.round(audioStatus.currentTime),
+                    text: `${formatSeconds(audioStatus.currentTime)} / ${displayDuration}`,
+                  }}
+                  accessibilityActions={[
+                    { name: 'decrement', label: '后退十秒' },
+                    { name: 'increment', label: '前进十秒' },
+                  ]}
+                  onAccessibilityAction={(event) =>
+                    seekBy(event.nativeEvent.actionName === 'increment' ? 10 : -10)
+                  }
+                  onLayout={(event) => setAudioTrackWidth(event.nativeEvent.layout.width)}
+                  onPress={seekFromTrackEvent}
+                  style={styles.audioTrack}
+                >
                   <View
                     style={[
                       styles.audioFill,
@@ -492,23 +713,24 @@ export function ListeningSessionScreen({
                       },
                     ]}
                   />
-                </View>
+                </Pressable>
+                <Text style={styles.audioSeekHint}>点按进度条定位音频</Text>
               </View>
 
               <View style={styles.audioButtonRow}>
                 <Pressable
                   testID="listening-play-button"
-                  disabled={!audioStatus.isLoaded}
                   onPress={handlePlayPause}
                   style={[
                     styles.primaryButton,
                     styles.audioPrimaryButton,
                     { backgroundColor: mode.accent },
-                    !audioStatus.isLoaded && styles.primaryButtonDisabled,
                   ]}
                 >
                   <Text style={styles.primaryButtonText}>
-                    {audioStatus.playing
+                    {!audioStatus.isLoaded
+                      ? '加载并播放'
+                      : audioStatus.playing
                       ? '暂停播放'
                       : shouldRestartPlayback
                         ? '重新播放'
@@ -570,7 +792,9 @@ export function ListeningSessionScreen({
                   <Text style={styles.stimulusText}>{currentCase.dialogue[0]?.text}</Text>
                 </View>
               ) : null}
-              <Text style={styles.sectionTitle}>{question.prompt}</Text>
+              <Text testID="listening-question-prompt" style={styles.sectionTitle}>
+                {question.prompt}
+              </Text>
               <Text style={styles.questionHint}>
                 {isInstantReply
                   ? '读刺激句，选出最自然、最得体的回应。'
@@ -628,12 +852,23 @@ export function ListeningSessionScreen({
                   </Text>
 
                   <View style={styles.analysisBlock}>
-                    <Text style={styles.analysisTitle}>复盘摘要</Text>
+                    <Text style={styles.analysisTitle}>听力原文与翻译</Text>
                     <View style={styles.dialogueList}>
                       {currentCase.dialogue.map((line, index) => (
                         <View key={`${line.speaker}-${index}`} style={styles.dialogueItem}>
                           <Text style={styles.dialogueSpeaker}>{line.speaker}</Text>
-                          <Text style={styles.dialogueText}>{withKana(line.text)}</Text>
+                          <Text
+                            testID={`listening-transcript-ja-${index}`}
+                            style={styles.dialogueText}
+                          >
+                            {withKana(line.text)}
+                          </Text>
+                          <Text
+                            testID={`listening-transcript-zh-${index}`}
+                            style={styles.dialogueTranslation}
+                          >
+                            {line.translation}
+                          </Text>
                         </View>
                       ))}
                     </View>
@@ -707,11 +942,34 @@ export function ListeningSessionScreen({
                     <Text style={styles.analysisTitle}>复盘提醒</Text>
                     <Text style={styles.explanationBody}>{withKana(question.reviewNote)}</Text>
                   </View>
+
+                  {!isCorrect && chosenAnswer !== null ? (
+                    <PersonalizedTutorPanel
+                      mode="listening"
+                      explanation={personalizedTutor}
+                      loading={tutorLoading}
+                      error={tutorError}
+                      transferSelectedChoice={transferSelectedChoice}
+                      transferChecked={transferChecked}
+                      onGenerate={handlePersonalizedTutor}
+                      onSelectTransferChoice={setTransferSelectedChoice}
+                      onCheckTransfer={handleTransferCheck}
+                    />
+                  ) : null}
                 </View>
               ) : null}
             </View>
 
             <View style={styles.footerActions}>
+              {currentIndex > 0 ? (
+                <Pressable
+                  testID="listening-previous"
+                  onPress={handlePrevious}
+                  style={styles.secondaryButton}
+                >
+                  <Text style={styles.secondaryButtonText}>上一题</Text>
+                </Pressable>
+              ) : null}
               <Pressable
                 testID={submitted ? 'listening-next' : 'listening-submit'}
                 onPress={submitted ? handleNext : handleSubmit}
@@ -1047,6 +1305,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 12,
   },
+  audioTitleGroup: {
+    flex: 1,
+    gap: 4,
+  },
+  audioSourceHint: {
+    color: colors.inkMuted,
+    fontSize: 12,
+    lineHeight: 18,
+    fontFamily: fonts.body,
+  },
   audioMetaBadge: {
     borderRadius: radii.pill,
     backgroundColor: colors.warmCard,
@@ -1087,7 +1355,7 @@ const styles = StyleSheet.create({
     fontFamily: fonts.body,
   },
   audioTrack: {
-    height: 10,
+    height: 16,
     borderRadius: radii.pill,
     backgroundColor: colors.slateSoft,
     overflow: 'hidden',
@@ -1095,6 +1363,12 @@ const styles = StyleSheet.create({
   audioFill: {
     height: '100%',
     borderRadius: radii.pill,
+  },
+  audioSeekHint: {
+    color: colors.inkMuted,
+    fontSize: 11,
+    textAlign: 'center',
+    fontFamily: fonts.body,
   },
   audioButtonRow: {
     flexDirection: 'row',
@@ -1239,6 +1513,12 @@ const styles = StyleSheet.create({
     lineHeight: 21,
     fontFamily: fonts.body,
   },
+  dialogueTranslation: {
+    color: colors.inkMuted,
+    fontSize: 13,
+    lineHeight: 20,
+    fontFamily: fonts.body,
+  },
   analysisList: {
     gap: 10,
   },
@@ -1351,6 +1631,3 @@ const styles = StyleSheet.create({
     fontFamily: fonts.body,
   },
 });
-
-
-

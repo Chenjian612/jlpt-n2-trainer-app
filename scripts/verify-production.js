@@ -30,6 +30,14 @@ async function main() {
   for (const marker of ['errorTrackingDays', 'errorEventCountLast14Days', 'errorTrendReady']) {
     assert.equal(bundle.includes(marker), true, `Application bundle is missing release marker: ${marker}`);
   }
+  assert.equal(
+    bundle.includes('https://jlpt-n2-trainer-app.pages.dev/api/ai'),
+    true,
+    'Application bundle is missing the phone-reachable Pages AI endpoint.',
+  );
+
+  const aiHealthResponse = await fetchOk('/api/ai/health', 'Pages AI relay health');
+  assert.deepEqual(await aiHealthResponse.json(), { status: 'ok' });
 
   const audioPaths = Array.from(new Set(
     bundle.match(/\/assets\/assets\/audio\/official\/[^"'\\]+\.mp3/g) || [],
@@ -46,6 +54,7 @@ async function main() {
 
   console.log(`PASS production index: ${baseUrl.origin}`);
   console.log(`PASS current application bundle: ${scriptPath}`);
+  console.log('PASS Pages AI relay health and application endpoint');
   console.log(`PASS official audio assets: ${audioPaths.length} files, ${audioSizes.reduce((sum, size) => sum + size, 0)} bytes`);
 }
 

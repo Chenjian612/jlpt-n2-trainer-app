@@ -17,6 +17,7 @@
     "test:web": "node tests/web/run-ci.js",
     "test:production": "node scripts/verify-production.js",
     "test:mobile-config": "node scripts/verify-mobile-config.js",
+    "test:ai-proxy-route": "node scripts/test-pages-ai-proxy.js",
     "ai:dev": "cd ai-service && .venv/bin/python -m uvicorn app.main:app --reload --port 8000 --env-file ../.env.local",
     "test:ai": "cd ai-service && .venv/bin/python -m unittest discover -s tests -v",
     "ai:evaluate": "cd ai-service && .venv/bin/python scripts/run_evaluation.py",
@@ -25,7 +26,8 @@
     "test:web:components": "node tests/web/component-flows.js",
     "test:web:core": "node tests/web/core-mode-flows.js",
     "test:web:e2e": "node tests/web/dashboard-e2e.js",
-    "test:web:listening": "node tests/web/listening-flow.js"
+    "test:web:listening": "node tests/web/listening-flow.js",
+    "audio:listening:generate": "node scripts/generate-listening-audio.js"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "2.2.0",

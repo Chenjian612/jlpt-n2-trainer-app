@@ -1,6 +1,8 @@
 require('sucrase/register/ts');
 
 const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
 
 const { EXTENDED_VOCAB_LIBRARY } = require('../src/data/seed/extendedVocabLibrary.ts');
 const {
@@ -14,6 +16,12 @@ const { getStudyPackByMode } = require('../src/data/seed/studyPacks.ts');
 const { DRILL_QUESTIONS } = require('../src/data/seed/drillQuestions.ts');
 const readingPassages = require('../src/data/seed/reading_passages.json');
 const listeningCases = require('../src/data/seed/listening_cases.json');
+const {
+  LISTENING_DIALOGUE_TRANSLATIONS_ZH,
+  LISTENING_GUIDANCE_ZH,
+} = require('../src/data/seed/listeningCaseLocalization.ts');
+
+const JAPANESE_KANA = /[\u3040-\u30ff]/;
 
 const CHINESE_TEACHING_MARKER =
   /正确|答案|表示|这里|本句|相当于|不能|用于|强调|意思|符合|因为|所以|例如|而是|选项|复习|记住|常见|适合|对应|原文|作者|文中|关键|注意|容易|应当|可以|说明|语境|接续|含义|原因|结果|条件|判断|表达|该项|本题|不要/;
@@ -44,6 +52,41 @@ module.exports = {
             question.choiceInsights.forEach((text) => assert.ok(typeof text === 'string' && text.trim(), question.id));
           }
         }
+      },
+    },
+    {
+      name: 'listening cases use unique matching audio and Japanese test content',
+      run() {
+        const audioKeys = new Set();
+
+        for (const item of listeningCases) {
+          assert.ok(!audioKeys.has(item.audioKey), `duplicate listening audio: ${item.audioKey}`);
+          audioKeys.add(item.audioKey);
+
+          const translations = item.dialogue.map(
+            (line, index) => line.translation ?? LISTENING_DIALOGUE_TRANSLATIONS_ZH[item.id]?.[index],
+          );
+          assert.ok(translations.every(Boolean), `${item.id} transcript translations`);
+          item.dialogue.forEach((line) => assert.match(line.text, JAPANESE_KANA, `${item.id} transcript`));
+
+          const guidance = LISTENING_GUIDANCE_ZH[item.id] || item;
+          [guidance.title, guidance.scene, guidance.task, guidance.note, ...guidance.listenChecklist]
+            .forEach((text) => assert.match(text, /[\u4e00-\u9fff]/, `${item.id} Chinese guidance`));
+
+          item.questions.forEach((question) => {
+            assert.match(question.prompt, JAPANESE_KANA, `${question.id} prompt`);
+            question.choices.forEach((choice) =>
+              assert.match(choice, /[\u3040-\u30ff]|[0-9０-９]+円/, `${question.id} choice`),
+            );
+          });
+
+          const audioPath = item.audioKey.startsWith('N2M')
+            ? path.resolve(__dirname, '..', 'assets', 'audio', 'official', `${item.audioKey}.mp3`)
+            : path.resolve(__dirname, '..', 'assets', 'audio', 'generated', `${item.audioKey}.mp3`);
+          assert.ok(fs.statSync(audioPath).size > 1000, `${item.id} audio is missing or empty`);
+        }
+
+        assert.equal(audioKeys.size, listeningCases.length);
       },
     },
     {

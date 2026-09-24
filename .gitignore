@@ -37,6 +37,9 @@ tmp/
 # local env files
 .env*.local
 
+# Local-only licensed/copyrighted study materials
+.local-content/
+
 # typescript
 *.tsbuildinfo
 

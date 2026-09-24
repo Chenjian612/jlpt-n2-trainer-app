@@ -69,9 +69,9 @@ module.exports = { name: 'reviewSchedule', tests: [
     state.weaknessSignals[0].questionId = 'removed';
     assert.equal(selectReadingReviewPassage(passages, state, passages[0], now).id, passages[0].id);
   } },
-  { name: 'listening prioritizes a synthesis case while preserving its questions and original input', run() {
-    const target = cases.find((item) => item.questions.length > 1);
-    const state = { ...createDefaultProgressState(), weaknessSignals: [signal(target.questions[1].id, 'listening_analyze')] };
+  { name: 'listening prioritizes a weak case while preserving its questions and original input', run() {
+    const target = cases.find((item) => item.questions.length > 0);
+    const state = { ...createDefaultProgressState(), weaknessSignals: [signal(target.questions[0].id, 'listening_analyze')] };
     const before = JSON.stringify(cases);
     const sorted = prioritizeListeningReviewCases(cases, state, now);
     assert.equal(sorted[0].id, target.id);

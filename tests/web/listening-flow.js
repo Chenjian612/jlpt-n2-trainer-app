@@ -15,6 +15,7 @@ async function answerQuestion(page, question, assert) {
   if (!question.tags.includes('即時応答')) {
     // Wait for the real MP3 to load and the button to enable.
     await page.locator('[data-testid="listening-play-button"]').click();
+    await page.locator('[data-testid="listening-submit"]').waitFor();
   }
   await page.locator('[data-testid="listening-choice-0"]').click();
   await page.locator('[data-testid="listening-submit"]').click();
@@ -29,6 +30,39 @@ async function main() {
       await page.locator('[data-testid="listening-choice-0"]').click();
       assert.equal(await page.locator('[data-testid="listening-submit"]').getAttribute('aria-disabled'), 'true');
       assert.equal(await page.locator('[data-testid="listening-play-button"]').count(), 1);
+      assert.match(await page.locator('[data-testid="listening-question-prompt"]').innerText(), /[ぁ-んァ-ヶ]/);
+      for (const choice of await page.locator('[data-testid^="listening-choice-"]').allInnerTexts()) {
+        assert.match(choice, /[ぁ-んァ-ヶ]/);
+      }
+    });
+  });
+
+  await runCase('listening-player-review-and-previous', async () => {
+    await withPage('listening-player-review-and-previous', buildState(), async (page, assert) => {
+      await page.click('[data-testid="mode-card-start-listening_analyze"]');
+      await enterQuestion(page);
+      await page.locator('[data-testid="listening-play-button"]').click();
+      const progress = page.locator('[data-testid="listening-audio-progress"]');
+      await page.waitForFunction(() => {
+        const slider = document.querySelector('[data-testid="listening-audio-progress"]');
+        return Number(slider?.getAttribute('aria-valuemax')) > 0;
+      });
+      await progress.click({ position: { x: 180, y: 8 } });
+      await page.waitForFunction(() => {
+        const slider = document.querySelector('[data-testid="listening-audio-progress"]');
+        return Number(slider?.getAttribute('aria-valuenow')) > 1;
+      });
+
+      await page.locator('[data-testid="listening-choice-0"]').click();
+      await page.locator('[data-testid="listening-submit"]').click();
+      const japaneseTranscript = page.locator('[data-testid^="listening-transcript-ja-"]').first();
+      const chineseTranslation = page.locator('[data-testid^="listening-transcript-zh-"]').first();
+      assert.match(await japaneseTranscript.innerText(), /[ぁ-んァ-ヶ]/);
+      assert.match(await chineseTranslation.innerText(), /[\u4e00-\u9fff]/);
+
+      await page.locator('[data-testid="listening-next"]').click();
+      await page.locator('[data-testid="listening-previous"]').click();
+      await page.locator('[data-testid^="listening-transcript-ja-"]').first().waitFor();
     });
   });
 

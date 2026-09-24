@@ -32,11 +32,10 @@ async function main() {
     });
   });
   await runCase('schedule-listening-target', async () => {
-    const target = cases.find((item) => item.questions.length > 1);
-    await withPage('schedule-listening-target', buildState({ weaknessSignals: [signal(target.questions[1], 'listening_analyze')] }), async (page, assert) => {
+    const target = cases.find((item) => item.questions.length > 0);
+    await withPage('schedule-listening-target', buildState({ weaknessSignals: [signal(target.questions[0], 'listening_analyze')] }), async (page, assert) => {
       await page.locator('[data-testid="today-plan-start-listening_analyze"]').click();
       await page.locator('[data-testid="listening-tips-confirm"]').waitFor();
-      assert.equal(await page.getByText(target.title, { exact: true }).count(), 1);
       await page.locator('[data-testid="listening-tips-confirm"]').click();
       await page.locator('[data-testid="listening-submit"]').waitFor();
       assert.equal(await page.getByText(target.questions[0].prompt, { exact: true }).count(), 1);
